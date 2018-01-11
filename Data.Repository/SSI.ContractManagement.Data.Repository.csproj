@@ -1,0 +1,177 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>8.0.30703</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{35ADFC44-A885-4155-A069-63EEDD60EFA9}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>SSI.ContractManagement.Data.Repository</RootNamespace>
+    <AssemblyName>SSI.ContractManagement.Data.Repository</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SSI|AnyCPU'">
+    <OutputPath>bin\SSI\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'QA|AnyCPU'">
+    <OutputPath>bin\QA\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'PROD|AnyCPU'">
+    <OutputPath>bin\PROD\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'UAT|AnyCPU'">
+    <OutputPath>bin\UAT\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ProdA|AnyCPU'">
+    <OutputPath>bin\ProdA\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ProdB|AnyCPU'">
+    <OutputPath>bin\ProdB\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SSIDev|AnyCPU'">
+    <OutputPath>bin\SSIDev\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SSIQA|AnyCPU'">
+    <OutputPath>bin\SSIQA\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Data">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccountActivationRepository.cs" />
+    <Compile Include="AuditLogReportRepository.cs" />
+    <Compile Include="BaseRepository.cs" />
+    <Compile Include="ClaimAdjudicationReportRepository.cs" />
+    <Compile Include="ClaimFieldDocRepository.cs" />
+    <Compile Include="ClaimFieldRepository.cs" />
+    <Compile Include="ClaimFieldValueRepository.cs" />
+    <Compile Include="ContractAlertRepository.cs" />
+    <Compile Include="ContractDocumentRepository.cs" />
+    <Compile Include="ContractFilterRepository.cs" />
+    <Compile Include="ContractPayerInfoRepository.cs" />
+    <Compile Include="ContractLogRepository.cs" />
+    <Compile Include="ContractNoteRepository.cs" />
+    <Compile Include="ContractRepository.cs" />
+    <Compile Include="ContractServiceLinePaymentTypeRepository.cs" />
+    <Compile Include="ContractHierarchyRepository.cs" />
+    <Compile Include="ContractPayerMapReportRepository.cs" />
+    <Compile Include="FacilityRepository.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="LogOnRepository.cs" />
+    <Compile Include="LogOffRepository.cs" />
+    <Compile Include="MedicareIpAcuteOptionRepository.cs" />
+    <Compile Include="MedicareLabFeeScheduleRepository.cs" />
+    <Compile Include="ModelComparisonReportRepository.cs" />
+    <Compile Include="PayerRepository.cs" />
+    <Compile Include="PaymentTableRepository.cs" />
+    <Compile Include="AppealLetterRepository.cs" />
+    <Compile Include="LetterTemplateRepository.cs" />
+    <Compile Include="EvaluateableClaimRepository.cs" />
+    <Compile Include="JobStatusRepository.cs" />
+    <Compile Include="ModelingReportRepository.cs" />
+    <Compile Include="PaymentResultRepository.cs" />
+    <Compile Include="PaymentTypeAscFeeScheduleRepository.cs" />
+    <Compile Include="PaymentTypeCapRepository.cs" />
+    <Compile Include="PaymentTypeCustomTableRepository.cs" />
+    <Compile Include="PaymentTypeDrgRepository.cs" />
+    <Compile Include="PaymentTypeLesserOfRepository.cs" />
+    <Compile Include="PaymentTypeMedicareIPRepository.cs" />
+    <Compile Include="PaymentTypeMedicareLabFeeScheduleRepository.cs" />
+    <Compile Include="PaymentTypeMedicareOPRepository.cs" />
+    <Compile Include="PaymentTypeMedicareSequesterRepository.cs" />
+    <Compile Include="PaymentTypePerCaseRepository.cs" />
+    <Compile Include="PaymentTypePercentageChargeRepository.cs" />
+    <Compile Include="PaymentTypePerDiemRepository.cs" />
+    <Compile Include="PaymentTypePerVisitRepository.cs" />
+    <Compile Include="PaymentTypeStopLossRepository.cs" />
+    <Compile Include="PaymentTypeFeeScheduleRepository.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReassignClaimRepository.cs" />
+    <Compile Include="ReportSelectionRepository.cs" />
+    <Compile Include="RtaEdiRequestRepository.cs" />
+    <Compile Include="RtaEdiResponseRepository.cs" />
+    <Compile Include="RtaRepository.cs" />
+    <Compile Include="ClaimSelectorRepository.cs" />
+    <Compile Include="SelectContractModelRepository.cs" />
+    <Compile Include="ServiceLineCodeRepository.cs" />
+    <Compile Include="ServiceLineClaimFieldRepository.cs" />
+    <Compile Include="ServiceLineTableSelectionRepository.cs" />
+    <Compile Include="ContractServiceTypeRepository.cs" />
+    <Compile Include="UserRepository.cs" />
+    <Compile Include="VarianceReportRepository.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SSI.ContractManagement.Shared.Data.Repository\SSI.ContractManagement.Shared.Data.Repository.csproj">
+      <Project>{e5571b49-44e6-4c16-a7b3-be06f33b34bb}</Project>
+      <Name>SSI.ContractManagement.Shared.Data.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSI.ContractManagement.Shared.Helpers\SSI.ContractManagement.Shared.Helpers.csproj">
+      <Project>{21b548c1-8fee-4f4f-be10-98aeccb849d3}</Project>
+      <Name>SSI.ContractManagement.Shared.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSI.ContractManagement.Shared.Models\SSI.ContractManagement.Shared.Models.csproj">
+      <Project>{eecfb442-bb6b-4b57-819f-5394dccd3f06}</Project>
+      <Name>SSI.ContractManagement.Shared.Models</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
