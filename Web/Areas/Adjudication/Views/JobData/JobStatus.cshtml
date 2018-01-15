@@ -1,0 +1,80 @@
+﻿@using System.Configuration
+@using SSI.ContractManagement.Shared.Helpers
+@using SSI.ContractManagement.Web.Areas.Common.Models
+@{
+    Layout = null;
+}
+
+<div id="job-status-container" class="job-status-container">
+    <div id="jobslabel">
+        <label>
+            View and Track your jobs
+        </label>
+    </div>
+    <div id="grid" class="job-status-grid">
+    </div>
+    <div id="jobstatus-image-logo" class="jobstatus-image-logo cmshideonload">
+        <img src="@Url.Content("~/Content/images/loader.gif")" height="40" alt="" />
+    </div>
+</div>
+<script id="command-template" type="text/x-kendo-template">
+
+     # if(Status  == 'Paused') { #
+        <span> <img src="@Url.Content("~/Content/images/start.png")" style="cursor:pointer" class="Clicktoplay k-grid-even" onclick="SetJobStatus(#=TaskId#,132)" alt="Start" title="Start" width="23" /> </span>
+        <span> <img src="@Url.Content("~/Content/images/cancel.png")" data-taskid="#=TaskId#" style="cursor:pointer; z-index:10000;" id="k-grid-cancel"  class="Clicktoplay k-grid-cancel" alt="Cancel" title="Cancel" width="23" />   </span>
+        <span> <input type='image' src="@Url.Content("~/Content/images/cms-readjudicate.png")" style="cursor:pointer" disabled='disabled' class="opaque" alt="Readjudicate" title="Readjudicate" width="23" />   </span>
+        <span> <input type='image' src="@Url.Content("~/Content/images/VarPdf.png")" style="cursor:pointer" disabled='disabled' class="opaque" alt="Variance Report" title="Variance Report" width="23" />   </span>
+      # } 
+    else if(Status  == 'Failed')  { #
+        <span> <img src="@Url.Content("~/Content/images/cancel.png")"  data-taskid="#=TaskId#" id="k-grid-cancel"  style="cursor:pointer; z-index:10000;" class="Clicktoplay k-grid-cancel" alt="Cancel" title="Cancel" width="23" />   </span>
+        <span> <img src="@Url.Content("~/Content/images/cms-readjudicate.png")" style="cursor:pointer" onclick= "ReAdjudicate('#=TaskId#')" alt="Readjudicate" title="Readjudicate" width="23" />   </span>
+        <span> <input type='image' src="@Url.Content("~/Content/images/VarPdf.png")" style="cursor:pointer" disabled='disabled' class="opaque" alt="Variance Report" title="Variance Report" width="23" />   </span>
+    # } 
+    else if(NoOfClaimsAdjudicated  == NoOfClaimsSelected && NoOfClaimsAdjudicated > 0)  { #
+        <span> <input type='image' src="@Url.Content("~/Content/images/pause.png")" style="cursor:pointer" disabled='disabled' class="opaque" alt="Completed" title="Completed" width="23" /> </span>
+        <span> <img src="@Url.Content("~/Content/images/cancel.png")" id="k-grid-cancel"  data-taskid="#=TaskId#"  style="cursor:pointer; z-index:10000;"  class="Clicktoplay k-grid-cancel" alt="Cancel" title="Cancel" width="23" />   </span>
+        <span> <img src="@Url.Content("~/Content/images/view.png")" style="cursor:pointer"  alt="OpenClaims" title="OpenClaims" width="23"  onclick= "OpenClaimLink('#=TaskId#')"/> </span>
+        <span> <img src="@Url.Content("~/Content/images/cms-readjudicate.png")" style="cursor:pointer" onclick= "ReAdjudicate('#=TaskId#')" alt="Readjudicate" title="Readjudicate" width="23" />   </span>
+        <span> <img src="@Url.Content("~/Content/images/VarPdf.png")" style="cursor:pointer" onclick= "DownloadVarianceReport('#=TaskId#')" alt="Variance Report" title="Variance Report" width="23" />   </span>        
+    # } else if(Status  == 'Completed')  { #
+        <span> <input type='image' src="@Url.Content("~/Content/images/pause.png")" style="cursor:pointer" class="opaque" disabled='disabled' alt="Completed" title="Completed" width="23" /> </span>
+        <span> <img src="@Url.Content("~/Content/images/cancel.png")"  id="k-grid-cancel" data-taskid="#=TaskId#"  style="cursor:pointer; z-index:10000;" class="Clicktoplay k-grid-cancel" alt="Cancel" title="Cancel" width="28" />   </span>
+        <span> <img src="@Url.Content("~/Content/images/cms-readjudicate.png")" style="cursor:pointer" onclick= "ReAdjudicate('#=TaskId#')" alt="Readjudicate" title="Readjudicate" width="23" />   </span>
+        <span> <img src="@Url.Content("~/Content/images/VarPdf.png")" style="cursor:pointer" onclick= "DownloadVarianceReport('#=TaskId#')" alt="Variance Report" title="Variance Report" width="23" />   </span>
+    # } 
+    else  { #
+        <span> <img src="@Url.Content("~/Content/images/pause.png")" style="cursor:pointer"  class="Clicktoplay k-grid-odd"  onclick="SetJobStatus(#=TaskId#,130)" alt="Pause" title="Pause" width="23" /> </span>
+        <span> <img src="@Url.Content("~/Content/images/cancel.png")"  id="k-grid-cancel" data-taskid="#=TaskId#"  style="cursor:pointer; z-index:10000;" class="Clicktoplay k-grid-cancel" alt="Cancel" title="Cancel" width="25" />   </span>
+        <span> <input type='image' src="@Url.Content("~/Content/images/cms-readjudicate.png")" style="cursor:pointer" disabled='disabled' class="opaque" alt="Readjudicate" title="Readjudicate" width="23" />   </span>
+        <span> <input type='image' src="@Url.Content("~/Content/images/VarPdf.png")" style="cursor:pointer" disabled='disabled' class="opaque" alt="Variance Report" title="Variance Report" width="23" />   </span>
+    # } #
+</script>
+
+<script src="@Url.Content("~/Areas/Adjudication/JavaScript/JobStatus.js")" type="text/javascript"></script>
+<script type="text/javascript">
+
+    var jobStatusVariables = {
+        ddlJobStatus: 999,
+        jobRefreshTime: "@GlobalConfigVariables.AutoRefreshJobStatus",
+        IsAutoRefreshEnabled: "@GlobalConfigVariables.IsAutoRefreshEnabled",
+        pageSize : '@GlobalConfigVariable.AlertPageSize',
+        gridAutoRefreshed: []
+    };
+   
+    var reportVariables = {
+        pdf: '@Enums.DownloadFileType.Pdf',
+        largeCriteriaMessage: '@Constants.LargeCriteriaMessage',
+        maxRecordLimitForTelericReport: '@GlobalConfigVariable.MaxRecordLimitForTelericReport',
+        maxRecordLimitForExcelReport: '@GlobalConfigVariable.MaxRecordLimitForExcelReport',
+        reportThreshold: '@Constants.ReportThreshold',
+        emptyReportResult: '@Constants.EmptyReportResult',
+        payerMappingReportFileBaseName: '@Constants.PayerMappingReportFileBaseName',
+        appealLetterFileBaseName: '@Constants.AppealLetterFileBaseName',
+        rtf: '@Enums.DownloadFileType.Rtf',
+        maxNoOfDataForLetters: '@GlobalConfigVariable.MaxNoOfDataForLetters'
+    };
+
+    $(document).ready(function () {
+        InitJobStatusTabClickEvent();
+    });
+</script>
