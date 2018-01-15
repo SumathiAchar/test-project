@@ -1,0 +1,33 @@
+﻿@{
+    Layout = null;
+}
+@model SSI.ContractManagement.Shared.Models.ClaimNotesContainer
+<div id="container-claim-notes">
+    <!-- Notes text area Div -->
+    <div id="contract-div">
+        <input type="hidden" id="hidden-claim-notesid" />
+        <input type="hidden" name="hiddenBasicInfoClaimId" id="hidden-basicinfo-claimid" value="@Model.ClaimId"/>
+        <textarea id="txt-claimnotes" class="k-textbox" maxlength="100" cols="75" rows="10" name="comment" onchange="Limittext(this)"
+  onkeyup="Limittext(this)"></textarea>
+    </div>
+    <!-- AddNew Button Div -->
+    <div id="button-addnew-container">
+        <input type="button" class="k-button" id="btn-addnewclaimnote" value="Add" disabled="disabled" />
+    </div>
+    <!-- Claim Notes Grid Div -->
+    <div id="add-newclaimnote-grid-container">
+        <div id="grid-claim-notes">
+        </div>
+        <div id="log">
+        </div>
+    </div>
+</div>
+<script id="command-template-note-delete" type="text/x-kendo-template">
+<span> <img src="@Url.Content("~/Content/images/cancel.png")"  data-ClaimNoteId="#=ClaimNoteId#" class="Clicktoplay k-grid-cancel claim-note-delete" alt="Remove" title="Remove" width="23" />   </span>
+</script>
+<script type="text/javascript">
+    var gridData = ('@Html.Raw(Model.ClaimNotes)'!='')?@Html.Raw(Json.Encode(Model.ClaimNotes.ToArray())): null;
+</script>
+<script src="@Url.Content("~/Areas/Adjudication/JavaScript/ClaimNote.js")" type="text/javascript"></script>
+
+

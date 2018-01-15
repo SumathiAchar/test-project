@@ -1,0 +1,83 @@
+﻿
+<script src="@Url.Content("~/Content/js/DateTimePickerPlaceholder.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Content/js/bootstrap/bootstrap-datepicker.js")" type="text/javascript"></script>
+<link href="@Url.Content("~/Content/css/bootstrap/bootstrap-datepicker.css")" rel="stylesheet" type="text/css" />
+
+
+@using DocumentFormat.OpenXml.Drawing.Charts
+@model SSI.ContractManagement.Web.Areas.Adjudication.Models.SelectClaimsViewModel
+@{
+    Layout = null;
+    TimeZoneInfo centralTimeZone = TimeZoneInfo.FindSystemTimeZoneById("Central Standard Time");
+    DateTime centralStandardTime = TimeZoneInfo.ConvertTime(DateTime.Now, centralTimeZone);
+    
+}
+
+<div id="select-claim-container">
+    <input type="hidden" name="hiddenModuleId" id="hiddenModuleId"
+        data-bind="value: ModuleId" />
+    <label hidden="hidden" id="hidden-user-name">@ViewBag.UserName</label>
+    <label>Request Name<span class="cms-requiredfields">*</span>:</label>
+    <input type="text" id="txt-request-name" class="k-textbox cms-w210" value="@centralStandardTime.ToString("yyyyMMd_HHmm")"/><br />
+    
+    
+    <label id="model-claim">Model<span class="cms-requiredfields">*</span>:</label>
+    <input id="model-list-claim" class="cms-w210" />
+    <br />
+    <label>
+        Date Type:</label>
+    <input id="date-type-claim" class="cms-w210" onchange="dateValidationForDateType()" /><br />
+
+
+    <label>Date From<span class="cms-requiredfields" id="selectDateError"></span>:</label>
+    <input id="date-from-claim" class="customdate from_date" data-role="datepicker" maxlength="10" placeholder="mm/dd/yyyy" />
+    <label id="date-to-claimlabel">
+        To<span class="cms-requiredfields" id="selectToError"></span>:
+    </label>
+    <input id="date-to-claim" class="customdate to_date" data-role="datepicker" maxlength="10" placeholder="mm/dd/yyyy" />
+    <br>
+    <label>
+        Claim Field:
+    </label>
+    <span>
+        <input id="listof-claim-feild" class="cms-w210" onchange="ResetValues()" />
+        <input id="list-operator-claim" />
+        <label id="label-value-claim">
+            Values:
+        </label>
+        <input id="input-select-values" type="text" class="k-textbox" onkeyup='filterText(this);' />
+        <input id="ddl-review-claims" tabindex="20" />
+        <input id="ddl-payer-claims" tabindex="20" />
+        <input id="ddl-adjudicated-contract-names" tabindex="20" />
+    </span>
+    <br />
+    <input id="claim-addtogrid" width="33" type="image" src="@Url.Content("~/Content/images/Arrow Down.png")" />
+    <label>
+        Add
+    </label>
+    <div id="grid-select-claims">
+    </div>
+    <div id="select-claim-content">
+        <div id="claim-content-right">
+            <a href="#" id="lbl-number-selectedclaims"></a><span id="remove-line"></span>
+            <a href="#" id="lbl-selectedclaims-error"></a>
+            <label hidden="hidden" id="hidden-selection-creteria"></label>
+        </div>
+
+        <div id="claim-content-left">
+            @*FIXED-AUG15 Remove commented code*@
+            <input id="btn-reassign-claims" value="Reassign Claims" class="k-button" type="button" />
+            <input id="btn-select-claims" value="Select Claims" class="k-button" type="button" />
+            <input id="btn-submit-contractmodel" value="Submit" class="k-button" type="button" />
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    var isProceeded = false;
+    var viewModelAdjudicationSelection = kendo.observable({
+        ModuleId: '@Model.ModuleId'
+    });
+
+</script>
+
+<script src="@Url.Content("~/Content/js/SelectClaims.js")" type="text/javascript"></script>
