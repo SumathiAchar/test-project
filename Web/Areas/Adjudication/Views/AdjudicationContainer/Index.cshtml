@@ -1,0 +1,66 @@
+﻿@{  
+      Layout = null;  
+ } 
+<div id="container-seperation" class="k-content">
+    <div id="job-container">
+        <div class="diff-saveclose-container cmshideonload">
+            <input type="checkbox" id="checkbox-refresh" value="Auto Refresh"/><label>Auto Refresh</label>
+            <input id="ddl-jobstatus" class="k-dropdown" />
+            <input type="button" id="btn-refresh" value="Refresh" class="k-button" />
+        </div>
+        <div id="tabstrip-job">
+            <ul>
+                <li class="k-state-active alert-click"><span>Requests </span></li>
+                <li class="job-click"><span>Jobs </span>
+                    <label id="job-count-jobstab" class="aleart-cms"></label></li>
+            </ul>         
+            <!--For Contract alerts information-->
+            <div>
+                @Html.Partial("~/Areas/Adjudication/Views/ClaimSelection/SelectClaims.cshtml")
+            </div>
+            <!-- For job status information-->
+            <div>
+                @Html.Partial("~/Areas/Adjudication/Views/JobData/JobStatus.cshtml")
+            </div>
+        </div>
+    </div>
+</div>
+<div id="open-claim-container">
+    <div id="job-image-logo" style="display: none; margin-left: 45%; margin-top: 230px;">
+        <img src="@Url.Content("~/Content/images/loader.gif")" height="40" alt="Processing"/>
+    </div>
+</div>
+
+<div id="reassign-claim-container">
+    <div id="job-image-logo" style="display: none; margin-left: 45%; margin-top: 230px;">
+        <img src="@Url.Content("~/Content/images/loader.gif")" height="40" alt="Processing" />
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        isRefreshUnVerifiedJob = false;
+        fnRefreshUnVerifiedJobCount();
+        if ($("#menu-list-home").is(".k-state-active")) {
+            $("#menu-list-home").removeClass("k-state-active");
+        };
+        $("#list-request-adjudication").addClass("k-state-active");
+        $("#tabstrip-job").kendoTabStrip();
+        $("#tool-container").css('background-image', 'none');
+
+
+        $(".k-state-active").click(function () {
+            $('.diff-saveclose-container').addClass('cmshideonload');
+            $('.diff-saveclose-container').addClass('preventrefresh');
+        });
+
+        $("#btn-refresh").click(function () {
+            var tabToActivate = $(".job-click");
+            $("#tabstrip-job").kendoTabStrip().data("kendoTabStrip").activateTab(tabToActivate);
+            $('#grid').data('kendoGrid').dataSource.page($('#grid').data('kendoGrid').dataSource.page());
+            $('#grid .k-grid-content').scrollTop(0);
+
+        });
+    });
+
+</script>
