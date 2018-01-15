@@ -1,0 +1,371 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{9154299C-7290-439D-9179-C9E87ED31A4B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MedWorth.ContractManagement.Unit.Tests</RootNamespace>
+    <AssemblyName>MedWorth.ContractManagement.Unit.Tests</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <SccProjectName>SAK</SccProjectName>
+    <SccLocalPath>SAK</SccLocalPath>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccProvider>SAK</SccProvider>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SSI|AnyCPU'">
+    <OutputPath>bin\SSI\</OutputPath>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SSIDev|AnyCPU'">
+    <OutputPath>bin\SSIDev\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'SSIQA|AnyCPU'">
+    <OutputPath>bin\SSIQA\</OutputPath>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Antlr3.Runtime">
+      <HintPath>..\..\Lib\Antlr3.Runtime.dll</HintPath>
+    </Reference>
+    <Reference Include="AutoMapper">
+      <HintPath>..\..\Lib\AutoMapper.dll</HintPath>
+    </Reference>
+    <Reference Include="Kendo.Mvc">
+      <HintPath>..\..\Lib\Kendo.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Caching">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Caching.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Caching.Cryptography">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Caching.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Caching.Database">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Caching.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Common, Version=4.1.0.0, Culture=neutral, PublicKeyToken=e44a2bc38ed2c13c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Configuration.Design.HostAdapter">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Configuration.Design.HostAdapter.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Configuration.Design.HostAdapterV5">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Configuration.Design.HostAdapterV5.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Configuration.DesignTime">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Configuration.DesignTime.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Configuration.EnvironmentalOverrides">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Configuration.EnvironmentalOverrides.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Data">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Data.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Data.SqlCe">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Data.SqlCe.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.ExceptionHandling">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.ExceptionHandling.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.ExceptionHandling.Logging">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.ExceptionHandling.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.ExceptionHandling.WCF">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.ExceptionHandling.WCF.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Logging, Version=4.1.0.0, Culture=neutral, PublicKeyToken=e44a2bc38ed2c13c, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Logging.Database">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Logging.Database.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.PolicyInjection">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.PolicyInjection.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Security">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Security.AzMan">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Security.AzMan.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Security.Cache.CachingStore">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Security.Cache.CachingStore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Security.Cryptography">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Security.Cryptography.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Validation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation.Integration.AspNet">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Validation.Integration.AspNet.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation.Integration.WCF">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Validation.Integration.WCF.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation.Integration.WinForms">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Validation.Integration.WinForms.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.EnterpriseLibrary.Validation.Integration.WPF">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.EnterpriseLibrary.Validation.Integration.WPF.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.ServiceLocation, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Microsoft.Practices.ServiceLocation.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity, Version=1.2.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Microsoft.Practices.Unity.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Configuration, Version=2.0.414.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Microsoft.Practices.Unity.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Interception">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.Unity.Interception.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Practices.Unity.Interception.Configuration">
+      <HintPath>..\..\Lib\EntLib\Microsoft.Practices.Unity.Interception.Configuration.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Moq">
+      <HintPath>..\..\Lib\Moq.dll</HintPath>
+    </Reference>
+    <Reference Include="NetAPCCalc, Version=2.0.14.301, Culture=neutral, PublicKeyToken=d8f23abac84cdc06, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Microdyn\NetAPCCalc.dll</HintPath>
+    </Reference>
+    <Reference Include="NetAPCEdit, Version=2.0.14.300, Culture=neutral, PublicKeyToken=d8f23abac84cdc06, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Microdyn\NetAPCEdit.dll</HintPath>
+    </Reference>
+    <Reference Include="NetPrc5Yr, Version=2.0.204.1, Culture=neutral, PublicKeyToken=d8f23abac84cdc06, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\Lib\Microdyn\NetPrc5Yr.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="System.Web.Abstractions" />
+    <Reference Include="System.Web.Optimization">
+      <HintPath>..\..\Lib\System.Web.Optimization.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Routing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="Microsoft.Web.Infrastructure, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Web.Infrastructure.1.0.0.0\lib\net40\Microsoft.Web.Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\Lib\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.Formatting, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Client.4.0.20710.0\lib\net40\System.Net.Http.Formatting.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Net.Http.WebRequest">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.Net.Http.2.0.20710.0\lib\net40\System.Net.Http.WebRequest.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Helpers, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.Helpers.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.Core.4.0.20710.0\lib\net40\System.Web.Http.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Http.WebHost, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.WebApi.WebHost.4.0.20710.0\lib\net40\System.Web.Http.WebHost.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Mvc, Version=4.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Mvc.4.0.20710.0\lib\net40\System.Web.Mvc.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.Razor.2.0.20710.0\lib\net40\System.Web.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Deployment, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Deployment.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web.WebPages.Razor, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <Private>True</Private>
+      <HintPath>..\packages\Microsoft.AspNet.WebPages.2.0.20710.0\lib\net40\System.Web.WebPages.Razor.dll</HintPath>
+    </Reference>
+    <Reference Include="Unity.Mvc3">
+      <HintPath>..\..\Lib\Unity.Mvc3.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AccountActivationLogicUnitTest.cs" />
+    <Compile Include="AppealLetterLogicUnitTest.cs" />
+    <Compile Include="AuditLogReportLogicTest.cs" />
+    <Compile Include="ClaimAdjudicationReportLogicUnitTest.cs" />
+    <Compile Include="ClaimFieldLogicTest.cs" />
+    <Compile Include="ClaimFieldValueLogicUnitTest.cs" />
+    <Compile Include="ContractBaseLogicTest.cs" />
+    <Compile Include="ContractLogsTest.cs" />
+    <Compile Include="ContractPayerMapReportLogicUnitTest.cs" />
+    <Compile Include="ContractServiceLinePaymentTypeLogicUnitTest.cs" />
+    <Compile Include="ContractServiceTypeLogicTest.cs" />
+    <Compile Include="CRecordLogicTest.cs" />
+    <Compile Include="DRecordLogicTest.cs" />
+    <Compile Include="ERecordLogicTest.cs" />
+    <Compile Include="FacilityLogicUnitTest.cs" />
+    <Compile Include="Helper.cs" />
+    <Compile Include="JobsTest.cs" />
+    <Compile Include="LetterTemplateLogicUnitTest.cs" />
+    <Compile Include="LogOffUnitTest.cs" />
+    <Compile Include="LogOnTest.cs" />
+    <Compile Include="LRecordLogicTest.cs" />
+    <Compile Include="ContractHierarchyTest.cs" />
+    <Compile Include="ContractAlertLogicUnitTest.cs" />
+    <Compile Include="BuildCRecordLogicTest.cs" />
+    <Compile Include="BuildDRecordLogicTest.cs" />
+    <Compile Include="BuildLRecordLogicTest.cs" />
+    <Compile Include="MedicareIpAcuteOptionLogicTests.cs" />
+    <Compile Include="MedicareLabFeeScheduleLogicUnitTest.cs" />
+    <Compile Include="ModelComparisonReportLogicUnitTest.cs" />
+    <Compile Include="ModelingReportLogicUnitTest.cs" />
+    <Compile Include="ClaimFieldDocsUnitTest.cs" />
+    <Compile Include="ContractDocumentsLogicUnitTest.cs" />
+    <Compile Include="ContractFiltersLogicUnitTest.cs" />
+    <Compile Include="ContractPayerInfoLogicUnitTest.cs" />
+    <Compile Include="ContractLogicTest.cs" />
+    <Compile Include="ContractNotesLogicUnitTest.cs" />
+    <Compile Include="PayerLogicUnitTest.cs" />
+    <Compile Include="PaymentResultLogicTest.cs" />
+    <Compile Include="PaymentTableLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeBaseLogicTest.cs" />
+    <Compile Include="PaymentTypeCustomTableLogicTest.cs" />
+    <Compile Include="PaymentTypeFeeScheduleLogicTest.cs" />
+    <Compile Include="PaymentTypeMedicareLabFeeScheduleLogicTest.cs" />
+    <Compile Include="PaymentTypeMedicareSequesterLogicUnitTest.cs" />
+    <Compile Include="ReassignClaimLogicTest.cs" />
+    <Compile Include="ReportSelectionLogicUnitTest.cs" />
+    <Compile Include="RtaEdiRequestLogicUnitTest.cs" />
+    <Compile Include="RtaEdiResponseLogicUnitTest.cs" />
+    <Compile Include="RtaLogicTest.cs" />
+    <Compile Include="SelectContractModelLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeASCFeeScheduleLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeCapLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeDRGPaymentLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeLesserOfLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeMedicareIPDetailsLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeMedicareOPDetailsLogicUnitTest.cs" />
+    <Compile Include="PaymentTypePerCaseDetailsLogicUnitTest.cs" />
+    <Compile Include="PaymentTypePercentageDiscountDetailsLogicUnitTest.cs" />
+    <Compile Include="PaymentTypePerDiemDetailsLogicUnitTest.cs" />
+    <Compile Include="PaymentTypePerVisitDetailsLogicUnitTest.cs" />
+    <Compile Include="PaymentTypeStopLossLogicUnitTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ClaimSelectorUnitTest.cs" />
+    <Compile Include="ClaimSelectorLogicTest.cs" />
+    <Compile Include="ServiceLineClaimFieldTest.cs" />
+    <Compile Include="ServiceLineClaimFieldLogicUnitTest.cs" />
+    <Compile Include="ServiceLineCodeDetailsLogicUnitTest.cs" />
+    <Compile Include="ServiceLineTableLookUpDetailsLogicUnitTest.cs" />
+    <Compile Include="ServiceLineTableSelectionDetailsLogicUnitTest.cs" />
+    <Compile Include="ServiceTypeDetailsUnitTest.cs" />
+    <Compile Include="EvaluateableClaimLogicTest.cs" />
+    <Compile Include="AdjudicationEngineTest.cs" />
+    <Compile Include="ConditionLogicTest.cs" />
+    <Compile Include="UserLogicTest.cs" />
+    <Compile Include="VarianceReportLogicUnitTest.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="App.config">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\SSI.ContractManagement.BusinessLogic\SSI.ContractManagement.BusinessLogic.csproj">
+      <Project>{73DE2EB8-4159-45F3-A754-4348170DE86A}</Project>
+      <Name>SSI.ContractManagement.BusinessLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSI.ContractManagement.Data.Repository\SSI.ContractManagement.Data.Repository.csproj">
+      <Project>{35ADFC44-A885-4155-A069-63EEDD60EFA9}</Project>
+      <Name>SSI.ContractManagement.Data.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSI.ContractManagement.Shared.BusinessLogic\SSI.ContractManagement.Shared.BusinessLogic.csproj">
+      <Project>{599dbaf7-81df-4b9b-95c5-85a0133ba0bc}</Project>
+      <Name>SSI.ContractManagement.Shared.BusinessLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSI.ContractManagement.Shared.Data.Repository\SSI.ContractManagement.Shared.Data.Repository.csproj">
+      <Project>{E5571B49-44E6-4C16-A7B3-BE06F33B34BB}</Project>
+      <Name>SSI.ContractManagement.Shared.Data.Repository</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSI.ContractManagement.Shared.Helpers\SSI.ContractManagement.Shared.Helpers.csproj">
+      <Project>{21B548C1-8FEE-4F4F-BE10-98AECCB849D3}</Project>
+      <Name>SSI.ContractManagement.Shared.Helpers</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SSI.ContractManagement.Shared.Models\SSI.ContractManagement.Shared.Models.csproj">
+      <Project>{eecfb442-bb6b-4b57-819f-5394dccd3f06}</Project>
+      <Name>SSI.ContractManagement.Shared.Models</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
