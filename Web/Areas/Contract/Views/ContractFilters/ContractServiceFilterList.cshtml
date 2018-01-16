@@ -1,0 +1,122 @@
+﻿@{
+    Layout = null;
+}
+
+@model List<SSI.ContractManagement.Web.Areas.Contract.Models.ContractFiltersViewModel>
+@if (Model != null && Model.Count > 0)
+{
+    <div id="main-container-diagram">
+        <div class="main-diagram">
+            <div class="diagram-top">
+                <div class="container-on-diagram">
+                    @foreach (var filter in Model)
+                    {
+                        if (filter.IsServiceTypeFilter.HasValue && filter.IsServiceTypeFilter.Value == true)
+                        {
+                            filter.FullString = filter.FilterName + " " + filter.FilterValues + " ";
+                            if (filter.FilterValues.Length > 150)
+                            {
+                                filter.ShortString = filter.FilterValues.Substring(0, 150) + "...";
+                                filter.Title = filter.FullString;
+                            }
+                            else
+                            {
+                                filter.ShortString = filter.FilterValues + " ";
+                                filter.Title = "";
+                            }
+                            <div class="container-con-diagram filter-parent-div" data-PaymentTypeId="@filter.PaymentTypeId" data-ServiceLineTypeId="@filter.ServiceLineTypeId" data-IsServiceType="@filter.IsServiceTypeFilter" data-title="@filter.Title" >
+                                <label>
+                                    @filter.FilterName
+                                </label>
+                                <br />
+                                <label>
+                                    @filter.ShortString
+                                </label>
+                                <label>
+                                </label>
+                                <div class="delete-filter">
+                                    delete</div>
+                            </div>
+                        }
+                    }
+                    <!-- end of the box -->
+                </div>
+                <!--  this is for lines -->
+                <div class="diagram-border">
+                </div>
+                <div class="diagram-mid-line">
+                    <div class="mid-line">
+                    </div>
+                </div>
+            
+                <div class="diagram-sec-row" style="width: 399px;">
+                    <div class="diagram-sec-border">
+                    </div>
+                    <!--  this is for bottom row -->
+                    <div class="container-second-diagram">
+                        @{ int totalWordCount = 150; } 
+                        @foreach (var filter in Model)
+                        {
+                            if (filter.IsServiceTypeFilter.HasValue && filter.IsServiceTypeFilter.Value == false)
+                            {
+                                
+                                filter.FullString = filter.FilterName + " " + filter.FilterValues + " ";
+                                if (filter.FilterName.Contains("Include Modifiers"))
+                                {
+                                  totalWordCount = 131;
+                                }
+                                if (filter.FilterValues.Length > totalWordCount)
+                                {
+                                    filter.ShortString = filter.FilterValues.Substring(0, totalWordCount) + "...";
+                                    filter.Title = filter.FullString;
+                                }
+                                else
+                                {
+                                    filter.ShortString = filter.FilterValues + " ";
+                                    filter.Title = "";
+                                }
+                                <div class="container-service-diagram filter-parent-div"  data-PaymentTypeId="@filter.PaymentTypeId" data-ServiceLineTypeId="@filter.ServiceLineTypeId" data-IsServiceType="@filter.IsServiceTypeFilter" data-title="@filter.Title">
+                                    <label>
+                                        @filter.FilterName
+                                    </label>
+                                    <br />
+                                    <label>
+                                        @filter.ShortString
+                                    </label>
+                                    <div class="delete-filter">
+                                        delete</div>
+                                </div>
+                            }
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $('[data-title]').hover(function (e) {
+            if ($(this).data('title') == '') {
+                return false;
+            }
+            title = $('<div>', {
+                text: $(this).data('title'),
+                css: {
+                    position: 'fixed',
+                    top: e.pageY,
+                    left: e.pageX,
+                    background: 'white',
+                    border: '1px solid #000000',
+                    margin: '5px 20px 10px 10px'
+                }
+            }).appendTo(document.body);
+        },
+         function () {
+             if (window.title != undefined)
+                 window.title.remove();
+         });
+    });
+    
+</script>
