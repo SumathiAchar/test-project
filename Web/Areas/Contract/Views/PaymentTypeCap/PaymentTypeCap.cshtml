@@ -1,0 +1,86 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeCapViewModel
+@{
+    Layout = null;
+}
+<div id="divPaymentTypeCap">
+    <input type="hidden" name="hiddenPaymentTypeCapContractId" id="hiddenPaymentTypeCapContractId"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenPaymentTypeCapServiceTypeId" id="hiddenPaymentTypeCapServiceTypeId"
+        data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenPaymentTypeCapPaymentTypeId" id="hiddenPaymentTypeCapPaymentTypeId"
+        data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenCAPPaymentTypeDetailId" id="hiddenCAPPaymentTypeDetailId"
+        data-bind="value:PaymentTypeDetailId" />
+    <label>
+        Threshold
+    </label>
+    <input type="text" id="txtThreshold" data-bind="value:Threshold" /><br />
+    @* <label>
+        Percentage
+    </label>
+    <input type="text" id="txtPercentage" data-bind="value:Percentage" /><br />*@
+    <div class="btn-save-close">
+        <input type="button" id="btnSavePaymentTypeCap" value="Save" class="k-button ptCap" />
+        @if (Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypeCap" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#txtThreshold').siblings('input:visible').focus();
+        }, 1000);
+    });
+
+
+    //Formatting Percentage Field
+    $("#txtPercentage").kendoNumericTextBox({
+        format: "# \\%",
+        min: 0
+    });
+    //Formatting Percentage Field
+    $("#txtThreshold").kendoNumericTextBox({
+        format: "c",
+        min: 0
+    });
+
+    //For Set Focus Text Box
+    $('#txtThreshold').siblings('input:visible').focus();
+
+    var viewmodelPaymentTypeCap = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Threshold: '@Model.Threshold',
+        Percentage: '@Model.Percentage',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId'
+    });
+
+    $("#btnSavePaymentTypeCap").click(function () {
+        if ($("#txtThreshold").val() != '') {
+            $("#btnSavePaymentTypeCap").attr('disabled', 'disabled');
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditPaymentTypeCap", "PaymentTypeCap", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(viewmodelPaymentTypeCap),
+                fnSuccess: OnAddEditPaymentTypeCapSuccess,
+            });           
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    function OnAddEditPaymentTypeCapSuccess() {
+        $('.ptCap').closest(".k-window-content").data("kendoWindow").close();
+        ReDrawShapes();
+    }
+
+    kendo.bind($("#divPaymentTypeCap"), viewmodelPaymentTypeCap);
+
+
+</script>
