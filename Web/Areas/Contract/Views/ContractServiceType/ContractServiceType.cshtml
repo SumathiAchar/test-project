@@ -1,0 +1,165 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.ContractServiceTypeViewModel
+@{
+    Layout = null;
+}
+<div id="serviceform">
+    <div id="servicetext">
+        <input type="hidden" name="hiddenServiceTypeId" id="hiddenServiceTypeId" data-bind="value:ContractServiceTypeId" />
+        <input type="hidden" name="hiddenServiceTypeContractId" id="hiddenServiceTypeContractId" value="@Model.ContractId" />
+        <input type="hidden" name="hiddenContractNodeId" id="hiddenContractNodeId" value="@Model.ContractNodeId" />
+        <div id="labelservice">
+            <label>
+                Name
+            </label>
+            <input type="text" id="txtServiceTypeName" style="width: 196px" class="k-textbox" data-bind="value: ContractServiceTypeName" /><br />
+        </div>
+        <br />
+        <label>
+            Notes
+        </label>
+        <input type="text" id="txtServiceTypeNotes" style="width: 196px" class="k-textbox" data-bind="value: Notes" />
+        <br />
+        <div class="carveOut">
+            <label data-labelfor="chkIsCarveOut">Carve Out</label>
+            <input type="checkbox" id="chkIsCarveOut" name="chkIsCarveOut" data-bind="checked: IsCarveOut" />
+        </div>
+    </div>
+    <div class="btn-save-close">
+        @* <span style="padding-top: 15px; padding-right: 5px; display: none;" id="image-logo-service">
+                <img  src="@Url.Content("~/Content/images/loader.gif")" height="30"  />
+            </span>*@
+        <input id="btnSaveServiceype" class="k-button serviceTypeSave" onclick="SaveServiceType(); " type="button"
+               value="Save" />
+    </div>
+</div>
+<script type="text/javascript">
+    var serviceTypeModel;
+    $(document).ready(function () {
+        $("#CloseServiceType").hide();
+        $("#txtServiceTypeName").focus();
+        var IsCarveOut = false;
+        if ('@Model.IsCarveOut' == 'True') {
+            IsCarveOut = true;
+        }
+        else {
+            IsCarveOut = false;
+        }
+
+        previousServiceTypeName = '@Model.ContractServiceTypeName',
+        //Add Kendo observable to serviceTypeModel variable and bind it to form
+        serviceTypeModel = kendo.observable({
+            ContractServiceTypeId: '@Model.ContractServiceTypeId',
+            ContractServiceTypeName: '@Model.ContractServiceTypeName',
+            Notes: '@Model.Notes',
+            IsCarveOut: IsCarveOut,
+            ContractId: '@Model.ContractId'
+        });
+        kendo.bind($("#serviceform"), serviceTypeModel);
+    });
+
+    $("#txtServiceTypeName").keyup(function () {
+        if ($("#txtServiceTypeName").val() != '') {
+            $("#btnSaveServiceype").removeAttr('disabled');
+        } else {
+            $("#btnSaveServiceype").attr('disabled', 'disabled');
+        }
+    });
+
+    function change() {
+        setTimeout(function () {
+            // focus on the first visible and enabled input field or textarea
+            $(":input:visible:enabled").each(function () {
+                if ($(this).is("#txtServiceTypeNotes")) {
+                    $(this).focus();
+                    return false;
+                }
+            });
+        }, 100);
+    }
+
+    //On Click on Close button this function will fire
+    function CloseServiceType() {
+        $('.serviceTypeSave').closest(".k-window-content").data("kendoWindow").close();
+    }
+
+    //On Click on Save button this function will fire
+    //FIXED-OCT15 Move code of success method to one separate function
+    function SaveServiceType() {
+        $("#image-logo-service").show();
+        serviceTypeModel.ContractServiceTypeName = $('#txtServiceTypeName').val();
+        serviceTypeModel.Notes = $('#txtServiceTypeNotes').val();
+
+        if ($('#chkIsCarveOut').is(':checked')) {
+            serviceTypeModel.IsCarveOut = true;
+        } else {
+            serviceTypeModel.IsCarveOut = false;
+        }
+        serviceTypeModel.ContractId = $('#hiddenServiceTypeContractId').val();
+        serviceTypeModel.ContractNodeId = $('#hiddenContractNodeId').val();
+        if ($('#associateServiceType').val() == "" && $('#chkIsCarveOut').is(':checked')) {
+            validate();
+
+        } else {
+            if ($("#txtServiceTypeName").val() != "" && previousServiceTypeName.toLocaleLowerCase() != $("#txtServiceTypeName").val().toLocaleLowerCase()) {
+                ajaxRequestHandler({
+                    url: SSIUrl.isContractServiceTypeNameExit,
+                    type: "POST",
+                    dataType: "json",
+                    async: false,
+                    contentType: "application/json; charset=utf-8",
+                    data: JSON.stringify(serviceTypeModel),
+                    fnSuccess: OnIsContractServiceTypeNameExitSuccess
+                });
+            } else if ($("#txtServiceTypeName").val() != "" && previousServiceTypeName.toLocaleLowerCase() == $("#txtServiceTypeName").val().toLocaleLowerCase()) {
+                AddEditServiceDetails(serviceTypeModel)
+            }
+            else {
+                registerGridPopup("Please enter service type name.", "OK", null, null);
+            }
+        }
+    }
+
+
+    function OnIsContractServiceTypeNameExitSuccess(data) {
+        if (data) {
+            AddEditServiceDetails(serviceTypeModel)
+
+        } else {
+            registerGridPopup("The service type name you entered already exists.", "OK", null, null);
+        }
+    }
+
+    function AddEditServiceDetails(serviceTypeModel) {
+        $("#btnSaveServiceype").attr('disabled', 'disabled');
+        //Save data using ajax call
+        ajaxRequestHandler({
+            url: '@Url.Action("AddEditServiceDetails", "ContractServiceType", new { area = "Contract" })',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            data: JSON.stringify(serviceTypeModel),
+            fnSuccess: OnAddEditServiceDetailsSuccess
+        });
+    }
+
+    function OnAddEditServiceDetailsSuccess(json) {
+        if (json.insertedContractServiceTypeId > 0) {
+            $('#list-sevice-lines').attr('data-ServiceTypeId', json.insertedContractServiceTypeId);
+            $('#list-sevice-lines').attr('data-ContractId', '0');
+            $('#list-sevice-lines').attr('data-IsContract', 'false');
+            // After saving highlighting the treeview
+            treeViewHighlight(false, true, true);
+            //Close Popup success
+            $(".serviceTypeSave").closest(".k-window-content").data("kendoWindow").close();
+            previousServiceTypeName = $("#txtServiceTypeName").val();
+        } else {
+        }
+    }
+
+    setTimeout(function () {
+        //  $("input:text:first").focus();
+        $("#txtServiceTypeName").focus();
+    }, 1000);
+    //Check Box check on label click
+    CheckBoxLabelClickEvent();
+</script>
