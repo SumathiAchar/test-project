@@ -1,0 +1,29 @@
+﻿    @using SSI.ContractManagement.Shared.Helpers
+@using System.Configuration
+@model SSI.ContractManagement.Shared.Models.ClaimSearchCriteria
+@{
+    Layout = null;
+}
+
+<div style="height: 60px;">
+    <div class="top-btn-content">
+        <label>Apply to all:</label>
+        <input class="cms-drop-down" id="select-model"/>
+        <input class="cms-drop-down" id="select-contract"/>
+    </div>
+    <div id="open-reassign-gridview">
+    </div>
+    <div class="bottom-btn-content">
+        <input id="btn-submit" type="button" value="Submit" class="k-button"/>
+    </div>
+</div>
+<script>
+    var searchCriteria = '@Model.SearchCriteria',
+        dateFrom = '@Model.StartDate',
+        dateTo = '@Model.EndDate',
+        dateType = '@Model.DateType',
+        alertPageSize = '@GlobalConfigVariable.ReassignPageSize',
+        getReassignDashboardUrl = '@Url.Action("GetReassignGridData", "ReassignClaim", new { area = "Adjudication" })'
+</script>
+<script type="text/javascript" src="@Url.Content("~/Content/js/ReassignClaim.js")"></script>
+
