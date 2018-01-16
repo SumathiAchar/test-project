@@ -1,0 +1,227 @@
+@using System.Configuration
+@using SSI.ContractManagement.Web.Areas.Common.Models
+@using SSI.ContractManagement.Shared.Helpers
+@model SSI.ContractManagement.Web.Areas.Alert.Models.ContractAlertViewModel
+@{
+    Layout = null;
+}
+
+<!-- for displying the alerts information-->
+<div id="alerts-container">
+    <div id="alert-label">
+        <label>
+            View Alerts for Expiring Contracts</label>
+    </div>
+    <div id="grid-alerts">
+    </div>
+</div>
+<script type="text/javascript">
+    var contractAlertStatusVariable = {
+        contractAlertRefreshTime: "@GlobalConfigVariables.AutoRefreshJobStatus",
+        IsAutoRefreshEnabled: "@GlobalConfigVariables.IsAutoRefreshEnabled",
+        gridAutoRefreshed: []
+    }
+
+    $(document).ready(function () {
+        BindAlertsGrid();
+    });
+
+    function refreshAlertGrid() {
+        if ($(".alert-click").is(".k-state-active")) {
+            var gridAlerts = $('#grid-alerts').data('kendoGrid');
+            if (gridAlerts != null) {
+                $('#grid-alerts').data('kendoGrid').dataSource.page($('#grid-alerts').data('kendoGrid').dataSource.page());
+            }
+        }
+    }
+
+    function BindAlertsGrid() {
+        //Designing Kendo GridView
+        $("#grid-alerts").kendoGrid({
+            dataSource: {
+                serverPaging: true,
+                pageSize: '@GlobalConfigVariables.AlertPageSize',
+                schema: {
+                    data: "Data",
+                    total: "Total"
+                },
+                transport: {
+                    read: {
+                        url: '@Url.Action("ContractAlertsInfo", "ContractAlert", new { area = "Alert" })',
+                        contentType: "application/json",
+                        type: "POST",
+                        global: false,
+                        cache: false,
+                        data: function () {
+                            $("#grid-alerts .k-grid-pager .k-pager-info").hide();
+                        },
+                        complete: function () {
+                            if (contractAlertStatusVariable.IsAutoRefreshEnabled.toLowerCase() == "true") {
+                                if (contractAlertStatusVariable.gridAutoRefreshed.length > 0) {
+                                    $.each(contractAlertStatusVariable.gridAutoRefreshed, function (i, item) {
+                                        clearTimeout(item);
+                                    });
+                                    contractAlertStatusVariable.gridAutoRefreshed = [];
+                                }
+                                var timer = setTimeout(refreshAlertGrid, contractAlertStatusVariable.contractAlertRefreshTime);
+                                contractAlertStatusVariable.gridAutoRefreshed.push(timer);
+                            }
+                        },
+                    },
+                    parameterMap: function (data, operation) {
+                        return JSON.stringify(data);
+                    }
+                }
+            },
+            scrollable: true,
+            selectable: 'row',
+            pageable: true,
+            columns: [
+                {
+                    field: "PayerName",
+                    title: "Payer",
+                    width: "30%",
+                    attributes: {
+                        style: " word-wrap:break-word;"
+                    }
+                }, {
+                    field: "ContractName",
+                    title: "Contract",
+                    width: "30%",
+                    attributes: {
+                        style: " word-wrap:break-word;"
+                    }
+                }, {
+                    field: "DateOfExpiry",
+                    title: "Date of Expiration",
+                    template: '#=toDate(DateOfExpiry) #'
+                },
+                {
+                    field: "ContractId",
+                    hidden: true
+                },
+                {
+                    title: "Actions",
+                    command: {
+                        text: "Dismiss"
+                    }
+                }
+            ],
+            pageable: {
+                input: true, //To input the pagenum
+                numeric: false
+            },
+            change: function (arg) {
+                RebindGrid();
+            },
+            dataBinding: function () {
+                $("#grid-alerts .k-grid-pager .k-pager-info").hide();
+            },
+            dataBound: function () {
+                dataView = this.dataSource.view();
+                for (var i = 0; i < dataView.length; i++) {
+
+                    if (dataView[i].IsVerified == false) {
+                        var uid = dataView[i].uid;
+                        $("#grid-alerts tbody").find("tr[data-uid=" + uid + "]").addClass("customClass");
+                    }
+                }
+                // Prevent the grid command 'click' event from triggerring the grids 'change' event.
+                $("#grid-alerts tbody").on('mousedown', 'a', function (evnt) {
+                    evnt.stopImmediatePropagation();
+                    var contractId = $(this).closest('tr')[0].cells[3].innerHTML;
+                    trIndex = $("tr", $(this).closest("table")).index($(this).closest('tr'));
+                    grid = $("#grid-alerts").data("kendoGrid");
+                    var isCurrentRowVerified = grid._data[trIndex].IsVerified;
+                    var data = { 'ContractId': contractId };
+
+                    ajaxRequestHandler({
+                        type: 'POST',
+                        contentType: "application/json; charset=utf-8",
+                        global: false,
+                        dataType: 'json',
+                        data: JSON.stringify(data),
+                        url: '@Url.Action("UpdateContractAlertsInformation", "ContractAlert", new { area = "Alert" })',
+                        fnSuccess: OnUpdateContractAlertsInformationSuccess
+                    });
+                });
+                $("#grid-alerts .k-grid-pager .k-pager-info").show();
+            }
+        });
+    }
+
+    function OnUpdateContractAlertsInformationSuccess() {
+        var dataContractAlerts = grid.dataSource.at(trIndex);
+        grid.dataSource.remove(dataContractAlerts);
+        var callBackRequired = false;
+        if (!($("#grid tbody").hasClass("customClass"))) {
+            if (!isCurrentRowVerified) {
+                callBackRequired = true;
+            }
+        }
+        getContractCountAlert();
+        $('#grid-alerts').data('kendoGrid').dataSource.page($('#grid-alerts').data('kendoGrid').dataSource.page());
+    }
+
+    function reduceTotalCountOnAlertClick() {
+        //To reduce total count in Alert tab
+        var prevTotalCount = $('#TotalCompletedJobs').text();
+        var totalCount = prevTotalCount.match(/\([^\d]*(\d+(\.\d*)?)/);
+        var newCount = totalCount[1] - 1;
+        if (newCount == 0) {
+            $('#TotalCompletedJobs').hide();
+        } else if (newCount > 0) {
+            $('#TotalCompletedJobs').show();
+            $("#TotalCompletedJobs").text('(' + newCount + ')');
+        }
+    }
+
+    //Binding th grid data 
+    function RebindGrid() {
+        grid = $("#grid-alerts").data("kendoGrid");
+        var selectedRow = grid.select();
+        rowIndex = selectedRow[0].rowIndex;
+        if (grid._data[rowIndex].IsVerified == false) {
+            var updateId = grid._data[rowIndex].ContractAlertId;
+            ajaxRequestHandler({
+                type: "POST",
+                dataType: "json",
+                data:JSON.stringify({ alertUpdateId: updateId }),
+                url: '@Url.Action("UpdateAlertsCount", "ContractAlert", new { area = "Alert" })',
+                fnSuccess: OnUpdateAlertsCountSuccess
+              });
+            }
+        }
+
+
+    function OnUpdateAlertsCountSuccess(json) {
+        var grid = $("#grid-alerts").data("kendoGrid");
+        if (json.data) {
+            if (grid._data[rowIndex].IsVerified == false) {
+                grid._data[rowIndex].IsVerified = true;
+                $('#grid-alerts').find('.k-grid-content').find('tr').eq(rowIndex).removeClass('customClass');
+                getContractCountAlert();
+            }
+        }
+    }
+        var dateRegExp = /^\/Date\((.*?)\)\/$/;
+        //Convert date into standard format
+        function toDate(value) {
+            if (value != null) {
+                var date = dateRegExp.exec(value);
+                if (dateRegExp.exec(value) != null)
+                    return dateFormat(new Date(parseInt(date[1])), "MM/DD/YYYY");
+            }
+            return '';
+        }
+
+        //Converting date ino MM/DD/YYYY format 
+        function dateFormat(date, format) {
+            // Calculate date parts and replace instances in format string accordingly
+            format = format.replace("DD", (date.getDate() < 10 ? '0' : '') + date.getDate()); // Pad with '0' if needed
+            format = format.replace("MM", (date.getMonth() < 9 ? '0' : '') + (date.getMonth() + 1)); // Months are zero-based
+            format = format.replace("YYYY", date.getFullYear());
+            return format;
+        }
+
+</script>
