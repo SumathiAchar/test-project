@@ -1,0 +1,402 @@
+@{
+    Layout = null;
+}
+@model List<Int64>
+@*@model SSI.ContractManagement.Web.Models.ContractBasicInfoViewModel*@
+<div id="container-contact-info">
+    <!-- Contact Name Div -->
+    <div id="container-contact-infoleft">
+
+        <div>
+            <input type="hidden" name="hiddenContractId" data-bind="value:ContractId" />
+            <input type="hidden" name="hiddenContractPayerInfoId" data-bind="value:ContractPayerInfoId" />
+
+            <label for="txtContactName">
+                Contact Name:
+            </label>
+            <input id="txt-contact-name" class="k-textbox" maxlength="100" data-bind="value: ContractInfoPayerName" />
+        </div>
+        <!-- Mail Address 1 Div -->
+        <div>
+            <label for="txtMailAdd1">
+                Mail Add 1:
+            </label>
+            <input id="txt-mail-add-first" class="k-textbox" maxlength="100" data-bind="value: MailAddress1" />
+        </div>
+        <!-- Mail Address 2 Div -->
+        <div>
+            <label for="txtMailAdd2">
+                Mail Add 2:
+            </label>
+            <input id="txt-mail-add-second" class="k-textbox" maxlength="100" data-bind="value: MailAddress2" />
+        </div>
+        <!-- Tax Id Div -->
+        <div>
+            <label for="txtTaxId">
+                Tax Id:
+            </label>
+            <input id="txt-tax-id" class="k-textbox" maxlength="12" data-bind="value:TaxId" />
+        </div>
+        <!-- NPI Div -->
+        <div>
+            <label for="txtNPI">
+                NPI:
+            </label>
+            <input id="txt-npi" class="k-textbox" maxlength="12" data-bind="value:NPI" />
+        </div>
+        <!-- Memo Div -->
+        <div>
+            <label for="txtMemo">
+                Memo:
+            </label>
+            <input id="txt-memo" class="k-textbox" maxlength="100" data-bind="value:Memo" />
+        </div>
+
+        <!-- Plan Id Div -->
+        <div>
+            <label for="txtPlanID">
+                Plan ID:
+            </label>
+            <input id="txt-plan-id" class="k-textbox" maxlength="100" data-bind="value:PlanId" />
+        </div>
+
+        <!-- Provider Div -->
+        <div>
+            <label for="txtProviderId">
+                Provider ID:
+            </label>
+            <input id="txt-provider-id" class="k-textbox" maxlength="100" data-bind="value:ProviderId" />
+        </div>
+
+    </div>
+
+    <div id="container-contact-inforight">
+
+        <!-- City Div -->
+        <div>
+            <label for="txtCity">
+                City:
+            </label>
+            <input id="txt-city" class="k-textbox" maxlength="100" data-bind="value:City" />
+        </div>
+        <!-- State Div -->
+        <div>
+            <label for="txtState">
+                State:
+            </label>
+            <input id="txt-state" class="k-textbox" maxlength="100" data-bind="value:State" />
+        </div>
+        <!-- Zip Div -->
+        <div>
+            <label for="txtZip">
+                Zip:
+            </label>
+            <input id="txt-zip" class="k-textbox" maxlength="10" data-bind="value:Zip" />
+        </div>
+        <!-- Phone 1 Div -->
+        <div>
+            <label for="txtPhone1">
+                Phone 1:
+            </label>
+            <input id="txt-Phone-line1" class="k-textbox" type="tel" maxlength="12" data-bind="value:Phone1" />
+        </div>
+        <!-- Phone 2 Div -->
+        <div>
+            <label for="txtPhone2">
+                Phone 2:
+            </label>
+            <input id="txt-Phone-line" class="k-textbox" type="tel" maxlength="12" data-bind="value:Phone2" />
+        </div>
+        <!-- Fax Div -->
+        <div>
+            <label for="txtFax">
+                Fax:
+            </label>
+            <input id="txt-fax" class="k-textbox" type="tel" maxlength="12" data-bind="value:Fax" />
+        </div>
+        <!-- Email Div -->
+        <div>
+            <label for="txtEmail">
+                Email:
+            </label>
+            <input id="txt-email" class="k-textbox" type="email" maxlength="100" data-bind="value:Email" value="invalid_email_address" />
+        </div>
+        <!-- Website Div -->
+        <div>
+            <label for="txtWebsite">
+                Website:
+            </label>
+            <input id="txt-website" class="k-textbox" maxlength="100" data-bind="value:Website" />
+        </div>
+
+    </div>
+
+    <div id="contract-fillpage">
+        <!-- Paging Div & Add Another Contact and Save buttons Div -->
+        <div id="paging-contract-info" class="paging">
+            <div id="page-number-left">
+                @if (Model != null && Model.Count > 0)
+                {
+                    for (int i = 0; i < Model.Count; i++)
+                    {
+                    <span><a href="#" data-id="@Model[i]" class="payer-pagging-link">@(i + 1) </a></span>
+                    }
+                }
+            </div>
+        </div>
+        <div id="page-right">
+            <input class="k-button" disabled="disabled" id="btn-add-another" style="width: 70px; margin-top: 10px;" type="submit" value="Save" />
+            <div id="container-page-btn" style="display: none;">
+                <input class="k-button" id="btndelete" type="button" value="Delete" />
+                <input class="k-button" id="btnback" type="button" value="Add" />
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+
+    //checking for Mandatory to input at least one field 
+    $(function () {
+        $("#container-contact-inforight,#container-contact-infoleft .k-textbox").val("");
+        $("#container-contact-inforight,#container-contact-infoleft .k-textbox").on("keyup", function () {
+            var dataExist = false;
+            var textboxes = $("#container-contact-info .k-textbox");
+
+            for (var x = 0; x < textboxes.length; x++) {
+                if ($.trim(textboxes[x].value) != "") {
+                    $("#btn-add-another").removeAttr('disabled');
+                    isContractChange = true;
+                    dataExist = true;
+                    return false;
+                }
+            }
+            if (dataExist == false) {
+                $("#btn-add-another").attr('disabled', 'disabled');
+            }
+        });
+    });
+
+    //For clearing the textbox information
+    var contractInfoViewModel = null;
+    var resetContractInfoViewModel = null;
+    $(function () {
+        $('#container-page-btn').hide();
+        contractInfoViewModel = kendo.observable({
+            ContractPayerInfoId: 0,
+            ContractInfoPayerName: '',
+            MailAddress1: '',
+            MailAddress2: '',
+            City: '',
+            State: '',
+            Zip: '',
+            Phone1: '',
+            Phone2: '',
+            Fax: '',
+            Email: '',
+            Website: '',
+            TaxId: '',
+            NPI: '',
+            Memo: '',
+            PlanId: '',
+            ProviderId: ''
+        });
+
+        $("#btn-add-another").click(function () {
+            $("#container-contact-inforight,#container-contact-infoleft .k-textbox").val();
+            var dataExist = false;
+            var textboxes = $("#container-contact-info .k-textbox");
+
+            for (var x = 0; x < textboxes.length; x++) {
+                if ($.trim(textboxes[x].value) != "") {
+                    $("#btn-add-another").removeAttr('disabled');
+                    $("#btn-contract-done").attr('value', 'Done')
+                    dataExist = true
+
+                }
+            }
+            if (dataExist == false) {
+                $("#btn-add-another").attr('disabled', 'disabled');
+                return false;
+            }
+
+            $("#btn-add-another").attr('disabled', 'disabled');
+
+            contractInfoViewModel.ContractId = $('#hidden-basicinfo-contractid').val();
+            resetContractInfoViewModel = JSON.parse(JSON.stringify(contractInfoViewModel));
+            //contractInfoViewModel.ContractPayerInfoId = $('#hiddenContractPayerInfoId').val();
+            // ajax call for storing the new contract information
+            ajaxRequestHandler({
+                url: '@Url.Action("AddContractInfo", "ContractInfo", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(contractInfoViewModel),
+                fnSuccess: OnAddContractInfoSuccess
+            });
+
+        });
+
+        function OnAddContractInfoSuccess(data) {
+            var isFound;
+            registerGridPopup("Contact information saved successfully.", "OK", null, CallBackOkClick, null, CallBackOkClick);
+            if (data.addedId > 0) {
+                clear();
+                resetContractInfoViewModel = null;
+                var count = $('.paging').find('a').size();
+                var pageText = count + 1;
+                $.each($('#paging-contract-info').find('a'), function (i, item) {
+                    if ($(item).attr('data-id') == data.addedId) {
+                        isFound = true;
+                    }
+                });
+                if (!isFound) {
+                    var newAnchorText = '<span>' + '<a href="#" data-id="' + data.addedId + '" class="payer-pagging-link">' + pageText + '</a>' + '</span>';
+                    $("#page-number-left").append(newAnchorText);
+                }
+                $("#container-page-btn").hide();
+                $("#btn-add-another").attr('disabled', 'disabled');
+                $("a.payer-pagging-link").removeClass("selected-info"); //remove highlight of paging links
+            }
+
+        }
+
+        function CallBackOkClick() {
+            if (isContractChange && (callbackFunction || controlClicked)) {
+                ContinueNavigate();
+            }
+            isContractChange = false;
+        }
+
+        //$("#btn-add-another").removeAttr('disabled');
+        var currentElemId;
+        //For deleting the contract information
+        $("#btndelete").click(function () {
+            isContractChange = false;
+            var modeldataDelete = { 'conrtactPayerInfoId': currentElemId, 'ContractId': $('#hidden-basicinfo-contractid').val() };
+            ajaxRequestHandler({
+                url: '@Url.Action("DeleteContractInfo", "ContractInfo", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(modeldataDelete),
+                fnSuccess: OnDeleteContractInfoSuccess
+            });
+        });
+
+        function OnDeleteContractInfoSuccess(data) {
+            if (data.sucess == true) {
+                registerGridPopup("Data deleted successfully.", "OK", null, null);
+                var isFound = false;
+                $.each($('#paging-contract-info').find('a'), function (i, item) {
+                    if (isFound) {
+                        var newText = parseInt($(item).html()) - 1;
+                        $(item).html(newText);
+                    }
+                    if ($(item).attr('data-id') == currentElemId) {
+                        isFound = true;
+                        $(item).remove();
+                        i++;
+                    }
+                });
+                clear();
+                $("#container-page-btn").hide();
+                $('#paging-contract-info').show();
+            }
+            else {
+                //alert('Error occured while deleting.. Try once again');
+            }
+        }
+
+        $("#btnback").click(function () {
+            isContractChange = false;
+            $("a.payer-pagging-link").removeClass('selected-info');
+            clear();
+            $("#container-page-btn").hide();
+            $('#paging-contract-info').show();
+        });
+
+        $(document).on("click", "a.payer-pagging-link", function () {
+            if (isContractChange) {
+                ShowContractChangedPopup(null, $(this));
+                return false;
+            }
+            $("a.payer-pagging-link").removeClass('selected-info');
+            $(this).addClass('selected-info');
+            currentElemId = $(this).attr("data-id");
+            var modeldataPayerInfo = { 'conrtactPayerInfoId': currentElemId };
+            $("#container-page-btn").show();
+            //$('#paging-contract-info').hide();\
+            ajaxRequestHandler({
+                url: '@Url.Action("GetContractInfo", "ContractInfo", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(modeldataPayerInfo),
+                fnSuccess: OnGetContractInfoSuccess
+            });
+
+        });
+        kendo.bind($("#container-contact-info"), contractInfoViewModel);
+    });
+
+        function OnGetContractInfoSuccess(json) {
+            contractInfoViewModel.set("ContractPayerInfoId", json.data.ContractPayerInfoId);
+            contractInfoViewModel.set("ContractInfoPayerName", json.data.ContractInfoPayerName);
+            contractInfoViewModel.set("MailAddress1", json.data.MailAddress1);
+            contractInfoViewModel.set("MailAddress2", json.data.MailAddress2);
+            contractInfoViewModel.set("City", json.data.City);
+            contractInfoViewModel.set("State", json.data.State);
+            contractInfoViewModel.set("Zip", json.data.Zip);
+            contractInfoViewModel.set("Phone1", json.data.Phone1);
+            contractInfoViewModel.set("Phone2", json.data.Phone2);
+            contractInfoViewModel.set("Fax", json.data.Fax);
+            contractInfoViewModel.set("Email", json.data.Email);
+            contractInfoViewModel.set("Website", json.data.Website);
+            contractInfoViewModel.set("TaxId", json.data.TaxId);
+            contractInfoViewModel.set("NPI", json.data.Npi);
+            contractInfoViewModel.set("Memo", json.data.Memo);
+            contractInfoViewModel.set("PlanId", json.data.PlanId);
+            contractInfoViewModel.set("ProviderId", json.data.ProviderId);
+            resetContractInfoViewModel = JSON.parse(JSON.stringify(contractInfoViewModel));
+            kendo.bind($("#container-contact-info"), contractInfoViewModel);
+        }
+        function clear() {
+            $("#txt-contact-name").val('');
+            $("#txt-mail-add-first").val('');
+            $("#txt-mail-add-second").val('');
+            $("#txt-city").val('');
+            $("#txt-state").val('');
+            $("#txt-zip").val('');
+            $("#txt-Phone-line1").val('');
+            $("#txt-Phone-line").val('');
+            $("#txt-fax").val('');
+            $("#txt-email").val('');
+            $("#txt-website").val('');
+            $("#txt-tax-id").val('');
+            $("#txt-npi").val('');
+            $("#txt-memo").val('');
+            $("#txt-plan-id").val('');
+            $("#txt-provider-id").val('');
+            $('#hiddenContractPayerInfoId').val(0);
+            contractInfoViewModel.set("ContractPayerInfoId", 0);
+            contractInfoViewModel.set("ContractInfoPayerName", null);
+            contractInfoViewModel.set("Phone1", null);
+            contractInfoViewModel.set("MailAddress1", null);
+            contractInfoViewModel.set("MailAddress2", null);
+            contractInfoViewModel.set("City", null);
+            contractInfoViewModel.set("State", null);
+            contractInfoViewModel.set("Zip", null);
+            contractInfoViewModel.set("Phone1", null);
+            contractInfoViewModel.set("Phone2", null);
+            contractInfoViewModel.set("Fax", null);
+            contractInfoViewModel.set("Email", null);
+            contractInfoViewModel.set("Website", null);
+            contractInfoViewModel.set("TaxId", null);
+            contractInfoViewModel.set("NPI", null);
+            contractInfoViewModel.set("Memo", null);
+            contractInfoViewModel.set("PlanId", null);
+            contractInfoViewModel.set("ProviderId", null);
+        }
+
+</script>
