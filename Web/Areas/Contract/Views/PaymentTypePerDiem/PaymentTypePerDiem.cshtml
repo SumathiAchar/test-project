@@ -1,0 +1,228 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypePerDiemViewModel
+@{
+    Layout = null;
+}
+<div id="divPerDiem">
+    <div>
+        <input type="hidden" name="hiddenPerDiemContractId" id="hiddenPerDiemContractId"
+            data-bind="value:ContractId" />
+        <input type="hidden" name="hiddenPerDiemServiceTypeId" id="hiddenPerDiemServiceTypeId"
+            data-bind="value:ServiceTypeId" />
+        <input type="hidden" name="hiddenPerDiemPaymentTypeId" id="hiddenPerDiemPaymentTypeId"
+            data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+        <input type="hidden" name="hiddenPerDiemDetailId" id="hiddenPerDiemDetailId"
+            data-bind="value:PaymentTypeDetailId" />
+        <label>
+            Days From:
+        </label>
+        <input id="txtDaysFrom" type="number" style="width: 106px" />
+        <label>
+            Days To:
+        </label>
+        <input id="txtDaysTo" type="number" style="width: 105px" />
+        <label>
+            Rate:
+        </label>
+        <input id="txtPerDiemcurrency" type="text" class="k-numerictextbox" style="width: 140px" />
+        &nbsp;
+        <input type="button" id="btnAddPerDiem" value="Add" style="width: 70px" class="k-button" /><br />
+        <div id="gridPerDiem">
+        </div>
+    </div>
+</div>
+
+<div class="btn-save-close">
+    <input id="btnSavePerDiemClick" type="button" value="Save" class="k-button ptPerDiem" />
+    @if (Model.IsEdit)
+    {
+        <input type="button" id="btnDeletePerDiemClick" value="Delete" class="k-button delete-filter" />
+    }
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        //For Set Focus Text Box
+        setTimeout(function () {
+            $('#txtDaysFrom').siblings('input:visible').focus();
+           
+        }, 1000);
+    });
+    
+   
+    //formatting the currency field
+    $("#txtDaysFrom").kendoNumericTextBox({
+        min: 0,
+        format: "#",
+        decimals: 0 
+    });
+    $("#txtPerDiemcurrency").kendoNumericTextBox({
+        format: "c",
+        min: 0
+    });
+     
+    $("#txtDaysTo").kendoNumericTextBox({
+        min: 0,
+        format: "#",
+        decimals: 0 
+    });
+   
+    $('#txtDaysFrom').siblings('input:visible').focus();
+        
+    var perDiemList = null;
+    perDiemList =  @Html.Raw(Json.Encode(Model.PerDiemSelections));
+   
+    var tempList = [];
+    
+    if(perDiemList == null) {
+        perDiemList = [];
+    }
+    else {
+        $.each(perDiemList, function(i, item) {
+            tempList.push({'DaysFrom': item.DaysFrom,
+                'DaysTo': item.DaysTo,
+                'Days': item.DaysFrom + " - " + item.DaysTo,
+                'Rate': '$'+item.Rate});
+        });
+    }
+        
+    var viewmodelPerDiem = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        PaymentTypeDetailId : '@Model.PaymentTypeDetailId' 
+    });
+
+    var dataSourcePerDiem = new kendo.data.DataSource({
+        data: tempList
+    });
+
+    $("#btnAddPerDiem").click(function() {
+        var isValid = false;
+        if ($("#txtPerDiemcurrency").val() != '' && $("#txtDaysFrom").val() != '' && $("#txtDaysTo").val() != '') {
+
+            if (parseInt($("#txtDaysFrom").val()) > parseInt($("#txtDaysTo").val())) {
+                registerGridPopup('"Days From" field should be less than or equal to "Days To" field. Please correct data and try again.', "OK", null, null);
+                return false;
+            }
+            if (dataSourcePerDiem._data.length > 0) {
+                var data = dataSourcePerDiem._data;
+                for (var i = 0; i < dataSourcePerDiem._data.length; i++) {
+                    if (parseInt(data[i].DaysFrom) > parseInt($("#txtDaysFrom").val())) {
+                        if ((parseInt(data[i].DaysFrom) > parseInt($("#txtDaysFrom").val())) && (parseInt(data[i].DaysFrom) > parseInt($("#txtDaysTo").val()))
+                            && (parseInt(data[i].DaysTo) > parseInt($("#txtDaysFrom").val())) && (parseInt(data[i].DaysTo) > parseInt($("#txtDaysTo").val()))) {
+                            isValid = true;
+                        } else {
+                            isValid = false;
+                            break;
+                        }
+                    } else if (parseInt(data[i].DaysTo) < parseInt($("#txtDaysFrom").val())) {
+                        if ((parseInt(data[i].DaysFrom) < parseInt($("#txtDaysFrom").val())) && (parseInt(data[i].DaysFrom) < parseInt($("#txtDaysTo").val()))
+                            && (parseInt(data[i].DaysTo) < parseInt($("#txtDaysFrom").val())) && (parseInt(data[i].DaysTo) < parseInt($("#txtDaysTo").val()))) {
+                            isValid = true;
+                        } else {
+                            isValid = false;
+                            break;
+                        }
+                    } else {
+                        isValid = false;
+                        break;
+                    }
+                }
+                if (isValid) {
+                    dataSourcePerDiem.add({
+                        DaysFrom: $("#txtDaysFrom").val(),
+                        DaysTo: $("#txtDaysTo").val(),
+                        Days: $("#txtDaysFrom").val() + " - " + $("#txtDaysTo").val(),
+                        Rate: '$' + $("#txtPerDiemcurrency").val()
+                    });
+                    // for text focus
+                    $('#txtDaysFrom').siblings('input:visible').focus();
+                    $("#txtDaysFrom").data("kendoNumericTextBox").value("");
+                    $("#txtDaysTo").data("kendoNumericTextBox").value("");
+                    $("#txtPerDiemcurrency").data("kendoNumericTextBox").value("");
+                } else {
+                    registerGridPopup("Given range is already there in the list. Please give correct range and try again.", "OK", null, null);
+                }
+            } else {
+                dataSourcePerDiem.add({
+                    DaysFrom: $("#txtDaysFrom").val(),
+                    DaysTo: $("#txtDaysTo").val(),
+                    Days: $("#txtDaysFrom").val() + " - " + $("#txtDaysTo").val(),
+                    Rate: '$' + $("#txtPerDiemcurrency").val()
+                });
+                // for text focus
+                $('#txtDaysFrom').siblings('input:visible').focus();
+                $("#txtDaysFrom").data("kendoNumericTextBox").value("");
+                $("#txtDaysTo").data("kendoNumericTextBox").value("");
+                $("#txtPerDiemcurrency").data("kendoNumericTextBox").value("");
+            }
+        } else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    //Grid for showing the perdiem derails
+    $("#gridPerDiem").kendoGrid({
+        dataSource: dataSourcePerDiem,
+        selectable: true,
+        columns: [
+            { field: "DaysFrom", hidden: true },
+            { field: "DaysTo", hidden: true },
+            { field: "Days", title: "Days - From - To" },
+            { field: "Rate", title: "Rate" },
+            {
+                title: "Action",
+                command: {
+                    text: "Delete",
+                    click: function(e) {
+                        $('#txtDaysFrom').siblings('input:visible').focus();
+                        var grid = $("#gridPerDiem").data("kendoGrid");
+                        var row = $(e.target).closest("tr");
+                        var dataPerDiem = grid.dataItem(row);
+                        grid.dataSource.remove(dataPerDiem);
+                    }
+                }
+            }
+        ],
+        scrollable: true
+    });
+
+    //Saves the Payment type in add / edit mode
+    $("#btnSavePerDiemClick").click(function() {
+        if (dataSourcePerDiem._data.length <= 0) {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        } else{
+            $("#btnSavePerDiemClick").attr('disabled', 'disabled');
+            var paymentTypePerDiemdata = [];
+            for (var i = 0; i < dataSourcePerDiem._data.length; i++) {
+                paymentTypePerDiemdata.push({ 'DaysFrom': dataSourcePerDiem._data[i].DaysFrom, 'DaysTo': dataSourcePerDiem._data[i].DaysTo, 'Rate': dataSourcePerDiem._data[i].Rate.split('$')[1] });
+            }
+            var perDiem =
+            {
+                ContractId: '@Model.ContractId',
+                ServiceTypeId: '@Model.ServiceTypeId',
+                PaymentTypeId: '@Model.PaymentTypeId',
+                PerDiemSelections: paymentTypePerDiemdata,
+                PaymentTypeDetailId : '@Model.PaymentTypeDetailId' 
+            };
+
+            var paymentTypePerDiem = { 'listofPaymentTypePerDiem': perDiem };
+             ajaxRequestHandler({
+                 url: SSIUrl.savePaymentTypePerDiem,
+                 type: 'POST',
+                 contentType: "application/json; charset=utf-8",
+                 dataType: 'json',
+                 data: JSON.stringify(paymentTypePerDiem),
+                 fnSuccess: OnSavePaymentTypePerDiemSuccess,
+             });   
+           
+        }
+    });
+
+    function OnSavePaymentTypePerDiemSuccess() {
+        $('.ptPerDiem').closest(".k-window-content").data("kendoWindow").close();
+        ReDrawShapes();
+    }
+
+    kendo.bind($("#divPerDiem"), viewmodelPerDiem);
+
+</script>
