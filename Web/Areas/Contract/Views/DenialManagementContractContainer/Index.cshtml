@@ -1,0 +1,216 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta http-equiv="Pragma" content="no-cache">
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/Content/Logo/favicon.ico")" />
+    <!-- new meta -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>@ViewBag.Title SSI  </title>
+    <!-- External jquery and css path reference variables -->
+    <script src="@Url.Content("~/Scripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+
+    <script src="@Url.Content("~/Scripts/jquery-ui-1.8.20.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/modernizr-2.5.3.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/AjaxLogin.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/idle-timer.min.js")"></script>
+    <!-- Action Controller path defined in SSI URL -->
+    @Html.Partial("_SSIURL")
+    <link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/css/stylesheet.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/styles/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/styles/kendo.menu.ex.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/styles/kendo.default.min.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Content/js/jquery.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/kendo.all.min.js")" type="text/javascript"></script>
+
+    <script src="@Url.Content("~/Content/js/kendo.menu.ex.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/jquery.jeditable.js")" type="text/javascript"></script>
+
+    <script src="@Url.Content("~/Content/js/login.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/Common.js")" type="text/javascript"></script>
+    @*    <script src="@Url.Content("~/Content/js/CustomAlert.js")" type="text/javascript"></script>
+    
+    <script src="@Url.Content("~/Content/js/treeview.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/Menubinding.js")" type="text/javascript"></script>*@
+
+    <script src="@Url.Content("~/Content/js/jquery.scrollTo-min.js")" type="text/javascript"></script>
+    @*    <script src="@Url.Content("~/Content/js/ServiceLineAutomationTool.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/PaymentTypeAutomationTool.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/EditServiceLine.js")" type="text/javascript"></script>*@
+    @*    <script src="@Url.Content("~/Content/js/EditPaymentType.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/DeleteFilters.js")" type="text/javascript"></script>*@
+    <script src="@Url.Content("~/Content/js/tinyshort.js")" type="text/javascript"></script>
+
+
+</head>
+@model SSI.ContractManagement.Web.Areas.Contract.Models.ContractViewModel
+<body>
+    <div id="container-seperation" class="k-content">
+        <div id="add-product">
+            <!-- For displaying the tab  structure for Contract Name,Contact Info,Contract Notes and Scan/Import/Upload Forms-->
+            <div id="cms-tabstrip-contract">
+                <ul>
+                    <li class="k-state-active">Contract Name/Payer Links </li>
+                    <li>Contact Info </li>
+                    <li id="cont-notes">Contract Notes </li>
+                    <li id="cont-docs">Scan/Upload Forms </li>
+                </ul>
+                <!-- For contract link-->
+                <div>
+                    @if (Model != null)
+                    {
+                        if (Model.ContractBasicInfo != null)
+                        {
+                        @Html.Partial("~/Areas/Contract/Views/ContractLink/ContractLink.cshtml", Model)
+                        }
+                    }
+                </div>
+                <!-- End contract link-->
+
+                <!-- For Contract information-->
+                <div>
+                    @if (Model != null)
+                    {
+                    
+                        @Html.Partial("~/Areas/Contract/Views/ContractInfo/ContractInfo.cshtml", Model.ContractContactIds, new ViewDataDictionary { { "isOut", "true" } })
+                    }
+                </div>
+                <!-- End of the  Contract information-->
+
+                @*REVIEW:Might have to check if Model.ContractNotes ! = null. Same for ContractUploadFiles.*@
+                <!--For contract notes-->
+                <div>
+                    @if (Model != null)
+                    {
+                        @Html.Partial("~/Areas/Contract/Views/ContractNote/ContractNote.cshtml", Model.ContractNotes)
+                    }
+                </div>
+                <!--End of the contract notes-->
+
+                <!--For contract documents-->
+                <div>
+                    <br />
+                    @if (Model != null)
+                    {
+                        @Html.Partial("~/Areas/Contract/Views/ContractDocument/ContractDocument.cshtml", Model.ContractUploadFiles)
+                    }
+                </div>
+                <!--End of the contract documents-->
+            </div>
+            <!-- End of the displaying the tab  structure for Contract Name,Contact Info,Contract Notes and Scan/Import/Upload Forms-->
+        </div>
+    </div>
+</body>
+<script>
+
+    var ContractId = 0;
+    $(document).ready(function (e) {
+        // Disable contract note page Grid Delete 
+        $(".k-grid-Delete").on("click", function (e) {
+            return false;
+        });
+        // Disable contract document page Grid Delete 
+        $(".k-grid-custom").on("click", function (e) {
+            return false;
+        });
+
+        // function for adding new new contract
+
+        $("#AddNewContract").click(function () {
+            $("#cms-tabstrip-contract").css("display", "block");
+        });
+        $("#cms-tabstrip-contract").kendoTabStrip();
+    });
+
+    $("#txt-search-payers").mouseenter(function () {
+        $("#txt-search-payers").removeAttr('disabled');
+    });
+    $("#available-payers").click(function () {
+        $("#contract-addtogrid").attr('disabled', 'disabled');
+        $("#btn-remove").attr('disabled', 'disabled');
+        $("#btnsave-contractlink").attr('disabled', 'disabled');
+    });
+
+    $("#list-selected-payers").click(function () {
+        $("#contract-addtogrid").attr('disabled', 'disabled');
+        $("#btn-remove").attr('disabled', 'disabled');
+        $("#btnsave-contractlink").attr('disabled', 'disabled');
+    });
+    $("#contract-addtogrid").click(function () {
+        $("#contract-addtogrid").attr('disabled', 'disabled');
+        $("#btn-remove").attr('disabled', 'disabled');
+        $("#btnsave-contractlink").attr('disabled', 'disabled');
+    });
+    $("#btn-remove").click(function () {
+        $("#contract-addtogrid").attr('disabled', 'disabled');
+        $("#btn-remove").attr('disabled', 'disabled');
+        $("#btnsave-contractlink").attr('disabled', 'disabled');
+    });
+
+    $(function () {
+        $('input, textarea, select,input[type=button],image,.k-grid-Delete')
+        .attr('disabled', 'disabled');
+        $("#txt-search-payers").removeAttr('disabled');
+
+        // Disable datepicker
+        var datepicker = $("#contractlink-endingdate").datepicker();
+        datepicker.enable(false);
+        var datepicker1 = $("#contractlink-startdate").datepicker();
+        datepicker1.enable(false);
+
+        $(document).on("click", "a.payer-pagging-link", function () {
+            currentElemId = $(this).attr("data-id");
+            var modeldataPayerInfo = { 'conrtactPayerInfoId': currentElemId };
+            $("#container-page-btn").show();
+            ajaxRequestHandler({
+                url: '@Url.Action("GetContractInfo", "ContractInfo", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(modeldataPayerInfo),
+                fnSuccess: OnGetContractInfoSuccess
+            });
+        });
+
+        function OnGetContractInfoSuccess(json) {
+            contractInfoViewModel.set("ContractInfoPayerName", json.data.ContractInfoPayerName);
+            contractInfoViewModel.set("MailAddress1", json.data.MailAddress1);
+            contractInfoViewModel.set("MailAddress2", json.data.MailAddress2);
+            contractInfoViewModel.set("City", json.data.City);
+            contractInfoViewModel.set("State", json.data.State);
+            contractInfoViewModel.set("Zip", json.data.Zip);
+            contractInfoViewModel.set("Phone1", json.data.Phone1);
+            contractInfoViewModel.set("Phone2", json.data.Phone2);
+            contractInfoViewModel.set("Fax", json.data.Fax);
+            contractInfoViewModel.set("Email", json.data.Email);
+            contractInfoViewModel.set("Website", json.data.Website);
+            contractInfoViewModel.set("TaxId", json.data.TaxId);
+            contractInfoViewModel.set("NPI", json.data.Npi);
+            contractInfoViewModel.set("Memo", json.data.Memo);
+            contractInfoViewModel.set("PlanId", json.data.PlanId);
+            contractInfoViewModel.set("ProviderId", json.data.ProviderId);
+            kendo.bind($("#container-contact-info"), contractInfoViewModel);
+        }
+        kendo.bind($("#container-contact-info"), contractInfoViewModel);
+    });
+
+    $("#txt-search-payers").removeAttr('disabled');
+</script>
+<script id="newcustomalert" type="text/x-kendo-template">
+        <div>
+            <p class="alert-msg"></p>
+        </div> 
+
+        <div class="btn-conform">
+            <input type="button" style="display:none" class="k-button OK-confirm" value="OK" /> 
+            <input type="button" style="display:none" class="k-button cancel-confirm" value="Cancel" />
+        </div>
+</script>
+</html>
+
