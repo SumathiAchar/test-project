@@ -1,0 +1,61 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.ContractServiceLineTableSelectionViewModel
+@{
+    Layout = null;
+}
+<div id="window-service-line" style="display: none">
+    <input type="hidden" name="hiddenServiceLineClaimFieldandTablesContractId" id="hidden-serviceline-cfandtci"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenServiceLineClaimFieldandTablesServiceTypeId" id="hidden-serviceline-cfandts-type"
+        data-bind="value:ContractServiceTypeId" />
+    <input type="hidden" name="hiddenServiceLineClaimFieldandTablesServiceLineTypeId"
+        id="hidden-serviceline-tableserviceline-type" data-bind="value:ServiceLineTypeId"
+        class="filter-service-line-type-id" />
+    <input type="hidden" name="hiddenTableservicelineId"
+           id="hiddenTableservicelineId" data-bind="value:ContractServiceLineId"
+           class="filter-service-line-id" />
+    <input type="hidden" name="hiddenModuleId" id="hidden-moduleid"
+        data-bind="value:ModuleId" />
+    <div>
+        <input id="combo-claim-field" style="width: 150px;" class="k-dropdown" />
+        <input id="combo-operators" data-bind="value:Operator"  />
+        <input id="combo-tables" style="width: 150px;" placeholder="Select Table" />
+    </div>
+ <br/>
+    <div>
+        <input id="btn-add-table-selection" type="button" value="Add" class="k-button" />
+       </div>
+    <br />
+    <div id="grid-service">
+    </div>
+    <br />
+    <div class="btn-save-close">
+        <input id="save-claim-table" type="button" value="Save" class="k-button service-line" />
+        @if (@Model.IsEdit)
+        {
+            <input type="button" id="delete-serviceline-tables" value="Delete" class="k-button delete-filter" />  
+        }
+    </div>
+  
+</div>
+
+<script>
+    $('#table-loading-image').hide();
+    $("#image-logo-table").hide();
+    var tableList = null;
+    var viewmodelServiceClaimField = kendo.observable({
+        ContractServiceTypeId: '@Model.ContractServiceTypeId',
+        ContractId: '@Model.ContractId',
+        ServiceLineTypeId: '@Model.ServiceLineTypeId',
+        ContractServiceLineId: '@Model.ContractServiceLineId',
+        Operator: '@Model.Operator',
+        IsEdit: '@Model.IsEdit',
+        ModuleId: '@Model.ModuleId'
+        });
+    //To get the values from model
+    tableList=@Html.Raw(Json.Encode(Model.TableselectionList))
+    kendo.bind($("#window-service-line"), viewmodelServiceClaimField);
+     
+</script>
+
+<script src="~/Areas/Contract/JavaScript/ContractServiceLineTableSelection.js"></script>
+
