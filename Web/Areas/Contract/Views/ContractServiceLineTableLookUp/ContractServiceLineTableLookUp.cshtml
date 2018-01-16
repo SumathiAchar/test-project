@@ -1,0 +1,51 @@
+@{
+    Layout = null;
+}
+<div id="window-service">
+    <select id="service" data-bind="source: services, value: service">
+    </select><br />
+    <br />
+    <div id="grid-lookup" style="height: 105px; width: 330px">
+    </div>
+    <br />
+    <div class="btn-save-close">
+    
+        <input id="save-service-click" type="button" value="Save" class="k-button" />
+       
+    
+    </div>
+    
+</div>
+<script>
+    $(function () {
+        $("#grid-lookup").kendoGrid({
+            scrollable: false
+        });
+
+        var viewModel = kendo.observable({
+            services: [],
+            service: ""
+        });
+
+        var service = $("#window-service").kendoWindow({
+            width: "350px",
+            height: "auto",
+            modal: true,
+            title: "Table Look-Up",
+            draggable: false,
+            position: {
+                top: "30%",
+                left: "35%"
+            },
+            resizable: false,
+            actions: [
+            "Close"
+            ]
+        });
+        service.data("kendoWindow").open();
+        $("#closeserviceClick").click(function () {
+            service.data("kendoWindow").close();
+        });
+        kendo.bind($("#window-service"), viewModel);
+    });
+</script>
