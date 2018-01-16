@@ -1,0 +1,188 @@
+@{
+    Layout = null;
+}
+@model List<SSI.ContractManagement.Web.Areas.Contract.Models.ContractUploadFiles>
+<!-- For uploading the contract document information-->
+<div id="container-contact-documents">
+    <div style="left: 0px !important; top: 0px !important; height: 50px; position: relative !important;">
+        <input type="file" id="file-upload" name="fileUpload" />
+    </div>
+    @*    <div style="height: 35px; margin-top: -42px; margin-left:10px; position: absolute !important;">
+        <input type="button" class="k-button style-button-upload" id="button-upload" value="Select"/>
+    </div>*@
+    <input type="hidden" name="hiddenContractId" data-bind="value:ContractId" />
+    <div id="hidden-msg" style="display: none">
+    </div>
+    <div id="gv-contract-documents">
+    </div>
+</div>
+<!-- End of the uploading contract document information-->
+<script type="text/javascript">
+    //Downloads file to Downloads folder
+    function DownloadFileToLocal(id) {
+        window.location.href = '@Url.Action("GetDocument", "ContractDocument")' + '?id=' + id;
+    }
+    var onSelect = function(e) {
+
+        $.each(e.files, function(index, value) {
+            var extension = value.extension.toLowerCase();
+            if (extension != ".jpg" && extension != ".jpeg" && extension != ".bmp" && extension != ".png" && extension != ".tif" &&  extension != ".pdf" && extension != ".doc" && extension != ".docx" && extension != ".xls" && extension != ".csv" && extension != ".rtf" && extension != ".txt" && extension != ".xlsx")
+            {
+                registerGridPopup("Please upload appropriate files.", "OK", null, null);
+                e.preventDefault();
+            }
+            else {
+                //$("#button-upload").hide();
+                $("#file-upload").hide();
+            }
+        });
+        e.sender.options.async.saveUrl = '@Url.Action("SaveContractDoc", "ContractDocument", new { area = "Contract" })' + "?contractId=" + $('#hidden-basicinfo-contractid').val();
+    };
+    $(function() {
+        if (window.location.pathname.indexOf('DenialManagement') == 1) {
+            $('.k-grid-cancel').attr('disabled', 'disabled');
+        }
+        var gridFileData = @Html.Raw(Json.Encode(Model.ToArray()));
+        var contactDocumentsDataSource = new kendo.data.DataSource({
+            data: gridFileData,
+            sort: { field: "Id", dir: "desc" }
+        });
+
+        $("#file-upload").kendoUpload(
+            {
+                async: {
+                    saveUrl: '@Url.Action("SaveContractDoc", "ContractDocument", new { area = "Contract" })'
+                },
+                localization: {
+                    "select": "Select"
+                },
+                upload: function(e) {
+                    e.sender.options.async.saveUrl = '@Url.Action("SaveContractDoc", "ContractDocument", new { area = "Contract" })' + "?contractId=" + $('#hidden-basicinfo-contractid').val();
+                    $("#btn-contract-done").attr('value', 'Done')
+                },
+                select: onSelect,
+                multiple: false,
+                showFileList: false,
+                success: onSuccess,
+            });
+        var index;
+
+        //For showing contract document information in grid
+        $("#gv-contract-documents").kendoGrid({
+            dataSource: contactDocumentsDataSource,
+            selectable: "row",
+            columns: [
+                { field: "Id", hidden: true },
+                {
+                    field: "AttachedDocuments",
+                    title: "List Of Attached Documents",
+                    template: "<a class='downloadLink' cursor:hand onclick=DownloadFileToLocal(#=Id#)>${AttachedDocuments}</a>",
+                    width: 200
+                },
+                {
+                    title: "Actions",
+                    attributes: { style: "text-align:center;" },
+                    template: kendo.template($("#command-template-doc").html()),
+                    width: 50
+                }
+            ],
+            dataBound: function(e) {
+
+                $("#container-contact-documents").find('.k-grid-cancel').off('click');
+                $("#container-contact-documents").find('.k-grid-cancel').on('click', function(e) {
+                    if (window.location.pathname.indexOf('DenialManagement') > -1) {
+                        return false;
+                    }
+                    deleteItem(e);
+                });
+            }
+        });
+        var model = kendo.observable({
+            ContactDocs: contactDocumentsDataSource
+        });
+
+        var window1;
+        $(document).ready(function() {
+            
+
+            window1 = $("#modalWindow").kendoWindow({
+                title: "Confirmation",
+                modal: true,
+                visible: false,
+                resizable: false,
+                draggable: false,
+                width: 300
+            }).data("kendoWindow");
+        });
+
+        function deleteItem(e) {
+            window1.center().open();
+            setTimeout(function() {
+                window1.wrapper.find('input').eq(1).focus();
+            }, 500);
+            
+            $(window1.wrapper.find('#btnno')).off().on('click',function() {
+                window1.close();
+            });
+
+            $(window1.wrapper.find('#btnyes')).off().on('click',function() {
+                var grid = $("#gv-contract-documents").data("kendoGrid");
+                var selectedRow = grid.select();
+                index = selectedRow.index();
+                var modeldata = { 'id': grid._data[index].Id };
+                ajaxRequestHandler({
+                    url: '@Url.Action("DeleteContractDoc", "ContractDocument", new { area = "Contract" })',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    fnSuccess: OnDeleteContractDocSuccess,
+                    data: JSON.stringify(modeldata),
+                });
+            });
+        }
+
+
+        function OnDeleteContractDocSuccess(data) {
+            if (data.sucess == true) {
+                var grid = $("#gv-contract-documents").data("kendoGrid");
+                var dataContactDocuments = grid._data[index]; //grid.dataSource.at(index);
+                grid.dataSource.remove(dataContactDocuments);
+                window1.close();
+            }
+        }
+
+        function onSuccess(e) {
+            $("#file-upload").show();
+            if (e.response.status == "fail") {
+                registerGridPopup(e.response.fileSize, "OK", null, null);
+                $('#file-upload').closest('.k-upload').addClass('k-upload-empty');
+                $('#file-upload').closest('.k-dropzone').find('.k-upload-status').remove();
+                $('#file-upload').closest('.k-upload').find('ul').remove();
+            } else {
+                var filename = '';
+                if (e.files != null) filename = e.files[0].name;
+                $('#file-upload').closest('.k-upload').addClass('k-upload-empty');
+                $('#file-upload').closest('.k-dropzone').find('.k-upload-status').remove();
+                $('#file-upload').closest('.k-upload').find('ul').remove();
+                contactDocumentsDataSource.add({
+                    Id: e.response.id,
+                    AttachedDocuments: filename
+                });
+            }
+        }
+        kendo.bind($("#container-contact-documents"), model);
+    });
+</script>
+
+<script id="command-template-doc" type="text/x-kendo-template">
+<span> <img src="@Url.Content("~/Content/images/cancel.png")"  data-Id="#=Id#"  style="cursor:pointer; z-index:10000;" class="Clicktoplay k-grid-cancel" alt="Cancel" title="Cancel" width="23" />   </span>
+</script>
+
+<div id="modalWindow">
+    <label>The attachment will permanently be deleted. Are you sure you want to continue? </label>
+    <div class="btnsc">
+        <input type="button" id="btnyes" class="k-button" value="Yes" />
+        <input type="button" id="btnno" class="k-button" value="No" />
+    </div>
+</div>
+
