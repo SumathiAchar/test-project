@@ -1,0 +1,119 @@
+
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeAscFeeScheduleViewModel
+@{
+    Layout = null;
+}
+<div id="divPaymentTypeAscFee">
+    <input type="hidden" name="hiddenPaymentTypeAscFeeContractId" id="hiddenPaymentTypeAscFeeContractId"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenPaymentTypeAscFeeServiceTypeId" id="hiddenPaymentTypeAscFeeServiceTypeId"
+        data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenPaymentTypeAscFeePaymentTypeId" id="hiddenPaymentTypeAscFeePaymentTypeId"
+        data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenASCFeeSchedulePaymentTypeDetailId" id="hiddenASCFeeSchedulePaymentTypeDetailId"
+        data-bind="value:PaymentTypeDetailId" />
+    <label>
+        Primary</label><input type="text" id="txtPrimary" data-bind="value:Primary" /><br />
+    <label>
+        Secondary
+    </label>
+    <input type="text" id="txtSecondary" data-bind="value:Secondary" /><br />
+    <label>
+        Tertiary</label><input type="text" id="txtTertiory" data-bind="value:Tertiary" /><br />
+    <label>
+        Quaternary
+    </label>
+    <input type="text" id="txtQuoternary" data-bind="value:Quaternary" /><br />
+    <label>
+        Others
+    </label>
+    <input type="text" id="txtOthers" data-bind="value:Others" /><br />
+    <label>
+        Non-Fee Schedule
+    </label>
+    <input type="text" id="txtNonFeeSchedule" data-bind="value:NonFeeSchedule" /><br />
+    <label>
+        ASC Fee Schedule Table
+    </label>
+    <input id="ddlAscFeeSschedule" style="width: 138px;" data-bind="value:ClaimFieldDocID" />
+    <br/>
+   <div id="divASCOption" data-bind="source: ASCFeeScheduleOption" data-template="ASCOptionTemplate"></div>
+        <script type="text/x-kendo-tmpl" id="ASCOptionTemplate">
+            <div class="asc-option">
+                <label>
+                    <input type="radio" class="asc-options" data-bind="value: AscFeeScheduleOptionId" name="ASCOption" id="rdo#=AscFeeScheduleOptionId#" />
+                    #= AscFeeScheduleOptionName #
+                </label>
+            </div>
+        </script>
+
+        <div class="btn-save-close">
+            <input type="button" id="btnSavePaymentTypeAscFee" value="Save" class="k-button ptASCFee" />
+            @if (Model.IsEdit == true)
+            {
+                <input type="button" id="btnDeletePaymentTypeAscFee" value="Delete" class="k-button delete-filter" />
+            }
+        </div>
+    </div>
+    <script type="text/javascript">
+        var viewmodelPaymentTypeAscFee;
+        var selectedOption;
+        $(document).ready(function () {
+            viewmodelPaymentTypeAscFee = kendo.observable({
+                ContractId: '@Model.ContractId',
+                ServiceTypeId: '@Model.ServiceTypeId',
+                PaymentTypeId: '@Model.PaymentTypeId',
+                Primary: '@Model.Primary',
+                Secondary: '@Model.Secondary',
+                Tertiary: '@Model.Tertiary',
+                Quaternary: '@Model.Quaternary',
+                Others: '@Model.Others',
+                NonFeeSchedule: '@Model.NonFeeSchedule',
+                ClaimFieldDocID: '@Model.ClaimFieldDocId',
+                PaymentTypeDetailId: '@Model.PaymentTypeDetailId',
+                ASCFeeScheduleOption: @Html.Raw(Json.Encode(@Model.AscFeeScheduleOption)),
+                OptionSelection: '@Model.OptionSelection',
+                IsEdit: '@Model.IsEdit'
+            });
+
+        });
+        //Formatting Percentage Field
+        $("#txtPrimary").kendoNumericTextBox({
+            format: "#.## \\%",
+            min: 0
+        });
+        //Formatting Percentage Field
+        $("#txtSecondary").kendoNumericTextBox({
+            format: "#.## \\%",
+            min: 0
+        });
+        //Formatting Percentage Field
+        $("#txtTertiory").kendoNumericTextBox({
+            format: "#.## \\%",
+            min: 0
+        });
+        //Formatting Percentage Field
+        $("#txtQuoternary").kendoNumericTextBox({
+            format: "#.## \\%",
+            min: 0
+        });
+        //Formatting Percentage Field
+        $("#txtOthers").kendoNumericTextBox({
+            format: "#.## \\%",
+            min: 0
+        });
+
+        $("#txtNonFeeSchedule").kendoNumericTextBox({
+            format: "#.## \\%",
+            min: 0
+        });
+        $("#ddlAscFeeSschedule").kendoComboBox({});
+        //For Set Focus Text Box
+        $('#txtPrimary').siblings('input:visible').focus();
+
+        kendo.bind($("#divPaymentTypeAscFee"), viewmodelPaymentTypeAscFee);
+
+        //Check Box check on label click
+        CheckBoxLabelClickEvent();
+    </script>
+    <script src="~/Areas/Contract/JavaScript/ASCFeeSchedule.js"></script>
