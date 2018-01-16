@@ -1,0 +1,90 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypePerCaseViewModel
+@{
+    Layout = null;
+}
+<div id="pc-payment">
+    <input type="hidden" name="hiddenPCpaymentContractId" id="hiddenPCpaymentContractId"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenPCpaymentServiceTypeId" id="hiddenPCpaymentServiceTypeId"
+        data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenPerCasePaymentTypeDetailId" id="hiddenPerCasePaymentTypeDetailId"
+        data-bind="value:PaymentTypeDetailId" />
+    <input type="hidden" name="hiddenPCpaymentPaymentTypeId" id="hiddenPCpaymentPaymentTypeId"
+        data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <label>
+        Rate
+    </label>
+    <input id="txtPcAmount" data-bind="value:Rate" /><br />
+    <label>
+        Max Cases Per Day
+    </label>
+    <input id="txtPCMaxCasesPerDay" data-bind="value:MaxCasesPerDay" /><br />
+    <div class="btn-save-close">
+        <input id="btnPCSave" type="button" value="Save" class="k-button ptPerCase" />
+        @if (Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypePC" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#txtPcAmount').siblings('input:visible').focus();
+        }, 1000);
+    });
+    //Formatting Amount Field
+    $("#txtPcAmount").kendoNumericTextBox({
+        format: "c",
+        min: 0
+    });
+
+    //Formatting Amount Field
+    $("#txtPCMaxCasesPerDay").kendoNumericTextBox({
+        min: 0,
+        format: "#",
+        decimals: 0
+    });
+    //For Set Focus Text Box
+    $('#txtPcAmount').siblings('input:visible').focus();
+
+    var viewmodelPerCase = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Rate: '@Model.Rate',
+        MaxCasesPerDay: '@Model.MaxCasesPerDay',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId'
+    });
+
+    //Save Button
+    $("#btnPCSave").click(function () {
+        if ($("#txtPcAmount").val() != '') {
+            $("#btnPCSave").attr('disabled', 'disabled');
+            //Below code for adding payment per case details
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditPaymentPerCase", "PaymentTypePerCase", new { area = "Contract" })',
+                type: 'POST',
+                 contentType: "application/json; charset=utf-8",
+                 dataType: 'json',
+                 data: JSON.stringify(viewmodelPerCase),
+                 fnSuccess: OnAddEditPaymentPerCaseSuccess,
+             });           
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    function OnAddEditPaymentPerCaseSuccess() {
+        $('.ptPerCase').closest(".k-window-content").data("kendoWindow").close();
+        ReDrawShapes();
+    }
+
+    kendo.bind($("#pc-payment"), viewmodelPerCase);
+    setTimeout(function () {
+        $("input:text:first").focus();
+    }, 1000);
+
+</script>
