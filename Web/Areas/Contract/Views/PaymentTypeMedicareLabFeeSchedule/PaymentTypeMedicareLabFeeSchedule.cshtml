@@ -1,0 +1,81 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeMedicareLabFeeSchedulePaymentViewModel
+@{
+    Layout = null;
+}
+<div id="divMCLFSPayment">
+    <input type="hidden" name="hiddenMCLFSPaymentContractId" id="hiddenMCLFSPaymentContractId"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenMCLFSPaymentServiceTypeId" id="hiddenMCLFSPaymentServiceTypeId"
+        data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenMCLFSPaymentPaymentTypeId" id="hiddenMCLFSPaymentPaymentTypeId"
+        data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenMedicareIPPaymentTypeDetailId" id="hiddenMedicareIPPaymentTypeDetailId"
+        data-bind="value:PaymentTypeDetailId" />
+    <label>
+        Percentage
+    </label>
+
+    <input id="txtMCLFSPercentage" type="text" data-bind="value:Percentage" />
+    <br />
+   <div class="btn-save-close">
+        <input id="btnMCLFSSave" type="button" value="Save" class="k-button ptMedicareLFS" />
+
+        @if (Model.IsEdit)
+        {
+            <input type="button" id="btnDeletePaymentTypeMCLFS" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#txtMCLFSPercentage').siblings('input:visible').focus();
+        }, 1000);
+    });
+
+    //Formatting Percentage Field
+    $("#txtMCLFSPercentage").kendoNumericTextBox({
+        format: "#.## \\%",
+        min: 0
+    });
+
+    //For Set Focus Text Box
+    $('#txtMCLFSPercentage').siblings('input:visible').focus();
+
+    var viewmodelMCLFSIp = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Percentage: '@Model.Percentage',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId'
+    });
+
+
+    $("#btnMCLFSSave").click(function () {
+
+        if ($("#txtMCLFSPercentage").val() != '') {
+            $("#btnMCLFSSave").attr('disabled', 'disabled');
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditPaymentTypeMedicareLabFeeSchedule", "PaymentTypeMedicareLabFeeSchedule", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(viewmodelMCLFSIp),
+                fnSuccess: OnAddEditPaymentTypeMedicareLabFeeScheduleSuccess,
+            });           
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    function OnAddEditPaymentTypeMedicareLabFeeScheduleSuccess() {
+        $('.ptMedicareLFS').closest(".k-window-content").data("kendoWindow").close();
+        ReDrawShapes();
+    }
+    kendo.bind($("#divMCLFSPayment"), viewmodelMCLFSIp);
+    
+    //Check Box check on label click
+    CheckBoxLabelClickEvent();
+</script>
