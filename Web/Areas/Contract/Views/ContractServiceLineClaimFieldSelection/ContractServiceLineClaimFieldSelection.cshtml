@@ -1,0 +1,457 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.ContractServiceLineClaimFieldSelectionViewModel
+@{
+    Layout = null;
+}
+<div id="container-claim-feild">
+    <label>
+        Claim Field
+    </label>
+    <input id="list-select-claim" style="width: 150px;" />
+    <input id="list-select-operator" />
+    <label>
+        Values</label>
+    <input id="list-select-values" type="text" class="k-textbox" />
+    <input id="ddl-select-payers" tabindex="20" />
+    &nbsp;
+    <input id="btn-claim-add" type="button" value="Add" class="k-button" />
+    <br />
+    @* FIXED-2016-R3-S2 Give id as chk-include-modifier & lass as chk-include-modifier/hide *@
+    <br />
+    <br />
+    <div id="grid-claim-feild" style="height: 200px;">
+    </div>
+    <input type="hidden" name="hiddenModuleId" id="hiddenModuleId"
+        data-bind="value: ModuleId" />
+    <input type="hidden" name="hiddenServiceLineClaimFieldContractId" id="hidden-serviceline-cfcontract"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenServiceLineClaimFieldServiceTypeId" id="hidden-serviceline-cfservice"
+        data-bind="value:ContractServiceTypeId" />
+    <input type="hidden" name="hiddenServiceLineClaimFieldServiceLineTypeId" id="hidden-serviceline-cfservicetype"
+        data-bind="value:ServiceLineTypeId" class="filter-service-line-type-id" />
+</div>
+<div class="btn-save-close">
+    <input id="btn-claim-save" type="button" value="Save" class="k-button claimclose" />
+    @if (@Model.IsEdit == true)
+    {
+       
+        <input type="button" id="delete-serviceline-claimfield" value="Delete" class="k-button delete-filter" />  
+    }
+</div>
+<script type="text/javascript">
+   
+    function change() {
+        setTimeout(function () {
+            // focus on the first visible and enabled input field or textarea
+            $(":input:visible:enabled").each(function () {
+                if ($(this).is("#list-select-values")) {
+                    $(this).focus();
+                    return false;
+                }
+            });
+        }, 500);
+    } 
+
+    $("#list-select-claim").kendoDropDownList({
+
+    });
+    $("#list-select-operator").kendoDropDownList({
+
+    });
+    $("#ddl-select-payers").kendoComboBox({
+
+    });
+   
+    $("#ddl-select-payers").closest(".k-widget").hide();
+    var ClaimList = null;
+    ClaimList =  @Html.Raw(Json.Encode(Model.ContractServiceLineClaimFieldSelectionList));
+    var tempClaimList = [];
+
+    if (ClaimList == null) {
+        ClaimList = [];
+    }
+    else {
+        $.each(ClaimList, function (i, item) {
+            var Criteria= item.ClaimField + " " + item.OperatorType + " " + item.Values;
+            tempClaimList.push({
+                'ClaimFieldId': item.ClaimFieldId,
+                'Operator': item.Operator,
+                'Values': item.Values,
+                'Criteria': Criteria
+            });
+        });
+    }
+    
+    function CloseServiceclaim() {
+       
+        $('.claimclose').closest(".k-window-content").data("kendoWindow").close();
+    }
+
+    var viewmodelServiceClaimField = kendo.observable({
+        ContractServiceTypeId: '@Model.ContractServiceTypeId',
+        ContractId: '@Model.ContractId',
+        ServiceLineTypeId: '@Model.ServiceLineTypeId',
+        ModuleId: '@Model.ModuleId'
+        });
+    
+    var dataSourceClaims = new kendo.data.DataSource({
+        data: tempClaimList
+    });
+    //Below code for adding the claim
+    $("#btn-claim-add").click(function() {
+        if ($("#list-select-claim").val() != '' && $("#list-select-operator").val() != '' && ($("#list-select-values").val() != '' || $("#ddl-select-payers").val() != '')) {
+            if (isValidText($("#list-select-values").val() , $("#list-select-claim").val())) {
+                var isValid = false;
+                var currentClaimId = $("#list-select-claim").val();
+                var currentOperator = $("#list-select-operator").val();
+                var grid = $("#grid-claim-feild").data("kendoGrid");
+                if ($("#list-select-claim").data("kendoDropDownList").text() == 'DRG(I)' && ($("#list-select-values").val().length < 3) && $("#list-select-values").val() != '*' && $("#list-select-values").val().indexOf('*') != 1 && $("#list-select-values").val().indexOf('*') != 0) {
+
+                    if ($("#list-select-values").val().length <= 1) {
+                        $("#list-select-values").val('00' + $("#list-select-values").val());
+                    } else if ($("#list-select-values").val().length <= 2) {
+                        $("#list-select-values").val('0' + $("#list-select-values").val());
+                    }
+                }
+                if (dataSourceClaims._data.length > 0) {
+                    var data = dataSourceClaims._data;
+                    for (var i = 0; i < dataSourceClaims._data.length; i++) {
+                        if (data[i].ClaimFieldId == currentClaimId) {
+                            if (data[i].Operator == currentOperator) {
+                                if ($("#list-select-claim").data("kendoDropDownList").text() == 'Payer Name') {
+                                    data[i].Values = data[i].Values + ";" + $("#ddl-select-payers").data("kendoComboBox").text();
+                                } else {
+                                    data[i].Values = data[i].Values + "," + $("#list-select-values").val();
+
+                                }
+
+                                if (currentClaimId != "10" && currentClaimId != "11" && currentClaimId != "12" && currentClaimId != "13" && currentClaimId != "14") {
+                                    data[i].Criteria = $("#list-select-claim").data("kendoDropDownList").text() + $("#list-select-operator").data("kendoDropDownList").text() + " " + data[i].Values;
+                                    if ($("#chk-include-modifier").prop('checked') && $("#list-select-claim").data("kendoDropDownList").text() == "HCPCS/RATE/HIPPS") {
+                                        data[i].Criteria = $("#list-select-claim").data("kendoDropDownList").text() +"- Include Modifiers" + $("#list-select-operator").data("kendoDropDownList").text() + " " + data[i].Values;
+                                    }
+                                    isValid = false;
+                                    grid.refresh();
+                                    break;
+                                } else {
+                                    data[i].Criteria = $("#list-select-claim").data("kendoDropDownList").text() + " " + $("#list-select-operator").data("kendoDropDownList").text() + " " + data[i].Values.replace(/ /g, '');
+                                    data[i].Values = data[i].Values.replace(/ /g, '');
+                                    isValid = false;
+                                    grid.refresh();
+                                    break;
+                                }
+                            } else {
+                                isValid = true;
+                            }
+                        } else {
+                            isValid = true;
+                        }
+                    }
+                } else {
+                    isValid = true;
+                }
+                if (isValid) {
+                    if ($("#list-select-claim").data("kendoDropDownList").text() == 'Payer Name') {
+                        if ($("#list-select-claim").val() != '' && $("#list-select-operator").val() != '' && $("#ddl-select-payers").data("kendoComboBox").text() != 'Select Payer Name') {
+                            dataSourceClaims.add({
+                                ClaimFieldId: $("#list-select-claim").val(),
+                                Operator: $("#list-select-operator").val(),
+                                Values: $("#ddl-select-payers").data("kendoComboBox").text(),
+                                Criteria: $("#list-select-claim").data("kendoDropDownList").text() + " " + $("#list-select-operator").data("kendoDropDownList").text() + " " + $("#ddl-select-payers").data("kendoComboBox").text()
+                            });
+                        } else {
+                            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+                        } //REVIEW : RAGINI - MAY - Why magic integers are used. What do you mean by 10,11,12
+                    } else if ($("#list-select-claim").val() != "10" && $("#list-select-claim").val() != "11" && $("#list-select-claim").val() != "12" && $("#list-select-claim").val() != "13" && $("#list-select-claim").val() != "14") {
+                        var criteria;
+                        if ($("#chk-include-modifier").prop('checked') && $("#list-select-claim").data("kendoDropDownList").text() == "HCPCS/RATE/HIPPS") {
+                            criteria = $("#list-select-claim").data("kendoDropDownList").text() + " - Include Modifiers" + " " + $("#list-select-operator").data("kendoDropDownList").text() + " " + $("#list-select-values").val();
+                        } else {
+                            criteria=$("#list-select-claim").data("kendoDropDownList").text() + " " + $("#list-select-operator").data("kendoDropDownList").text() + " " + $("#list-select-values").val();
+                        }
+                        dataSourceClaims.add({
+                            ClaimFieldId: $("#list-select-claim").val(),
+                            Operator: $("#list-select-operator").val(),
+                            Values: $("#list-select-values").val(),
+                            Criteria: criteria
+                        });
+                    } else {
+                        dataSourceClaims.add({
+                            ClaimFieldId: $("#list-select-claim").val(),
+                            Operator: $("#list-select-operator").val(),
+                            Values: $("#list-select-values").val().replace(/ /g, ''),
+                            Criteria: $("#list-select-claim").data("kendoDropDownList").text() + " " + $("#list-select-operator").data("kendoDropDownList").text() + " " + $('#list-select-values').val().replace(/ /g, '')
+                        });
+                    }
+                }
+            } else {
+                registerGridPopup("Please provide correct value.", "OK", null, null);
+            }
+        } else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+        $("#list-select-claim").data("kendoDropDownList").value("");
+        $("#list-select-operator").data("kendoDropDownList").value(3);
+        $("#list-select-values").val("");
+        $("#ddl-select-payers").data("kendoComboBox").value("");
+        $(".checkBox-include-modifier").addClass("hide");
+        $(".checkBox-include-modifier").parent().addClass('hide');
+    });
+
+    $("#grid-claim-feild").kendoGrid({
+        dataSource: dataSourceClaims,
+        selectable: true,
+        scrollable: true,
+        columns: [
+            { field: "ClaimFieldId", hidden: true },
+            { field: "Operator", hidden: true },
+            { field: "Values", hidden: true },
+            { field: "Criteria", title: "Criteria" },
+            { title: "Actions", command: {
+                text: "Delete",
+                click: function (e) {
+                    var grid = $("#grid-claim-feild").data("kendoGrid");
+                    var row = $(e.target).closest("tr");
+                    var dataSelectClaims = grid.dataItem(row);
+                    grid.dataSource.remove(dataSelectClaims);
+                }
+            }
+            }]
+    });
+    $("#btn-claim-save").click(function () {
+        var ContractId = '@Model.ContractId';
+        if(dataSourceClaims._data.length>0)
+        {
+            $("#btn-claim-save").attr('disabled', 'disabled');
+            if ('@Model.IsEdit' == "False") {
+                var serviceLineClaims = [];
+                for (var i = 0; i < dataSourceClaims._data.length; i++) {
+                   serviceLineClaims.push({ 'ClaimFieldId': dataSourceClaims._data[i].ClaimFieldId, 'Operator': dataSourceClaims._data[i].Operator, 'Values': dataSourceClaims._data[i].Values, 'ContractId': '@Model.ContractId', 'ContractServiceTypeId': '@Model.ContractServiceTypeId', 'ServiceLineTypeId': '@Model.ServiceLineTypeId'});
+                }
+                var serviceLineClaimSelection = { 'listofserviceLineClaims': serviceLineClaims, 'isEdited': false };
+                ajaxRequestHandler({
+                    url: '@Url.Action("AddEditClaimFieldSelection", "ContractServiceLineClaimFieldSelection", new { area = "Contract" })',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(serviceLineClaimSelection),
+                    fnSuccess: OnAddEditClaimFieldSelectionSuccess
+                });                             
+            } else {
+                var serviceLineClaimsEdit = [];
+                for (var j = 0; j < dataSourceClaims._data.length; j++) {
+                   serviceLineClaimsEdit.push({ 'ClaimFieldId': dataSourceClaims._data[j].ClaimFieldId, 'Operator': dataSourceClaims._data[j].Operator, 'Values': dataSourceClaims._data[j].Values, 'ContractId': '@Model.ContractId', 'ContractServiceTypeId': '@Model.ContractServiceTypeId', 'ServiceLineTypeId': '@Model.ServiceLineTypeId' });
+                }
+                var serviceLineClaimSelectionEdit = { 'listofserviceLineClaims': serviceLineClaimsEdit , 'isEdited': true};
+                ajaxRequestHandler({
+                    url: '@Url.Action("AddEditClaimFieldSelection", "ContractServiceLineClaimFieldSelection", new { area = "Contract" })',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(serviceLineClaimSelectionEdit),
+                    fnSuccess: OnAddEditClaimFieldSelectionSuccess
+                });               
+            }
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+    kendo.bind($("#container-claim-feild"), viewmodelServiceClaimField);
+
+    function OnAddEditClaimFieldSelectionSuccess() {
+        CloseServiceclaim();
+        ReDrawShapes();
+    }
+
+    if ('@Model.IsEdit' == 'False') {
+        ajaxRequestHandler({
+            url: SSIUrl.getServiceLineClaimFieldOperatorMasterData,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetServiceLineClaimFieldOperatorMasterDataSuccess
+        });      
+
+        ajaxRequestHandler({
+            url: SSIUrl.getClaimFieldsByModule + "?moduleId=" + viewmodelServiceClaimField.ModuleId,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetClaimFieldsByModuleSuccess
+        });      
+    } else {
+        ajaxRequestHandler({
+            url: SSIUrl.getServiceLineClaimFieldOperatorMasterData,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetServiceLineClaimFieldOperatorMasterDataIsEditedSuccess
+        });      
+
+        ajaxRequestHandler({
+            url: SSIUrl.getClaimFieldsByModule + "?moduleId=" + viewmodelServiceClaimField.ModuleId,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetClaimFieldsByModuleIsEditedSuccess
+        });            
+    }
+
+
+    function OnGetServiceLineClaimFieldOperatorMasterDataSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        var serviceClaimFeildOperatorComboBoxData = [];
+        if (json != null && json.claimFeildOperatorList != null) {
+            $.each(json.claimFeildOperatorList, function(i, item) {
+                serviceClaimFeildOperatorComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+
+        $("#list-select-operator").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            //optionLabel: "Select Operator",
+            dataSource: serviceClaimFeildOperatorComboBoxData,
+            index: 2
+        }).data("kendoDropDownList");
+    }
+
+    function OnGetClaimFieldsByModuleSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        var serviceClaimFeildComboBoxData = [];
+        if (json != null && json.claimFeildList != null) {
+            $.each(json.claimFeildList, function(i, item) {
+                serviceClaimFeildComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+
+        $("#list-select-claim").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            optionLabel: "Select Claim Field",
+            dataSource: serviceClaimFeildComboBoxData,
+            change: function() {
+                var selection=$("#list-select-operator").data("kendoDropDownList");
+                selection.select(2);
+                $("#list-select-values").val("");
+                $("#ddl-select-payers").addClass('customDefaultColor');
+                if ($("#list-select-claim").data("kendoDropDownList").text() == 'Payer Name') {
+                    GetPayers();
+                } else {
+                    $("#list-select-values").show();
+                    $("#ddl-select-payers").closest(".k-widget").hide();
+                }
+               if ($("#list-select-claim").data("kendoDropDownList").text() == "HCPCS/RATE/HIPPS") { //hcpcs code show the include modifier checkbox
+                    $(".checkBox-include-modifier").removeClass("hide");
+                    $(".checkBox-include-modifier").parent().removeClass('hide');
+                    $(".checkBox-include-modifier").prop("checked",true)
+                } else {
+                    $(".checkBox-include-modifier").addClass("hide");
+                    $(".checkBox-include-modifier").parent().addClass('hide');
+                }
+            }
+        }).data("kendoDropDownList");
+    }
+
+    function OnGetServiceLineClaimFieldOperatorMasterDataIsEditedSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        var editserviceClaimFeildOperatorComboBoxData = [];
+        if (json != null && json.claimFeildOperatorList != null) {
+            $.each(json.claimFeildOperatorList, function(i, item) {
+                editserviceClaimFeildOperatorComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+
+        $("#list-select-operator").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: editserviceClaimFeildOperatorComboBoxData,
+            index: 2
+        }).data("kendoDropDownList");
+    }
+
+    function OnGetClaimFieldsByModuleIsEditedSuccess(json) {
+        //In success function bind data into combo box using kendo 
+        var editServiceClaimFeildComboBoxData = [];
+        if (json != null && json.claimFeildList != null) {
+            $.each(json.claimFeildList, function(i, item) {
+                editServiceClaimFeildComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+
+
+        $("#list-select-claim").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            optionLabel: "Select Claim Field",
+            dataSource: editServiceClaimFeildComboBoxData,
+            change: function() {
+                var selection=$("#list-select-operator").data("kendoDropDownList");
+                selection.select(2);
+                $("#list-select-values").val("");
+                if ($("#list-select-claim").data("kendoDropDownList").text() == 'Payer Name') {
+                    GetPayers();
+                } else {
+                    $("#list-select-values").show();
+                    $("#ddl-select-payers").closest(".k-widget").hide();
+                }
+                if ($("#list-select-claim").data("kendoDropDownList").text() == "HCPCS/RATE/HIPPS") { //hcpcs code show the include modifier checkbox
+                    $(".checkBox-include-modifier").removeClass("hide");
+                    $(".checkBox-include-modifier").parent().removeClass('hide');
+                    $(".checkBox-include-modifier").prop("checked",true)
+                } else {
+                    $(".checkBox-include-modifier").addClass("hide");
+                    $(".checkBox-include-modifier").parent().addClass('hide');
+                }
+            }
+        }).data("kendoDropDownList");
+    }
+
+    var payerNames = [];
+    //Get payer names based on selected ContractId and ServiceTypeId
+    function GetPayers() {
+        $("#ddl-select-payers").closest(".k-widget").show();
+        //Combo box place holder default color in ie.
+        ComboBoxDefaultColor("ddl-select-payers");
+        //gets the data from the controller on selection of the payer name for the first time
+           
+        var contractId = '@Model.ContractId';
+        var serviceTypeId = '@Model.ContractServiceTypeId';
+        $("#list-select-values").hide();
+        function filterRequester() {
+            return {
+                facilityId: 0,
+                contractId: contractId,
+                serviceTypeId: serviceTypeId,
+                userText: function () {
+                    if ($("#ddl-select-payers").data("kendoComboBox").text() != "Select Payer Name")
+                        return $("#ddl-select-payers").data("kendoComboBox").text()
+                    else
+                        return "";
+                }
+            };
+        }
+        //Binding the Payer dropdown
+        $("#ddl-select-payers").kendoComboBox({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            placeholder: "Select Payer Name",
+            dataSource: {
+                serverFiltering: true,
+                transport: {
+                    read: {
+                        cache: false,
+                        url: SSIUrl.getPayersList,
+                        contentType: "application/json; charset=utf-8",
+                        dataType: 'json',
+                        data: filterRequester,
+                        global: false
+                    }
+                }
+            },
+            filter: "contains",
+            autoBind: false,
+            minLength: 2
+        });
+    }
+
+    //Check Box check on label click
+    CheckBoxLabelClickEvent();
+
+</script>
