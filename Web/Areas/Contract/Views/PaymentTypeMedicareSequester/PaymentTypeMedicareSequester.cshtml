@@ -1,0 +1,36 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeMedicareSequesterViewModel
+@{
+    Layout = null;
+}
+
+<div id="ms-payment">
+    <input type="hidden" name="hiddenMedicareSequesterPaymentContractId" id="hiddenMedicareSequesterPaymentContractId"
+           data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenMedicareSequesterPaymentServiceTypeId" id="hiddenMedicareSequesterPaymentServiceTypeId"
+           data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenMedicareSequesterPaymentTypeDetailId" id="hiddenMedicareSequesterPaymentTypeDetailId"
+           data-bind="value:PaymentTypeDetailId" />
+    <input type="hidden" name="hiddenMedicareSequesterPaymentTypeId" id="hiddenMedicareSequesterPaymentTypeId"
+           data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <label>
+        Percentage<span class="cms-requiredfields">*</span>
+    </label>
+    <input id="txtPercentage" data-bind="value:Percentage" /><br />
+    <div class="btn-save-close">
+        <input id="btnMedicareSequester" type="button" value="Save" class="k-button ptMedicareSequester" />
+        @if (Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypeMS" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    var viewmodelMedicareSequester = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Percentage: '@Model.Percentage',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId'
+    });
+</script>
+<script src="~/Areas/Contract/JavaScript/PaymentTypeMedicareSequester.js"></script>
