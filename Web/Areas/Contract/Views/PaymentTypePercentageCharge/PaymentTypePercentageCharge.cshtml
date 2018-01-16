@@ -1,0 +1,81 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypePercentageChargeViewModel
+@{
+    Layout = null;
+}
+<!-- Percentage Discount Payment -->
+<div id="divPercentagePayment">
+    <input type="hidden" name="hiddenPercentagePaymentContractId" id="hiddenPercentagePaymentContractId"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenPercentagePaymentServiceTypeId" id="hiddenPercentagePaymentServiceTypeId"
+        data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenPercentagePaymentPaymentTypeDetailId" id="hiddenPercentagePaymentPaymentTypeDetailId"
+        data-bind="value:PaymentTypeDetailId" />
+    <input type="hidden" name="hiddenPercentagePaymentPaymentTypeId" id="hiddenPercentagePaymentPaymentTypeId"
+        data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <label>Percentage </label>
+    <input id="txtPercentage" type="text" data-bind="value:Percentage" />
+    <br />
+    <div class="btn-save-close">
+        <input id="btnPercentageSave" type="button" value="Save" class="k-button ptPercentage" />
+
+        @if (Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypePercentage" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<!-- Percentage Discount Payment -->
+<script type="text/javascript">
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#txtPercentage').siblings('input:visible').focus();
+        }, 1000);
+    });
+    //Formatting Percentage Field
+    $("#txtPercentage").kendoNumericTextBox({
+        format: "#.## \\%",
+        min: 0
+    });
+
+    //For Set Focus Text Box
+    $('#txtPercentage').siblings('input:visible').focus();
+
+    var viewmodelPercentagePayment = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Percentage: '@Model.Percentage',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId'
+    });
+
+    //Saving Button
+    $("#btnPercentageSave").click(function () {
+        if ($("#txtPercentage").val() != '') {
+            $("#btnPercentageSave").attr('disabled', 'disabled');
+            //Below code for adding the discount details
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditPercentageDiscountDetails", "PaymentTypePercentageCharge", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(viewmodelPercentagePayment),
+                fnSuccess: OnAddEditPercentageDiscountDetailsSuccess,
+            });          
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    function OnAddEditPercentageDiscountDetailsSuccess() {
+        $('.ptPercentage').closest(".k-window-content").data("kendoWindow").close();
+        ReDrawShapes();
+    }
+
+    kendo.bind($("#divPercentagePayment"), viewmodelPercentagePayment);
+
+    setTimeout(function () {
+        $("input:text:first").focus();
+    }, 1000);
+
+</script>
