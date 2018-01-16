@@ -1,0 +1,90 @@
+@{
+    Layout = null;
+}
+
+<div id="copy-modal-container">
+    <label>Enter Name</label>
+    <input type="text" id="txt-rename" class="k-textbox" />
+</div>
+
+<div class="btn-saveclose">
+    @*<span style="padding-top:15px; padding-left:10px; display:none;" id="image-select-claims-copymodel">
+        <img src="@Url.Content("~/Content/images/loader.gif")" height="30"  />
+    </span>*@
+    <input type="button" id="btn-save-renametext" value="Save" class="k-button" />
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#txt-rename").focus();
+
+
+    });
+
+    $("#txt-rename").keyup(function () {
+        if ($("#txt-rename").val() != '') {
+            $("#btn-save-renametext").removeAttr('disabled');
+        }
+        else {
+            $("#btn-save-renametext").attr('disabled', 'disabled');
+        }
+    });
+
+    $("#btn-save-renametext").click(function () {
+        $("#btn-save-renametext").attr('disabled', 'disabled');
+        if ($("#txt-rename").val() != "") {
+            $("#btn-save-renametext").attr('disabled', 'disabled');
+            $("#image-select-claims-copymodel").show();
+            renameValue = $("#txt-rename").val();
+            //To get the selected NodeId and ParentId
+            nodeId = treeView.dataItem($selectedNode).NodeId;
+            parentId = treeView.dataItem($selectedNode).ParentId;
+            facilityId = treeView.dataItem($selectedNode).FacilityId;
+            ajaxRequestHandler({
+                url: SSIUrl.isModelNameExit,
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data: JSON.stringify({ RenameText: renameValue, FacilityId: facilityId }),
+                fnSuccess: OnIsModelNameExitSuccess
+            });           
+        } else {
+            registerGridPopup("Please enter model name.", "OK", null, null);
+        }
+    });
+
+    function OnIsModelNameExitSuccess(data) {
+        if (data) {
+            ajaxRequestHandler({
+                url: SSIUrl.copyTreeStructure,
+                type: "POST",
+                dataType: "json",
+                async: false,
+                data: JSON.stringify({ NodeId: nodeId, ParentId: parentId, RenameText: renameValue, FacilityId: facilityId }),
+                fnSuccess: OnCopyTreeStructureSuccess
+            });
+        } else {
+            registerGridPopup("The model name you entered already exists.", "OK", null, null);
+        }
+    }
+
+    function OnCopyTreeStructureSuccess() {
+        //To refresh the page
+        $("#image-select-claims-copymodel").hide();
+        $('#tool-container-left').html('');
+        $("#tool-container-left").html('<div id="contract-name-container"><label id="lbl-contract-name" name="ContractName"></label></div><div id="error-msg-container"><label class="error-msg"></label></div><div id="container" style="overflow: auto; background-color: #fff;"><div class="draw-box"></div></div>');
+        $('#automation-button').hide();
+        $("#tool-container").addClass('tool-background');
+        // After copying highlighting the treeview
+        treeViewHighlight(false, false, true);
+        $("#form-add-contract").closest(".k-window-content").data("kendoWindow").close();
+        $("#btn-save-renametext").attr('enabled', 'enabled');
+        // added to remove mask in the treeview - not hidding for some time
+        $('#hide-treeview').hide();
+    }
+
+    setTimeout(function () {
+        //  $("input:text:first").focus();
+        $("#txt-rename").focus();
+    }, 1000);
+</script>
