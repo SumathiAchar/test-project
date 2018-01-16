@@ -1,0 +1,44 @@
+@{
+    Layout = null;
+}
+
+@model SSI.ContractManagement.Web.Areas.Contract.Models.AutomationTool
+
+<!-- Automation Tool Design-->
+<div id="automation-button">
+    <div id="automation-tools" style="display: none;">
+        <a href="#">Automation Tools </a>
+    </div>
+    <div id="automation-list" style="display: none;">
+        <ul id="list-sevice-lines" class="drag-src" data-servicetypeid="" data-contractid="" data-iscontract="">
+            <li>  <span class="highlight-tool"> Claim Tools </span>
+                <ul id="service-line-list" class="service-line-list">
+                    @foreach (var data in Model.ServiceLineTypes)
+                    {
+                        if (@data.FieldIdentityNumber != 0 && @data.FieldIdentityNumber != null)
+                        {
+                             <li class="draggable" data-isservietype="true" data-typeid="@data.FieldIdentityNumber">@data.FieldName</li>
+                        }
+                    }
+                </ul>
+            </li>
+            <li> <span class="highlight-tool"> Payment Tools </span> 
+                <ul id="payment-types-list" class="payment-types-list">
+                    @foreach (var data in Model.PaymentTypes)
+                    {
+                        if (@data.FieldIdentityNumber != 0 && @data.FieldIdentityNumber != null)
+                        {
+                            <li class="draggable" data-isservietype="false" data-typeid="@data.FieldIdentityNumber">@data.FieldName</li>
+                        }
+                    }
+                </ul>
+            </li>
+        </ul>
+    </div>
+</div>
+<div id="form-add-contract">
+</div>
+<div id="form-add-claim-payment-tool">
+</div>
+<div id="div-add-contractservicetype">
+</div>
