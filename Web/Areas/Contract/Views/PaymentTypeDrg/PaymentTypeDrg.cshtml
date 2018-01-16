@@ -1,0 +1,212 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeDrgPaymentViewModel
+@{
+    Layout = null;
+}
+<div id="divPaymentTypeDRG">
+    <input type="hidden" name="hiddenPaymentTypeDRGContractId" id="hiddenPaymentTypeDRGContractId"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenPaymentTypeDRGServiceTypeId" id="hiddenPaymentTypeDRGServiceTypeId"
+        data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenPaymentTypeDRGPaymentTypeId" id="hiddenPaymentTypeDRGPaymentTypeId"
+        data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenDRGPaymentTypeDetailId" id="hiddenDRGPaymentTypeDetailId"
+        data-bind="value:PaymentTypeDetailId" />
+    <label>
+        Base Rate
+    </label>
+    <input type="text" id="txtBaseRate" data-bind="value:BaseRate" /><br />
+    <label>
+        Relative Weight Table
+    </label>
+    <input id="ddlAscFeeSschedule" data-bind="value:ClaimFieldDocID"/>
+</div>
+<div class="btn-save-close">
+    <input type="button" id="btnSavePaymentTypeDRG" value="Save" class="k-button ptDRG" />
+    @if (Model.IsEdit == true)
+    {
+        <input type="button" id="btnDeletePaymentTypeDRG" value="Delete" class="k-button delete-filter" />
+    }
+</div>
+<script type="text/javascript">
+    
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#txtBaseRate').siblings('input:visible').focus();
+
+        }, 1000);
+    });
+
+
+    //Formatting currency Field
+    $("#txtBaseRate").kendoNumericTextBox({
+        format: "c",
+        min: 0
+    });
+
+    $('#txtBaseRate').siblings('input:visible').focus();
+
+    var viewmodelPaymentTypeDRG = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        BaseRate: '@Model.BaseRate',
+        RelativeWeightId: '@Model.RelativeWeightId',
+        ClaimFieldDocID: '@Model.ClaimFieldDocId',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId'
+    });
+
+
+    $("#ddlAscFeeSschedule").kendoComboBox({});
+    //Combo box place holder default color in ie.
+    ComboBoxDefaultColor("ddlAscFeeSschedule");
+    $("#btnSavePaymentTypeDRG").click(function () {
+        var isValidTable = false;
+        if ($("#txtBaseRate").val() != '' && $("#ddlAscFeeSschedule").val() != '') {
+            if ($("#ddlAscFeeSschedule").data("kendoComboBox")) {
+                var comboboxData = $("#ddlAscFeeSschedule").data("kendoComboBox").dataSource._data;
+                $.each(comboboxData, function (index, obj) {
+                    if (viewmodelPaymentTypeDRG.ClaimFieldDocID === obj.Value) {
+                        isValidTable = true;
+                    }
+                });
+            }
+            if (!isValidTable) {
+                registerGridPopup(messageTableIncorrect, "OK", null, null);
+                return;
+            }
+            $("#btnSavePaymentTypeDRG").attr('disabled', 'disabled');
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditPaymentTypeDrg", "PaymentTypeDrg", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(viewmodelPaymentTypeDRG),
+                fnSuccess: OnAddEditPaymentTypeDrgSuccess,
+            });
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    function OnAddEditPaymentTypeDrgSuccess(json) {
+        if (json.documentId == null) {
+            registerGridPopup("Incorrect table.", "OK", null, null);
+        }
+        else if (json.success != false) {
+            $('.ptDRG').closest(".k-window-content").data("kendoWindow").close();
+            ReDrawShapes();
+        } else {
+            $('.ptDRG').closest(".k-window-content").data("kendoWindow").close();
+            return false;
+        }
+    }
+
+    var $selectedNode = treeView.select();
+    var nodeId = treeView.dataItem($selectedNode).NodeId;
+
+    if ('@Model.IsEdit' == 'False') {
+        //to store values into database and bind table dropdownlist
+        ajaxRequestHandler({
+            url: SSIUrl.getPayementTypeTableNameMasterData + "?paymenttypeId=" + '@Model.PaymentTypeId' + "&nodeId=" + nodeId + "&userText=" + '',
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetPayementTypeTableNameMasterDataSuccess,
+        });
+
+        //To bind values for relative weight dropdownlist
+        ajaxRequestHandler({
+            url: SSIUrl.getPayementTypeDRGGetRelativeWeightMasterData,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetPayementTypeDRGGetRelativeWeightMasterDataSuccess,
+        });
+    } else {
+        //to retrive values for editing
+        ajaxRequestHandler({
+            url: SSIUrl.getPayementTypeTableNameMasterData + "?paymenttypeId=" + '@Model.PaymentTypeId' + "&nodeId=" + nodeId + "&userText=" + '',
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetPayementTypeTableNameMasterDataIsEditableSuccess,
+        });
+
+        ajaxRequestHandler({
+            url: SSIUrl.getPayementTypeDRGGetRelativeWeightMasterData,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetPayementTypeDRGGetRelativeWeightMasterDataIsEditableSuccess,
+        });
+    }
+
+    function OnGetPayementTypeTableNameMasterDataSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        $("#ddlAscFeeSschedule").addClass('customDefaultColor');
+        var paymentTypeTableNameComboBoxData = [];
+        if (json != null) {
+            $.each(json, function (i, item) {
+                paymentTypeTableNameComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+        $("#ddlAscFeeSschedule").kendoComboBox({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            placeholder: "Select Table Name",
+            dataSource: paymentTypeTableNameComboBoxData,
+            filter: "contains",
+            suggest: true
+        });
+    }
+
+    function OnGetPayementTypeDRGGetRelativeWeightMasterDataSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        var paymentTypeRelativeComboBoxData = [];
+        if (json != null && json.relativeWeightList != null) {
+            $.each(json.relativeWeightList, function (i, item) {
+                paymentTypeRelativeComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+        $("#combo-relative-weight").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            optionLabel: "Select DRG Schedule",
+            dataSource: paymentTypeRelativeComboBoxData
+        }).data("kendoDropDownList");
+    }
+
+    function OnGetPayementTypeTableNameMasterDataIsEditableSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        var editpaymentTypeTableNameComboBoxData = [];
+        if (json != null) {
+            $.each(json, function (i, item) {
+                editpaymentTypeTableNameComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+        $("#ddlAscFeeSschedule").kendoComboBox({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            placeholder: "Select Table Name",
+            dataSource: editpaymentTypeTableNameComboBoxData,
+            filter: "contains",
+            suggest: true
+        });
+    }
+
+    function OnGetPayementTypeDRGGetRelativeWeightMasterDataIsEditableSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        var editPaymentTypeRelativeComboBoxData = [];
+        if (json != null && json.relativeWeightList != null) {
+            $.each(json.relativeWeightList, function (i, item) {
+                editPaymentTypeRelativeComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+        $("#combo-relative-weight").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            optionLabel: "Select DRG Schedule",
+            dataSource: editPaymentTypeRelativeComboBoxData
+        }).data("kendoDropDownList");
+    }
+
+    kendo.bind($("#divPaymentTypeDRG"), viewmodelPaymentTypeDRG);
+
+</script>
