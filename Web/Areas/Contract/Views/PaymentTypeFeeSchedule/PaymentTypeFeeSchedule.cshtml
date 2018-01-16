@@ -1,0 +1,202 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeFeeSchedulesViewModel
+@{
+    Layout = null;
+}
+<div id="divPaymentTypeFeeSchedule">
+    <input type="hidden" name="hiddenFeeScheduleContractId" id="hiddenFeeScheduleContractId"
+           data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenFeeScheduleServiceTypeId" id="hiddenFeeScheduleServiceTypeId"
+           data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenFeeSchedulePaymentTypeId" id="hiddenFeeSchedulePaymentTypeId"
+           data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenFeeSchedulePaymentTypeDetailId" id="hiddenFeeSchedulePaymentTypeDetailId"
+           data-bind="value:PaymentTypeDetailId" />
+    <label>
+        Fee Schedule
+    </label>
+    <input type="text" id="txtFeeSchedule" data-bind="value:FeeSchedule" /><br />
+    <label>
+        Non-Fee Schedule
+    </label>
+    <input type="text" id="txtNonFeeSchedule" data-bind="value:NonFeeSchedule" /><br />
+    <label>
+        Fee Schedule Table
+    </label>
+
+    <input id="ddlAscFeeSschedule" style="width: 138px;" data-bind="value:ClaimFieldDocID" />
+    <div class="divObserveUnit">
+        <label class="observeunit">
+            <input type="checkbox" id="chk-observeunit" class="k-checkbox checkBox-observeunit" data-bind="checked:IsObserveUnits" />Observe Service Units
+        </label>
+    </div>
+    <div class="btn-save-close">
+        <input type="button" id="btnSavePaymentTypeFeeSchedule" value="Save" class="k-button ptFeeSchedule" />
+        @if (Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypeFeeSchedule" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#txtFeeSchedule').siblings('input:visible').focus();
+        }, 1000);
+
+        var userAgent = window.navigator.userAgent;
+        var internetExplorer = userAgent.indexOf("MSIE ");
+
+        if (internetExplorer > 0) // If Internet Explorer, return version number
+        {
+            $("#chk-include-modifier-fee").addClass('chk-feeschedule-ie');
+            $("#chk-observeunit").addClass('chk-feeschedule-ie ');
+        }
+        else  // If another browser, return 0
+        {
+            $("#chk-include-modifier-fee").addClass('chk-feeschedule');
+            $("#chk-observeunit").addClass('chk-feeschedule');
+        }
+
+    });
+    //Formatting percentage field
+    $("#txtFeeSchedule").kendoNumericTextBox({
+        format: "#.## \\%",
+        min: 0
+    });
+    //Formatting percentage field
+    $("#txtNonFeeSchedule").kendoNumericTextBox({
+        format: "#.## \\%",
+        min: 0
+    });
+
+    //For Set Focus Text Box
+    $('#txtFeeSchedule').siblings('input:visible').focus();
+
+    $("#ddlAscFeeSschedule").kendoComboBox({});
+    var viewmodelFeeschdule = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        FeeSchedule: '@Model.FeeSchedule',
+        NonFeeSchedule: '@Model.NonFeeSchedule',
+        ClaimFieldDocID: '@Model.ClaimFieldDocId',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId',
+        IsObserveUnits:@Json.Encode(Model.IsObserveUnits)
+        });
+    //Combo box place holder default color in ie.
+    ComboBoxDefaultColor("ddlAscFeeSschedule");
+
+    $("#btnSavePaymentTypeFeeSchedule").click(function () {
+        var isValidTable = false;
+        if ($("#ddlAscFeeSschedule").val() != '') {
+            if ($("#ddlAscFeeSschedule").data("kendoComboBox")) {
+                var comboboxData = $("#ddlAscFeeSschedule").data("kendoComboBox").dataSource._data;
+                $.each(comboboxData, function(index, obj) {
+                    if (viewmodelFeeschdule.ClaimFieldDocID === obj.Value) {
+                        isValidTable = true;
+                    }
+                });
+            }
+            if (!isValidTable) {
+                registerGridPopup(messageTableIncorrect, "OK", null, null);
+                return;
+            }
+            $("#btnSavePaymentTypeFeeSchedule").attr('disabled', 'disabled');
+            //Below code for adding the payment type fee schedule
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditPaymentTypeFeeSchedule", "PaymentTypeFeeSchedule", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(viewmodelFeeschdule),
+                fnSuccess: OnAddEditPaymentTypeFeeScheduleSuccess,
+            });
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    function OnAddEditPaymentTypeFeeScheduleSuccess(json) {
+
+        if (json.documentId == null) {
+            registerGridPopup("Incorrect table.", "OK", null, null);
+        }
+        else if (json.success != false) {
+            $('.ptFeeSchedule').closest(".k-window-content").data("kendoWindow").close();
+            ReDrawShapes();
+        } else {
+            $('.ptFeeSchedule').closest(".k-window-content").data("kendoWindow").close();
+            return false;
+        }
+    }
+
+    var $selectedNode = treeView.select();
+    var nodeId = treeView.dataItem($selectedNode).NodeId;
+
+    if ('@Model.IsEdit' == 'False') {
+        //to store values into database and bind data in dropdownlist
+        ajaxRequestHandler({
+            url: SSIUrl.getPayementTypeTableNameMasterData + "?paymenttypeId=" + '@Model.PaymentTypeId' + "&nodeId=" + nodeId + "&userText=" + '',
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetPayementTypeTableNameMasterDataSuccess,
+        });
+
+    } else {
+        //to retrive values for editing purpose
+        ajaxRequestHandler({
+            url: SSIUrl.getPayementTypeTableNameMasterData + "?paymenttypeId=" + '@Model.PaymentTypeId' + "&nodeId=" + nodeId + "&userText=" + '',
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetPayementTypeTableNameMasterDataIsEditedSuccess,
+        });
+
+    }
+
+    function OnGetPayementTypeTableNameMasterDataSuccess(json) {
+        //In success function bind data into combobox using kendo
+        $("#ddlAscFeeSschedule").addClass('customDefaultColor');
+        var paymentTypeTableNameComboBoxData = [];
+        if (json != null) {
+            $.each(json, function (i, item) {
+                paymentTypeTableNameComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+        $("#ddlAscFeeSschedule").kendoComboBox({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            placeholder: "Select Table Name",
+            dataSource: paymentTypeTableNameComboBoxData,
+            filter: "contains",
+            suggest: true
+        });
+    }
+
+    function OnGetPayementTypeTableNameMasterDataIsEditedSuccess(json) {
+        //In success function bind data into combobox using kendo
+        var editpaymentTypeTableNameComboBoxData = [];
+        if (json != null) {
+            $.each(json, function (i, item) {
+                editpaymentTypeTableNameComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+        $("#ddlAscFeeSschedule").kendoComboBox({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            placeholder: "Select Table Name",
+            dataSource: editpaymentTypeTableNameComboBoxData,
+            filter: "contains",
+            suggest: true
+        });
+    }
+
+    kendo.bind($("#divPaymentTypeFeeSchedule"), viewmodelFeeschdule);
+    setTimeout(function () {
+        $("input:text:first").focus();
+    }, 1000);
+
+    //Check Box check on label click
+    CheckBoxLabelClickEvent();
+</script>
