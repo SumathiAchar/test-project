@@ -1,0 +1,152 @@
+@model SSI.ContractManagement.Web.Areas.Common.Models.ClaimFieldDocsViewModel
+@{
+    Layout = null;
+}
+<!-- form for submiitig  claims field  documents -->
+    @using (Html.BeginForm("SaveClaimFieldExcelDocs", "ClaimFieldDoc",FormMethod.Post ,new { enctype = "multipart/form-data",id="cliamFieldForm"}))
+    {
+        <div id="claim-field-container">
+
+        <input type="hidden" id="contract-Id" name="ContractId" value="@Model.ContractId"/>
+        <input type="hidden" id="hiden-node-Id" name="NodeId" value="@Model.NodeId"/>
+        <!--For displaying the upload file-->
+
+        <div>
+       
+           <label> Upload a File </label> 
+        <!--For uploading the file-->
+
+            <input type="file" id="file-upload" class="k-upload-button" name="FileUpload1" style="width:170px; font-size:12px !important;" />
+        
+        </div>
+        
+        <!--For displaying the type-->
+        <div>
+        
+         
+           <label> Type </label> 
+   
+        <!-- For selecting the relative weight type-->
+        <input class="k-dropdown" id="combo-relative-weight" style="width:170px"/>
+
+        </div>
+        
+        <div>
+
+          <!--For displaying the table name-->
+       
+        <label> Table Name </label> 
+        <input id="table-name" name="TableName" class="k-textbox" style="width:170px; font-size:11px;" type="text"/>
+        <input type="hidden"  id="claim-field-id" name="ClaimFieldId" />
+        
+        </div>
+      
+        
+        </div>
+      
+        
+        <div class="btn-save-close">
+
+            <input type="submit" id="claim-submit" name="Submit"  class="k-button" value="Submit" onclick="return CheckFileName();" />
+        
+        </div>
+        
+    }
+
+<script type="text/javascript">
+
+    function change() {
+        setTimeout(function () {
+            // focus on the first visible and enabled input field or textarea
+            $(":input:visible:enabled").each(function () {
+                if ($(this).is("#table-name")) {
+                    $(this).focus();
+                    return false;
+                }
+            });
+        }, 100);
+    }
+
+    $(function () {
+        //for Populate TableName
+        addRelativeWeightListForFesschedule();
+
+        //Submit Button
+        $("#claim-submit").click(function (e) {
+          
+            if ($("#combo-relative-weight").val() != 0 && $("#table-name").val() != "" && $("#combo-relative-weight").val() != "") {
+
+                $('#claim-field-id').val($("#combo-relative-weight").val());
+                //Importexcel Jshon Method of ClaimFieldDocs Controller
+                ajaxRequestHandler({
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    url: '@Url.Action("SaveClaimFieldExcelDocs", "ClaimFieldDoc")',
+                    fnSuccess: OnSaveClaimFieldExcelDocsSuccess
+                });
+            }
+        });
+
+        function OnSaveClaimFieldExcelDocsSuccess(json) {
+            if (json.isSuccess == true)
+                $(this).closest(".k-window-content").data("kendoWindow").close();
+        }
+
+        //       populate addRelativeWeightList 
+
+        function addRelativeWeightListForFesschedule() {
+
+            //Get Service List using ajax and bind combobox
+            ajaxRequestHandler({
+                type: "GET",
+                dataType: "json",
+                url: SSIUrl.openClaimField,
+                fnSuccess: OnOpenClaimFieldSuccess
+            });
+        }
+
+        function OnOpenClaimFieldSuccess(json) {
+            //In success function bind data into combobox using kendo 
+            var paymentTypeRelativeComboBoxData = [];
+
+            if (json != null && json.claimFeildList != null) {
+                $.each(json.claimFeildList, function (i, item) {
+                    paymentTypeRelativeComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+                });
+            }
+          
+            if (paymentTypeRelativeComboBoxData == null) {
+                paymentTypeRelativeComboBoxData = [];
+            }
+            $("#combo-relative-weight").kendoDropDownList({
+                dataTextField: "Text",
+                dataValueField: "Value",
+                optionLabel: "Select Claim Field",
+                dataSource: paymentTypeRelativeComboBoxData
+            });
+        }
+    });
+</script>
+<script language="javascript">
+    // validation for excel file
+    function CheckFileName() {
+      
+        var fileName = document.getElementById("file-upload").value;
+        if ($("#combo-relative-weight").val() == 0 || $("#table-name").val() == "" || $("#combo-relative-weight").val() == "") {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+            return false;
+        }
+        if (fileName == "") {
+            registerGridPopup("Browse to upload a valid file with xls/xlsx extension.", "OK", null, null);
+            return false;
+        }
+        else if (fileName.split(".")[1].toUpperCase() == "XLS" || fileName.split(".")[1].toLowerCase() == "xls" || fileName.split(".")[1].toUpperCase() == "XLSX" || fileName.split(".")[1].toLowerCase() == "xlsx" || fileName.split(".")[1].toLowerCase() == "csv" || fileName.split(".")[1].toUpperCase() == "CSV")
+            return true;
+        else {
+            registerGridPopup("File with " + fileName.split(".")[1] + " is invalid. Upload a valid file with xls/xlsx/csv extensions.", "OK", null, null);
+            return false;
+        }
+
+    }
+</script>
