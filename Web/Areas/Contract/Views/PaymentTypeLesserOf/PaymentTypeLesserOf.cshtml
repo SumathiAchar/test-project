@@ -1,0 +1,57 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeLesserOfViewModel
+@{
+    Layout = null;
+}
+<script src="@Url.Content("~/Areas/Contract/JavaScript/PaymentTypeLesserOf.js")" type="text/javascript"></script>
+
+<div id="divLOPayment">
+    <input type="hidden" name="hiddenLOPaymentContractId" id="hiddenLOPaymentContractId"
+           data-bind="value: ContractId" />
+    <input type="hidden" name="hiddenLOPaymentServiceTypeId" id="hiddenLOPaymentServiceTypeId"
+           data-bind="value: ServiceTypeId" />
+    <input type="hidden" name="hiddenLOPaymentPaymentTypeId" id="hiddenLOPaymentPaymentTypeId"
+           data-bind="value: PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenLesserOfPaymentPaymentTypeDetailId" id="hiddenLesserOfPaymentTypeDetailId"
+           data-bind="value:PaymentTypeDetailId" />
+    <label>Percentage<span class="cms-requiredfields">*</span></label>
+
+    <input id="txtLOPercentage" type="text" data-bind="value: Percentage" />
+    <div class="divLOPercentage">
+        <label>
+            <input type="radio" value="LesserOf" name="lesserGreaterOf" checked="checked" id="chkLesserOf" />
+            Lesser Of
+        </label><br />
+        <label>
+            <input type="radio" value="GreaterOf" name="lesserGreaterOf" id="chkGreaterOf" />Greater Of
+        </label>
+    </div>
+    <div class="btn-save-close">
+        <input id="btnLOSave" type="button" value="Save" class="k-button" />
+        @if (Model.IsEdit)
+        {
+            <input type="button" id="btnDeletePaymentTypeLO" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+
+    if ('@Model.IsLesserOf' != '') {
+        if ('@Model.IsLesserOf' == 'True') {
+            $("input:radio[name=lesserGreaterOf][value='LesserOf']").prop('checked', true);
+        } else {
+            $("input:radio[name=lesserGreaterOf][value='GreaterOf']").prop('checked', true);
+        }
+    }
+
+    var viewModelLO = kendo.observable({
+        ContractId: '@Model.ContractId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Percentage: '@Model.Percentage',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId',
+        ServiceTypeId: '@Model.ServiceTypeId'
+    });
+
+    kendo.bind($("#divLOPayment"), viewModelLO);
+    //Check Box check on label click
+    CheckBoxLabelClickEvent();
+</script>
