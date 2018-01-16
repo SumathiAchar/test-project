@@ -1,0 +1,283 @@
+<link href="@Url.Content("~/Content/css/bootstrap/bootstrap-datepicker.css")" rel="stylesheet" type="text/css" />
+
+
+
+@model  SSI.ContractManagement.Web.Areas.Contract.Models.ContractViewModel
+@{
+    Layout = null;
+}
+<!-- For contract basic information-->
+<div id="container-basic-info">
+    <div id="firstinfo">
+        <div id="firstinfoleft">
+            <div id="basicname">
+
+                <input type="hidden" name="hiddenFacilityId" id="hidden-facility-id" data-bind="value:FacilityId" />
+                <input type="hidden" name="hiddenNodeId" id="hidden-node-id" data-bind="value:NodeId" />
+                <label for="txtContractName">
+                    Contract Name<span class="cms-requiredfields">*</span>:
+                </label>
+                <input id="txt-contract-name" class="k-textbox" data-bind="value:ContractName" maxlength="100" />
+            </div>
+            <!-- Effective Starting Date Div -->
+            <div id="basices">
+                <label for="lblEffectiveStartingDate">
+                    Effective Starting Date<span class="cms-requiredfields">*</span>:
+                </label>
+                <input id="contractlink-startdate" class="customdate from_date" placeholder="mm/dd/yyyy" maxlength="10" />
+
+            </div>
+            <!-- Effective Ending Date Div -->
+            <div id="basicee">
+                <label for="lblEffectiveEndingDate">
+                    Effective Ending Date<span class="cms-requiredfields">*</span>:
+                </label>
+                <input id="contractlink-endingdate" class="customdate to_date" placeholder="mm/dd/yyyy" maxlength="10" />
+            </div>
+            <div id="basicex">
+                <div id="basicss">
+                    <label>
+                        <input type="checkbox" data-bind="checked: IsProfessional" class="common-class" id="chkIsProfessional" />
+                        Professional
+                    </label>
+                    <label>
+                        <input type="checkbox" data-bind="checked: IsInstitutional" class="common-class" id="chkIsInstitutional" />
+                        Institutional
+                    </label>
+                </div>
+                <div id="claimdates">
+                    Claim Date type to be validated <label>
+                        <input type="radio" name="validated" value="Start"
+                               data-bind="checked: IsClaimStartDate" class="common-class" id="chkIsClaimStartDate" />
+                        Start
+                    </label>
+                    <label id="IsClaimThroughDate">
+                        <input type="radio" name="validated" value="Through" data-bind="checked: IsClaimThroughDate" checked="checked" class="common-class" id="chkIsClaimThroughDate" />
+                        Through
+                    </label>
+                </div>
+            </div>
+        </div>
+        <div id="firstinforight">
+            <label>
+                @if (Model.ContractBasicInfo != null && Model.ContractBasicInfo.IsContractServiceTypeFound == true)
+                {
+                    <input type="checkbox" data-bind="checked: Status" class="common-class" id="chkStatus" />
+                }
+                else
+                {
+                    <input type="checkbox" disabled="disabled" data-bind="checked: Status" class="common-class" id="chkStatus" />
+                }
+                Active
+            </label>
+            <label id="alert-contract">Alert </label>
+            <input type="text" class="k-textbox" style="width: 42px" value="60" id="alert-threshold" maxlength="3" data-bind="value: ThresholdDaysToExpireAlters" />
+            <label>days before expiration</label>
+        </div>
+    </div>
+    <!-- Payer Listview Div -->
+    <div id="payer-container">
+        <div id="payer">
+            Available Payers
+            <ul id="available-payers" data-role="listview" data-bind="source: AvailablePayerList"></ul>
+            <div id="searchpayersbox">
+                <input id="txt-search-payers" type="text" class="k-textbox txt-search-payers" onfocus="javascript:WaterMark(this, event);" value="<Search Payer Name>">
+            </div>
+        </div>
+        <!-- Add Button Div -->
+        <div id="payerbutton">
+            <input id="contract-addtogrid" type="image" src="@Url.Content("~/Content/images/next.png")" value="Add" />
+            <input id="btn-remove" type="image" src="@Url.Content("~/Content/images/previous.png")" value="Remove" />
+            <input id="contract-add-all-togrid" type="image" src="@Url.Content("~/Content/images/last.png")" value="AddAll" />
+            <input id="btn-remove-all" type="image" src="@Url.Content("~/Content/images/first.png")" value="Remove" />
+        </div>
+        <!-- Selected Listview Div -->
+        <div id="selected">
+            Selected Payers
+            <ul id="list-selected-payers" data-role="listview" data-bind="source: SelectedPayerList"></ul>
+        </div>
+        <div id="payer-code">
+            <label id="txtPayerCode">
+                Payer Code(s):
+            </label>
+            <input id="txt-payer-code" maxlength="500" name="txtPayerCode" class="k-textbox" data-bind="value: PayerCode">
+            <br />
+            <label id="udf-fields">
+                in:
+            </label>
+            <input id="ddl-udf-fields" tabindex="50" style="width: 180px" data-bind="value: CustomField" />
+        </div>
+    </div>
+
+    <div id="conlinksave">
+        <input id="btnsave-contractlink" type="button" value="Save" class="k-button" />
+    </div>
+</div>
+<!-- End of the contract basic information-->
+<!-- Payer Listview Template -->
+<script src="@Url.Content("~/Content/js/bootstrap/bootstrap-datepicker.js")" type="text/javascript"></script>
+<script src="@Url.Content("~/Areas/Contract/JavaScript/ContractLink.js")" type="text/javascript"></script>
+
+<script type="text/x-kendo-tmpl" id="SeletedPayerstemplate">
+    <div data-bind="text: Name, value: PayerId">
+        #:Name#<br />
+    </div>
+</script>
+<!-- Selected Listview Template -->
+<script type="text/x-kendo-tmpl" id="selecttemplate">
+    <div data-bind="text: Name, value: PayerId">
+        #:Name#
+    </div>
+</script>
+<script type="text/javascript">
+
+    $(document).ready(function() {
+
+        if ('@Model.ContractId' != null && '@Model.ContractId' != 0) {
+            $("#txt-contract-name").focus();
+            $("#txt-contract-name").select();
+        }
+
+    });
+    var resetContractViewModel;
+    var contractViewModel;
+
+    $(function() {
+        availablePayerList = @Html.Raw(Json.Encode(Model.ContractBasicInfo.AvailablePayerList));
+        if (availablePayerList == null) {
+            availablePayerList = [];
+        }
+
+        selectedPayerList = @Html.Raw(Json.Encode(Model.ContractBasicInfo.SelectedPayerList));
+        if (selectedPayerList == null) {
+            selectedPayerList = [];
+        }
+
+        var isProfessionalValue = false;
+        var isInstitutionalValue = false;
+        var isStatus = false;
+        if ('@Model.ContractBasicInfo.Status' == 'True') {
+            isStatus = true;
+        }
+        if ('@Model.ContractBasicInfo.IsProfessional' == 'True') {
+            isProfessionalValue = true;
+        }
+        if ('@Model.ContractBasicInfo.IsInstitutional' == 'True') {
+            isInstitutionalValue = true;
+        }
+        contractViewModel = kendo.observable({
+            Status: isStatus,
+            ContractId: '@Model.ContractId',
+            AvailablePayerList: availablePayerList,
+            SelectedPayerList: selectedPayerList,
+            ContractName: @Html.Raw(Json.Encode(Model.ContractBasicInfo.ContractName)),
+            ParentId: '@Model.ContractBasicInfo.ParentId',
+            IsProfessional: isProfessionalValue,
+            IsInstitutional: isInstitutionalValue,
+            IsClaimStartDate: '@Model.ContractBasicInfo.IsClaimStartDate',
+            FacilityId: '@Model.FacilityId',
+            NodeId: '@Model.NodeId',
+            ThresholdDaysToExpireAlters: '@Model.ContractBasicInfo.ThresholdDaysToExpireAlters',
+            PayerCode: '@Model.PayerCode'?@Html.Raw(Json.Encode(Model.PayerCode)):'@Model.PayerCode',
+            CustomField: '@Model.CustomField',
+            EffectiveStartDate:('@Model.ContractId'>0)?'@Model.ContractBasicInfo.EffectiveStartDate':'',
+            EffectiveEndDate:('@Model.ContractId'>0)?'@Model.ContractBasicInfo.EffectiveEndDate':''
+        });
+
+        previousContractName = @Html.Raw(Json.Encode(Model.ContractBasicInfo.ContractName));
+        if ('@Model.ContractId' > 0) {
+            if ('@Model.ContractBasicInfo.IsClaimStartDate' == 'True') {
+                contractViewModel.IsClaimStartDate = "Start";
+            } else {
+                contractViewModel.IsClaimThroughDate = "Through";
+            }
+        }
+
+        if ('@Model.ContractId' == '0') {
+            contractViewModel.EffectiveStartDate = $("#contractlink-startdate").val();
+            contractViewModel.EffectiveEndDate = $("#contractlink-endingdate").val();
+            $("#contractlink-startdate").attr("style", "font-style: normal; color: grey !important;");
+            $("#contractlink-endingdate").attr("style", "font-style: normal; color: grey !important;");
+
+        } else {
+            $("#contractlink-startdate").val(dateFormat(new Date('@Model.ContractBasicInfo.EffectiveStartDate'), "MM/DD/YYYY"));
+            $("#contractlink-endingdate").val(dateFormat(new Date('@Model.ContractBasicInfo.EffectiveEndDate'), "MM/DD/YYYY"));
+        }
+        kendo.bind($("#container-basic-info"), contractViewModel);
+
+        $("input:radio").click(function() {
+            if ($(this).val() == "Start") {
+                contractViewModel.IsClaimStartDate = true;
+            } else {
+                contractViewModel.IsClaimStartDate = false;
+            }
+        });
+        oldContractName = contractViewModel.ContractName;
+        resetContractViewModel=JSON.parse(JSON.stringify(contractViewModel));
+        resetContractViewModel.AvailablePayerList = availablePayerList;
+    });
+
+    function modifiedContractDetails() {
+        if (modifiedContractConditions()) {
+            if ($.trim($("#txt-contract-name").val()) != '' && ($("#list-selected-payers").html() != "" || $("#txt-payer-code").val() != '') && fromDateCheck != 'mm/dd/yyyy' && toDateCheck != 'mm/dd/yyyy') {
+                $("#btnsave-contractlink").attr('disabled', 'disabled');
+                $("#cms-tabstrip-contract").find("ul li:gt(0)").prop('disabled', false);
+                // for IE browser
+                $("#cms-tabstrip-contract").find("ul li").removeClass("k-state-disabled").addClass("k-item k-state-default");
+                $("#txt-search-payers").val('<Search Payer Name>');
+                $("#available-payers").data("kendoListView").dataSource.filter({});
+                if (!dateCompare()) {
+                    registerGridPopup("Enter only valid dates.", "OK", null, null);
+                    isValidationSucess=false;
+                    return false;
+                }
+                if (!validateDateFormat()) {
+                    registerGridPopup("Please enter a valid date.", "OK", null, null);
+                    isValidationSucess=false;
+                    return false;
+                }
+
+                var payers = [];
+                for (var i = 0; i < dataSourceSelectedPayer._data.length; i++) {
+                    payers.push({ 'payerId': dataSourceSelectedPayer._data[i].PayerId, 'Name': dataSourceSelectedPayer._data[i].Name });
+                }
+                availablePayerList = [];
+                for (var i = 0; i < dataSourceAvailablePayer._data.length; i++) {
+                    availablePayerList.push(dataSourceAvailablePayer._data[i]);
+                }
+
+                if (contractViewModel.IsClaimStartDate == 'Start') {
+                    contractViewModel.IsClaimStartDate = true;
+                }
+                contractViewModel.AvailablePayerList = null;
+                contractViewModel.SelectedPayerList = payers;
+                contractViewModel.EffectiveStartDate = $("#contractlink-startdate").val();
+                contractViewModel.EffectiveEndDate = $("#contractlink-endingdate").val();
+                var startDate = dateFormat(new Date(contractViewModel.EffectiveStartDate), "MM/DD/YYYY");
+                var endDate = dateFormat(new Date(contractViewModel.EffectiveEndDate), "MM/DD/YYYY");
+                contractViewModel.ContractId = $('#hidden-basicinfo-contractid').val();
+                contractViewModel.ThresholdDaysToExpireAlters = $("#alert-threshold").val();
+                contractViewModel.CustomField = $("#ddl-udf-fields").val();
+                var modelParentId = '@Model.ModelParentId'
+                var parentNode = '@Model.IsParentNode'
+                var previousStartDate = '@Model.ContractBasicInfo.EffectiveStartDate'
+                var previousEndDate = '@Model.ContractBasicInfo.EffectiveEndDate'
+
+                //Check to verify that Contract exists or not
+                IsContractNameExists(parentNode,modelParentId,startDate,endDate,contractViewModel.ContractId);
+
+            } else {
+                registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+                isValidationSucess=false;
+                return false;
+            }
+        }
+        else{
+            isValidationSucess=false;
+        }
+    };
+    //Check Box check on label click
+    CheckBoxLabelClickEvent();
+</script>
+
+
