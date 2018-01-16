@@ -1,0 +1,64 @@
+@using Newtonsoft.Json
+<script src="~/Areas/Contract/JavaScript/MedicareIp.js"></script>
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeMedicareIpPaymentViewModel
+@{
+    Layout = null;
+}
+<div id="divMCPayment">
+    <input type="hidden" name="hiddenMCPaymentContractId" id="hiddenMCPaymentContractId"
+           data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenMCPaymentServiceTypeId" id="hiddenMCPaymentServiceTypeId"
+           data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenMCPaymentPaymentTypeId" id="hiddenMCPaymentPaymentTypeId"
+           data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenMedicareIPPaymentTypeDetailId" id="hiddenMedicareIPPaymentTypeDetailId"
+           data-bind="value:PaymentTypeDetailId" />
+    <label>
+        Percentage
+    </label>
+
+    <input id="txtMCPercentage" type="text" data-bind="value:InPatient" />
+    <br />
+    <div id="divMedicareIpAcuteOption" data-bind="source: MedicareIpAcuteOptions" data-template="medicareIpAcuteOptionTemplate"></div>
+    <script type="text/x-kendo-tmpl" id="medicareIpAcuteOptionTemplate">
+        <div class="medicare-ip-acute-option">
+            <label>
+                <input type="checkbox" data-bind="value: MedicareIpAcuteOptionCode" />&nbsp;
+                #= MedicareIpAcuteOptionName #&nbsp;(#= MedicareIpAcuteOptionCode #)
+            </label>
+            <div id="divMedicareIpAcuteChildOption" data-bind="source: MedicareIpAcuteOptionChilds" data-template="medicareIpAcuteOptionChildTemplate"></div>
+        </div>
+    </script>
+    <script type="text/x-kendo-tmpl" id="medicareIpAcuteOptionChildTemplate">
+        <div class="medicare-ip-acute-option-child">
+            <label>
+                <input type="checkbox" data-bind="value: MedicareIpAcuteOptionChildCode" />&nbsp;
+                #= MedicareIpAcuteOptionChildName #&nbsp;(#= MedicareIpAcuteOptionChildCode #)
+            </label>
+        </div>
+    </script>
+
+    <div class="btn-save-close">
+        <input id="btnMCSave" type="button" value="Save" class="k-button ptMedicareIp" />
+        @if (Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypeMC" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+    var viewmodelMcIp = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        InPatient: '@Model.InPatient',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId',
+        MedicareIpAcuteOptions: @Html.Raw(Json.Encode(@Model.MedicareIpAcuteOptions)),
+        Formula: '@Model.Formula',
+        IsEdit: '@Model.IsEdit'
+    });
+
+    kendo.bind($("#divMCPayment"), viewmodelMcIp);
+
+    checkUncheckAll();
+</script>
