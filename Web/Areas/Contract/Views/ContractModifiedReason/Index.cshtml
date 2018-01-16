@@ -1,0 +1,60 @@
+﻿@model SSI.ContractManagement.Web.Areas.Contract.Models.ContractModifiedReasonViewModel
+@{
+    Layout = null;
+}
+<div id="container-contract-reason">
+
+     <input type="hidden" name="hiddenContractId" id="hidden-contract-id"
+        data-bind="value:ContractId" />
+    <label> Reason Code </label> <input  id="combo-reason-code" style="width:200px"/>
+    <div class="btn-save-close">
+        @*<span style="padding-top:20px;  display:none; padding-right:10px;" id="image-save-reason">
+            <img  src="@Url.Content("~/Content/images/loader.gif")" height="30"  />
+        </span>*@
+        <input type="button" id="btn-save-reason" value="Save" class="k-button" />
+    </div>
+     
+ 
+ @*  <label style="display:none;"> Notes </label> <input type="text" id="txt-notes" value="" style="display:none;"/>*@
+    
+</div>
+
+<script>
+    var data = [
+                 { text: "Contract Correction", value: "1" },
+                 { text: "Payer Contract Changes", value: "2" }
+    ];
+
+    // create DropDownList from input HTML element
+    $("#combo-reason-code").kendoDropDownList({
+        dataTextField: "text",
+        dataValueField: "value",
+        dataSource: data,
+        index: 0
+    });
+
+    //For saving the reason code
+    $("#btn-save-reason").click(function () {
+        $("#image-save-reason").show();
+        $("#btn-save-reason").attr('disabled', 'disabled');
+        var cModifiedCode = { 'ContractId': '@Model.ContractId', 'Notes': $("#txt-notes").val(), 'ReasonCode': $("#combo-reason-code").val(), 'NodeId': '@Model.NodeId', 'FacilityId': '@Model.FacilityId' };
+        $.ajaxSetup({
+            // Disable caching of AJAX responses
+            cache: false
+        });
+        
+        ajaxRequestHandler({
+            url: '@Url.Action("AddModifiedReason", "ContractModifiedReason", new { area = "Contract" })',
+            type: "POST",
+            dataType: "json",
+            contentType: "application/json; charset=utf-8",
+            data: JSON.stringify(cModifiedCode),
+            fnSuccess: OnAddModifiedReasonSuccess
+        });
+    });
+
+    function OnAddModifiedReasonSuccess() {
+        $("#form-add-contract").closest(".k-window-content").data("kendoWindow").close();
+        saveContractDetails();
+    }
+</script>
