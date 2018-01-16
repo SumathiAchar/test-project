@@ -1,0 +1,149 @@
+@*@{  
+      Layout = "~/Views/Shared/_Layout.cshtml";  
+ }*@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.ContractViewModel
+
+<div id="container-seperation" class="k-content">
+
+    <div class="btn-save-close contract-done">
+        <input type="button" id="btn-contract-done" value="Cancel" class="k-button" />
+    </div>
+    <input type="hidden" name="hiddenBasicInfoContractId" id="hidden-basicinfo-contractid" value="@Model.ContractId"/>
+    <div id="">
+        <!-- For displaying the tab  structure for Contract Name,Contact Info,Contract Notes and Scan/Import/Upload Forms-->
+        <div id="cms-tabstrip-contract">
+            <ul>
+                <li id="payer-name" class="k-state-active">Contract Name/Payer Links</li>
+                <li id="con-info">Contact Info</li>
+                <li id="contract-notes">Contract Notes</li>
+                <li>Attachments</li>
+            </ul>
+            <!-- For contract link-->
+            <div>
+                @if (Model != null)
+                {
+                    if (Model.ContractBasicInfo != null)
+                    {
+                    @Html.Partial("~/Areas/Contract/Views/ContractLink/ContractLink.cshtml", Model)
+                    }
+                }
+            </div>
+            <!-- End contract link-->
+
+            <!-- For Contract information-->
+            <div>
+                @if (Model != null)
+                {
+                    @Html.Partial("~/Areas/Contract/Views/ContractInfo/ContractInfo.cshtml", Model.ContractContactIds)
+                }
+            </div>
+            <!-- End of the  Contract information-->
+
+            @*REVIEW:Might have to check if Model.ContractNotes ! = null. Same for ContractUploadFiles.*@
+            <!--For contract notes-->
+            <div>
+                @if (Model != null)
+                {
+                    @Html.Partial("~/Areas/Contract/Views/ContractNote/ContractNote.cshtml", Model.ContractNotes)
+                }
+            </div>
+            <!--End of the contract notes-->
+
+            <!--For contract documents-->
+            <div>
+                @if (Model != null)
+                {
+                    @Html.Partial("~/Areas/Contract/Views/ContractDocument/ContractDocument.cshtml", Model.ContractUploadFiles)
+                }
+            </div>
+            <!--End of the contract documents-->
+        </div>
+        <!-- End of the displaying the tab  structure for Contract Name,Contact Info,Contract Notes and Scan/Import/Upload Forms-->
+    </div>
+</div>
+<script type="text/javascript">
+    var ContractId = 0;
+    $(document).ready(function (e) {
+        var ContractId = $('#hidden-basicinfo-contractid').val();
+        if (ContractId == 0) {
+            $("#cms-tabstrip-contract").find("ul li:gt(0)").prop('disabled', true);
+        } else {
+            $("#btn-contract-done").attr('value', 'Done')
+        }
+
+        //$("#tool-container").css('background-image', 'none');
+        // Set focus on the txt-contract-name text Box of ContractLink view
+        $('#payer-name').click(function () {
+            setTimeout(function () {
+                // focus on the txtenclude text area first visible and enabled input field or textarea
+                $("#txt-contract-name").each(function () {
+                    $(this).focus();
+                    $("#txt-contract-name").focus();
+                    return false;
+                });
+            }, 1000);
+        });
+
+        // focus on the txtContactName text area  of ContractInfo.cshtml view
+        $('#con-info').click(function () {
+            setTimeout(function () {
+                $("#txt-contact-name").each(function () {
+                    $(this).focus();
+                    $("#txt-contract-name").focus();
+                    return false;
+                });
+            }, 1000);
+        });
+
+        // for contract note text area focus of ContractNote view
+        $('#contract-notes').click(function () {
+            setTimeout(function () {
+                // focus on the txtenclude text area first visible and enabled input field or textarea
+                $(":input:visible:enabled").each(function () {
+                    if ($(this).is('textarea')) {
+                        $(this).focus();
+                        return false;
+                    }
+                });
+            }, 1000);
+        });
+
+        $('#contract-name-container').hide();
+        // function for adding new new contract
+        $("#AddNewContract").click(function () {
+            $("#cms-tabstrip-contract").css("display", "block");
+        });
+
+        $("#cms-tabstrip-contract").kendoTabStrip({
+            select: onSelect
+        });
+
+        //This is called when tabstrip item is clicked
+        function onSelect(event) {
+            if (isContractChange) {
+                ShowContractChangedPopup(null,event)//it need only event for call back this function, so that other parameters are null
+                event.preventDefault();
+            }
+
+        }
+
+        $("#btn-contract-done").click(function () {
+            IsCancelClicked = false;
+            if ($("#btn-contract-done").attr('value') == 'Cancel')
+                IsCancelClicked = true;
+
+            if (isContractChange) {
+                ShowContractChangedPopup(null,$("#btn-contract-done"))//it need only event for call back this function, so that other parameters are null
+                return false;
+            }
+            $('#tool-container-left').html('');
+            $('#automation-button').hide();
+            
+            // After saving highlighting the treeview
+            //FIXED-SEP15 - Create one separate method for this because we are using it so many places
+           treeViewHighlight(true, false, true);
+        });
+
+
+    });
+</script>
