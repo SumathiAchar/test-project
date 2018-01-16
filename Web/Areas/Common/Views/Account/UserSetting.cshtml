@@ -1,0 +1,23 @@
+﻿@model  SSI.ContractManagement.Web.Areas.UserManagement.Models.UserViewModel
+@{
+    Layout = null;
+}
+<div id="divUserSetting">
+    <label>
+        Landing Page:
+    </label>
+    <input id="ddlUserSetting" class="k-dropdown" data-bind="value: LandingPageId" />
+</div>
+<div id="divUserSettingActionContainer">
+    <input type="button" id="btnUserSettingSave" value="Save" class="k-button" />
+    <input type="button" id="btnUserSettingCancel" value="Cancel" class="k-button" />
+</div>
+<script src="@Url.Content("~/Areas/Common/JavaScript/UserSetting.js")" type="text/javascript"></script>
+<script type="text/javascript">
+     viewModelUserSetting = kendo.observable({
+        LandingPageId: '@Model.LandingPageId'
+     });
+    initialViewModelUserSetting = jQuery.extend(true, {}, viewModelUserSetting);
+    kendo.bind($("#divUserSetting"), viewModelUserSetting);
+</script>
+
