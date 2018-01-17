@@ -1,0 +1,49 @@
+﻿@{  
+      Layout = null;  
+ }
+@using System.Configuration
+@using SSI.ContractManagement.Shared.Helpers
+@using SSI.ContractManagement.Web.Areas.Common.Models
+<script src="~/Content/js/PaymentTable.js"></script>
+
+<div id="container-pay-tabstrip" data-asc="@((byte)Enums.ClaimFieldTypes.AscFeeSchedule)">
+        <div id="cms-tabstrip-paytable">
+            <ul>
+                <li class="k-state-active tableImportclick"><span>Import </span></li>
+                <li class="tableMaintenanceclick"><span>Maintenance/View </span></li>
+            </ul>
+            
+            <!--For Contract alerts information-->
+            <div>
+                @Html.Partial("~/Areas/PaymentTable/Views/PaymentTable/ImportPayment.cshtml")
+               
+            </div>
+            <!-- For job status information-->
+            <div>
+                @Html.Partial("~/Areas/PaymentTable/Views/PaymentTable/MaintainPayment.cshtml")
+            </div>
+        </div>
+    </div>
+<script type="text/javascript">
+    $(document).ready(function () {
+        if ($("#menu-list-home").is(".k-state-active")) {
+            $("#menu-list-home").removeClass("k-state-active");
+        };
+        $("#payment-tables").addClass("k-state-active");
+        $("#cms-tabstrip-paytable").kendoTabStrip();
+        $("#tool-container").css('background-image', 'none');
+    });
+    
+    //declaring variable
+    var userUploadedTables = {
+        claimFieldASCFeeSchedule: '@((byte)Enums.ClaimFieldTypes.AscFeeSchedule)',
+        paymentTypeCodeASCFeeSchedule: '@((byte)Enums.PaymentTypeCodes.AscFeeSchedule)',
+        claimFieldFeeSchedule: '@((byte)Enums.ClaimFieldTypes.FeeSchedule)',
+        paymentTypeCodeFeeSchedule: '@((byte)Enums.PaymentTypeCodes.FeeSchedule)',
+        claimFieldDRGWeightTable: '@((byte)Enums.ClaimFieldTypes.DrgWeightTable)',
+        paymentTypeCodeDRGWeightTable: '@((byte)Enums.PaymentTypeCodes.DrgPayment)',
+        pageSize: '@GlobalConfigVariable.AlertPageSize',
+        claimFieldCustomTable: '@((byte)Enums.ClaimFieldTypes.CustomPaymentType)',
+        paymentTypeCustomTable: '@((byte)Enums.PaymentTypeCodes.CustomTableFormulas)'
+    };
+</script>
