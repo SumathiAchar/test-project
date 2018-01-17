@@ -1,0 +1,370 @@
+<div id="claim-adjudication-container">
+    <script src="@Url.Content("~/Content/js/jquery-1.7.js")" type="text/javascript"></script>
+    <link href="@Url.Content("~/Content/css/Reportstyle.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Content/js/ReportTable.js")" type="text/javascript"></script>
+    @{
+        Layout = null;
+    }
+    @using SSI.ContractManagement.Shared.Helpers    @model SSI.ContractManagement.Web.Areas.Report.Models.ReportInfoViewModel
+
+    @if (Model != null && Model.ClaimAdjudicationReportList != null && Model.ClaimAdjudicationReportList.Any())
+    {
+        @*<span id="claim-loading-image" style="position:absolute; background-color:#fff; padding: 10px; display: none; top:15%; height: 25px; vertical-align: middle; left: 45%;  bottom:1px;">
+            <img src="@Url.Content("~/Content/images/loader.gif")" height="30" alt="Loading" />
+        </span>*@
+        <div class="print-export-adj-report">
+            <div id="export-ex">
+        <a id="export-excel">
+                    <img id = "button-export-excel" src="@Url.Content("~/Content/images/expottoexcel.png")" width="16px" alt="Save As" title="Save As" />
+                </a>
+                <br />Save As
+            </div>
+            <div id="prt-report">
+                <a href="#" id="print-contents" onclick=" return PrintDivContents('report-main')">
+                    <img src="@Url.Content("~/Content/images/Printprinter.png")" width="16px" alt="Print" title="Print" /></a>
+                <br />
+                Print
+            </div>
+        </div>
+        
+        <div>
+        
+        <table width="100%">
+            <tr id="main-tblth">
+                <th  style="width: 50%">
+                    <img src="@Url.Content("~/Content/images/SSI_logo.png")" height="60px" alt="SSI Logo" />
+                </th>
+                <th style="width: 50%; text-align:right">
+                    <table id="tbl-topleft">
+                        <tr>
+                            <td>
+                                @if (Model.ClaimAdjudicationReportList.Count > 0)
+                                {
+                                    <label>@Model.ClaimAdjudicationReportList.First().FacilityName
+                                    </label>
+                                }
+                                    <img src="@Url.Content("~/Content/images/logo_thumb.png")" height="20px" alt="SSI Logo" />
+                            </td>
+                        </tr>
+                        <tr>
+                            <td>
+                              
+                                    
+                                <label> Run on:
+                                    @DateTime.UtcNow.ToString("dddd, MMMM d, yyyy")
+                                </label>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td style=" word-break:break-all;">
+                                    
+                                <label> Run by: @ViewBag.UserName
+                                </label>
+                            </td>
+                        </tr>
+                    </table>
+                </th>
+            </tr>
+        </table>
+        
+        </div>
+        
+        <div id="report-main">
+            <!-- manin table -->
+            <table id="main-table">
+
+                <tr id="coltr">
+                    <th colspan="3">
+                        Contract Management Claims Adjudication Report
+                    </th>
+                </tr>
+                <tr>
+                    <td colspan="3">
+                        <!-- Second Sub Table -->
+                        <table id="ltable">
+                            <thead>
+                                <tr>
+                                    <td>
+                                         Patient Account Number
+                                    </td>
+                                    <td>
+                                        Contract
+                                    </td>
+                                    <td>
+                                        Through Date
+                                    </td>
+                                    <td>
+                                        Payer
+                                    </td>
+                                    <td>
+                                        Service Type
+                                    </td>
+                                    <td>
+                                        Code Selection
+                                    </td>
+                                    <td>
+                                        Payment
+                                    </td>
+                                    <td>
+                                        Adjudication Status
+                                    </td>
+                                    <td>
+                                        Reimbursement
+                                    </td>
+                                </tr>
+                            </thead>
+                            <tbody class="report-table-alt">
+                                @foreach (var filter in Model.ClaimAdjudicationReportList)
+                                {
+                                    <tr>
+                                        <td align="center" style=" word-break:break-all;"> @filter.PatientAccountNumber
+                                        </td>
+                                        <td align="left" style=" word-break:break-all;">@filter.ContractName
+                                        </td>
+                                        <td align="center" style=" word-break:break-all;">@filter.StartDate.ToShortDateString()
+                                        </td>
+                                        <td align="left" style=" word-break:break-all;">@filter.PayerName
+                                        </td>
+                                        <td align="left" style=" word-break:break-all;">@filter.ServiceType
+                                        </td>
+                                        <td align="left" style=" word-break:break-all;">@filter.CodeSelection
+                                        </td>
+                                        <td align="left" style=" word-break:break-all;">@filter.Payment
+                                        </td>
+                                        <td align="left" style=" word-break:break-all;">@filter.AdjudicationStatus
+                                        </td>
+                                        <td align="right" style=" word-break:break-all;">
+                                             @if (@filter.Reimbursement != null)
+                                            {
+                                                <p>
+                                                    $ @filter.Reimbursement</p>
+                                            }
+                                            else
+                                            {
+                                                @filter.Reimbursement
+                                            }
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </td>
+                </tr>
+            </table>
+        </div>
+
+        <div id="report-pagging">
+            <img src="@Url.Content("~/Content/images/first.png")" width="16" style="cursor:pointer;" id="page-move-first" alt="first" title="first" />
+            <img src="@Url.Content("~/Content/images/previous.png")" width="16" style="cursor:pointer;" id="page-move-previous" alt="previous" title="previous"  />
+            <label> Page </label>
+            <input type="text" id="pagging-input" onkeypress="return isNumberKey(event)"  value="@Model.PageIndex" />
+            <label> of </label>
+            <label id="lbl-page">
+            </label>
+            <img src="@Url.Content("~/Content/images/next.png")" id="page-move-next" width="16" style="cursor:pointer;" alt="next" title="next" />
+            <img src="@Url.Content("~/Content/images/last.png")" id="page-move-last" width="16"  style="cursor:pointer;" alt="last" title="last"  />
+        </div>
+        
+        <script type="text/javascript">
+
+
+            // For Checking Only Number for pagging-input text box
+            function isNumberKey(evt) {
+                var charCode = (evt.which) ? evt.which : event.keyCode
+                if (charCode > 31 && (charCode < 48 || charCode > 57))
+                    return false;
+
+                return true;
+            }
+            //filtering Report  based on first button click            
+            $('#page-move-first').click(function() {
+
+                var n = document.getElementById('pagging-input').value;
+                if ((n == 1) || (n == null) || (n == 0)) {
+                    $("#page-move-first, #page-move-previous").attr('disabled', 'disabled');
+                    return false;
+                } else {
+                    SetPage2('F', '@Model.NodeId', '@Model.PageIndex', '@Model.PageSize', '@Model.DateType', '@Model.EndDate', '@Model.StartDate', '@Model.ClaimSearchCriteria', '@Model.FacilityId');
+                    return true;
+                    $("#pagging-input").focus();
+                }
+            });
+            //previous button click    
+
+            $('#page-move-previous').click(function() {
+
+                var n = document.getElementById('pagging-input').value;
+                if ((n == 1) || (n == null) || (n == 0)) {
+                    $("#page-move-first, #page-move-previous").attr('disabled', 'disabled');
+                    return false;
+                } else {
+                    SetPage2('P', '@Model.NodeId', '@Model.PageIndex', '@Model.PageSize', '@Model.DateType', '@Model.EndDate', '@Model.StartDate', '@Model.ClaimSearchCriteria', '@Model.FacilityId');
+                    return true;
+                }
+            });
+            //next button click    
+
+            $('#page-move-next').click(function() {
+                var n = document.getElementById('pagging-input').value;
+                if (n == noOfPages2) {
+                    $("#page-move-next,#page-move-last").attr('disabled', 'disabled');
+                    return false;
+                } else {
+                    SetPage2('N', '@Model.NodeId', '@Model.PageIndex', '@Model.PageSize', '@Model.DateType', '@Model.EndDate', '@Model.StartDate', '@Model.ClaimSearchCriteria', '@Model.FacilityId');
+                    return true;
+                }
+            });
+            //last button click    
+
+            $('#page-move-last').click(function() {
+                var n = document.getElementById('pagging-input').value;
+                if (n == noOfPages2) {
+                    $("#page-move-next,#page-move-last").attr('disabled', 'disabled');
+                    return false;
+                } else {
+                    SetPage2('L', '@Model.NodeId', '@Model.PageIndex', '@Model.PageSize', '@Model.DateType', '@Model.EndDate', '@Model.StartDate', '@Model.ClaimSearchCriteria', '@Model.FacilityId');
+                    return true;
+                }
+            });
+            $('#pagging-input').on('change', function() {
+                var n = document.getElementById('pagging-input').value;
+                if (n == 1) {
+                    SetPage2('F', '@Model.NodeId', '@Model.PageIndex', '@Model.PageSize', '@Model.DateType', '@Model.EndDate', '@Model.StartDate', '@Model.ClaimSearchCriteria', '@Model.FacilityId');
+                        return true;
+                    }
+            });
+
+
+                setTimeout(function() {
+                    var n = document.getElementById('pagging-input').value;
+                    if (n == 1) {
+                        $("#page-move-first, #page-move-previous").css('cursor', 'default');
+                    }
+                    if (n == noOfPages2) {
+                        $("#page-move-next,#page-move-last").css('cursor', 'default');
+
+                    }
+                }, 0.1);
+
+                /*----------------------------------------------------------------
+                * Purpose:    Sets the pager and reload page as per the page no requested on enter press
+                *----------------------------------------------------------------*/
+                $('input').keypress(function (event) {
+                    if (event.keyCode == 13) {
+
+                        //isNumberKey();
+                        var n = document.getElementById('pagging-input').value;
+
+                        if (n <= 0) {
+                            $("#page-move-first, #page-move-previous").attr('disabled', 'disabled');
+                            $("#pagging-input").val('');
+                            return false;
+                            //pageIndexTemp = 1;
+                        }
+                        if (n > noOfPages2) {
+                            $("#page-move-next,#page-move-last").attr('disabled', 'disabled');
+                            $("#pagging-input").val('');
+                            return false;
+                        }
+
+
+                        SetPage2('E', '@Model.NodeId', $("#pagging-input").val(), '@Model.PageSize', '@Model.DateType', '@Model.EndDate', '@Model.StartDate', '@Model.ClaimSearchCriteria', '@Model.FacilityId');
+                    event.preventDefault();
+                }
+            });
+
+            var noOfPages2 = 0;
+            var pgs2 = parseInt('@Model.PageSize');
+            var totrecs2 = parseInt('@Model.TotalRowCount');
+            if (totrecs2 % pgs2 == 0)
+                noOfPages2 = parseInt(totrecs2 / pgs2);
+            else {
+                noOfPages2 = (parseInt(totrecs2 / pgs2) + 1);
+            }
+            $("#lbl-page").html(String(noOfPages2));
+
+
+            /*----------------------------------------------------------------
+            * Purpose:    Sets the pager and reload page as per the page no requested
+            *----------------------------------------------------------------*/
+            function SetPage2(counter, nodeId, pageIndex, pageSize, dateType, endDate, startDate, criteria, facilityId) {
+
+                $('#report-main').closest('.k-window').find('.k-window-actions').find('a:eq(1)').hide();
+                if (counter == 'F')
+                    pageIndex = 1;
+                else if (counter == 'P') {
+                    if (parseInt(pageIndex) > 1)
+                        pageIndex = parseInt(pageIndex) - 1;
+                    else
+                        pageIndex = 1;
+                }
+                else if (counter == 'N') {
+                    if (parseInt(pageIndex) < parseInt(noOfPages2))
+                        pageIndex = parseInt(pageIndex) + 1;
+                    else
+                        pageIndex = parseInt(noOfPages2);
+                }
+                else if (counter == 'L')
+                    pageIndex = parseInt(noOfPages2);
+
+                ajaxRequestHandler({
+                    url: '@Url.Action("GetPagedReport", "ClaimAdjudicationReport", new { area = "Report" })',
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'html',
+                    data: JSON.stringify({ "nodeId": parseInt('@Model.NodeId'), "datetype": parseInt('@Model.DateType'), "startDate": '@Model.StartDate', "endDate": '@Model.EndDate', "criteria": '@Model.ClaimSearchCriteria', "pageSize": parseInt(pageSize), "pageIndex": parseInt(pageIndex), "facilityId": parseInt(facilityId) }),
+                    fnSuccess: OnGetPagedReportSuccess
+                 });              
+                return false;
+            }
+
+
+            function OnGetPagedReportSuccess(data) {
+                $('#claim-adjudication-container').html(data);
+                $('#report-main').closest('.k-window').find('.k-window-actions').find('a:eq(1)').show();
+            }
+
+            $('#button-export-excel').click(function () {
+                $("#claim-loading-image").show();
+                $('#report-main').closest('.k-window').find('.k-window-actions').find('a:eq(1)').hide();
+                ajaxRequestHandler({
+                    type: "POST",
+                    url: SSIUrl.getClaimAdjudicationReport,
+                    dataType: "json",
+                    data: JSON.stringify({ "modelId": parseInt('@Model.NodeId'), "datetype": parseInt('@Model.DateType'), "startDate": '@Model.StartDate', "endDate": '@Model.EndDate', "claimSearchCriteria": '@Model.ClaimSearchCriteria', "pageSize": parseInt('@Model.PageSize'), "facilityId": parseInt('@Model.FacilityId') }),
+                    contentType: 'application/json', //"application/x-www-form-urlencoded; charset=utf-8",//
+                    fnSuccess: OnGetClaimAdjudicationReportSuccess
+                 });
+            });
+
+            function OnGetClaimAdjudicationReportSuccess(filePath) {
+                if (filePath == '') {
+                    var maxRecordLimit = '@GlobalConfigVariable.MaxRecordLimitForSavingClaimAdjudicationReport';
+                       registerGridPopup("Limit of " + maxRecordLimit + " claims has been exceeded. Please adjust your selection criteria.", "OK", null, null);
+
+                       $("#claim-loading-image").hide();
+                       return false;
+                   } else {
+                       $("#claim-loading-image").hide();
+                       window.location.href = SSIUrl.downloadClaimAdjudicationReport + "?reportFileName=" + filePath;
+                   }
+
+                   $('#report-main').closest('.k-window').find('.k-window-actions').find('a:eq(1)').show();
+            }
+        </script>
+    }
+    else
+    {
+        <div>
+            <h3>
+                No valid data found for selected filters...</h3>
+        </div>
+    }
+    
+    <script type="text/javascript">
+
+        $(document).ready(function () {
+            $('#form-add-contract').closest('.k-window').find('.k-window-actions').find('a:eq(1)').show();
+        });
+    </script>
+</div>
