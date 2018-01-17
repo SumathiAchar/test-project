@@ -1,0 +1,375 @@
+@{
+    ViewBag.Title = "ModelComparisonReport";
+}
+@using SSI.ContractManagement.Shared.Helpers
+@model  SSI.ContractManagement.Web.Areas.Report.Models.ModelComparisonReportViewModel
+@{
+    Layout = null;
+}
+<div id="container-modelcomparison">
+    <input type="hidden" name="hidden-facilityId" id="facilityId" value="@Model.FacilityId"/>
+    <input type="hidden" name="hidden-modelId" id="modelId" value="@Model.ModelId"/>
+    <input type="hidden" name="hidden-dateType" id="dateType" value="@Model.DateType"/>
+    <input type="hidden" name="hidden-startDate" id="startDate" value="@Model.StartDate"/>
+    <input type="hidden" name="hidden-endDate" id="endDate" value="@Model.EndDate"/>
+    <input type="hidden" name="hidden-criteria" id="criteria" value="@Model.ClaimSearchCriteria"/>
+    <input type="hidden" name="hidden-moduleId" id="moduleId" value="@Model.ModuleId" />
+
+
+    <div id="model-comparison">
+        <div id="model-select">
+            Models
+            <ul id="model-list" data-role="listview">
+            </ul>
+        </div>
+
+        <!-- Add Button Div -->
+        <div id="modelbutton">
+            <input id="contract-addtogrid" type="image" src="@Url.Content("~/Content/images/next.png")" value="Add" />
+            <input id="btn-remove" type="image"  src="@Url.Content("~/Content/images/previous.png")" value="Remove" />
+        </div>
+        <!-- Selected Listview Div -->
+        <div id="model-selected">
+            Reporting Models
+            <ul id="list-selected-model" data-role="listview">
+            </ul>
+        </div>
+        <div id="model-contract">
+            <div>
+                <label class="detail-level">
+                    <input id="detail-level" type="checkbox" name="detaillevel" value="detailLevel" />
+                    Detail Level
+                </label>
+            </div>
+            <div>
+                <label for="cms-drop-down-label">Claim Field:</label>
+                <input class="cms-drop-down" id="cms-drop-down" />
+            </div>
+        </div>
+    </div>
+
+    <div class="btn-save-close report-generate">
+        @*<span id="cms-popup-loading-image" style="display: none" class="loading-image">
+            <iframe id="myPopupIframe" src="@Url.Content("~/Content/images/loader.gif")" scrolling="no" frameborder="0" height="48" width="48"></iframe>
+        </span>*@
+        <input id="btn-generate-popup" type="button" value="Generate Report" class="k-button" />
+    </div>
+
+</div>
+<!--ListView Template-->
+<script type="text/x-kendo-tmpl" id="AvailableModelsTemplate">
+<div data-bind="text: Text, value: Value">
+            #:Text#<br/>
+        </div>
+</script>
+
+<!-- Selected ListView Template-->
+<script type="text/x-kendo-tmpl" id="SelectedModelsTemplate">
+<div data-bind="text: Text, value: Value">
+            #:Text#<br/>
+        </div>
+</script>
+
+
+<script>
+    $("#cms-drop-down").kendoDropDownList({});
+    var availableModelsList = [];
+    var dataSourceSelectedModels = [];
+    var dataSourceModels = [];
+    var selectedModelList = [];
+    var detailSelectionData = [];
+    var isDetailLevelChecked = false;
+
+    $(document).ready(function () {
+        $('#myPopupIframe').load(function () {
+            $('#myPopupIframe').contents().find("head").append($("<style type='text/css'> body { margin: 0px; } </style>"));
+        });
+
+        var facilityId = "@Model.FacilityId";
+        //Get the available models based on the selected facility
+        ajaxRequestHandler({
+            url: SSIUrl.getAvailableModelsData + "?facilityId=" + facilityId,
+            type: "POST",
+            dataType: "json",
+            fnSuccess: OnGetAvailableModelsDataSuccess
+        });
+
+
+        function OnGetAvailableModelsDataSuccess(json) {
+            if (json != null && json.modelsList != null) {
+                $.each(json.modelsList, function (i, item) {
+                    if (item.ModelName == "Primary Model") {
+                        selectedModelList.push({
+                            'Text': item.ModelName,
+                            'Value': item.NodeId
+                        })
+
+                    } else {
+                        availableModelsList.push({
+                            'Text': item.ModelName,
+                            'Value': item.NodeId
+                        });
+                    }
+                })
+            }
+
+            dataSourceModels = new kendo.data.DataSource({
+                data: availableModelsList,
+                sort: { field: "Text", dir: "asc" }
+            });
+
+            $("#model-list").kendoListView({
+                selectable: "multiple",
+                dataSource: dataSourceModels,
+                template: kendo.template($("#AvailableModelsTemplate").html())
+            });
+            loadListView();
+        }
+
+        //Loads the selected models to the Selected Models list view
+        function loadListView() {
+            dataSourceSelectedModels = new kendo.data.DataSource({
+                data: selectedModelList
+            });
+
+            //Listview for displaying the selected Payers
+            var listView = $("#list-selected-model").kendoListView({
+                selectable: "multiple",
+                dataSource: dataSourceSelectedModels,
+                template: kendo.template($("#SelectedModelsTemplate").html()),
+                change: function (e) {
+                    $("#list-selected-model div:first-child").removeClass('k-state-selected');
+                }
+            });
+        }
+
+
+        //Fetching the detail level dropdown
+        ajaxRequestHandler({
+            type: "GET",
+            dataType: "json",
+            url: SSIUrl.getClaimFieldsByModule + "?moduleId=" + '@Model.ModuleId',
+            fnSuccess: OnGetClaimFieldsByModuleSuccess
+        });
+
+        function OnGetClaimFieldsByModuleSuccess(json) {
+            if (json != null && json.claimFeildList != null) {
+                $.each(json.claimFeildList, function (i, item) {
+                    detailSelectionData.push({ 'Text': item.Text, 'Value': item.Value });
+                });
+            }
+
+            //Loading the Detail level dropdown
+            $("#cms-drop-down").kendoDropDownList({
+                dataTextField: "Text",
+                dataValueField: "Value",
+                optionLabel: {
+                    Text: "Select Claim Field",
+                    Value: 0
+                },
+                dataSource: detailSelectionData,
+            });
+        }
+        $("#cms-drop-down").data("kendoDropDownList").enable(false);
+
+        var isDetailLevelChecked = false;
+        //On change of Detail Level selection
+        $('#detail-level').change(function () {
+            if ($('#detail-level').is(":checked")) {
+                isDetailLevelChecked = true;
+                $("#cms-drop-down").data("kendoDropDownList").enable(true);
+            } else {
+                isDetailLevelChecked = false;
+                $("#cms-drop-down").data("kendoDropDownList").enable(false);
+            }
+        });
+
+
+        var selectedNodeId = '';
+        var selectedName = '';
+        var selectedUId = '';
+        var modelsAvalilable = $("#model-list").data("kendoListView");
+
+
+
+        //For adding the selected models to Selected Models listview
+        $("#contract-addtogrid").click(function () {
+            var selecteditem = [];
+            var modelList = $("#model-list").data("kendoListView");
+            var data = modelList.dataSource.view();
+            var $selectedElements = modelList.select();
+            var selected = $.map($selectedElements, function (item) {
+                var index = $(item).index();
+                selecteditem.push(data[index]);
+            });
+
+            for (var i = 0; i < selecteditem.length; i++) {
+                selectedNodeId += selecteditem[i].Value + "##";
+                selectedName += selecteditem[i].Text + "##";
+                selectedUId += selecteditem[i].uid + "##";
+            }
+            selectedNodeId = selectedNodeId.substring(0, selectedNodeId.length - 2);
+            selectedName = selectedName.substring(0, selectedName.length - 2);
+            selectedUId = selectedUId.substring(0, selectedUId.length - 2);
+            var splitedId = selectedNodeId.split('##');
+            var splitedName = selectedName.split('##');
+            var splittedUId = selectedUId.split('##');
+
+            for (var j = 0; j < splitedId.length; j++) {
+                if (splitedId != "" && splitedName != "") {
+                    dataSourceSelectedModels.add({
+                        'Text': splitedName[j],
+                        'Value': splitedId[j]
+                    });
+                    if (dataSourceSelectedModels._data.length > 1) {
+                        $("#btn-generate-popup").attr("disabled", false);
+                    }
+                }
+                for (var k = 0; k < $("#model-list").data("kendoListView").items().length; k++) {
+                    if (splitedName[j] != "") {
+                        var dataToRemove = $("#model-list").data("kendoListView").dataSource.getByUid(splittedUId[j]);
+                        $("#model-list").data("kendoListView").dataSource.remove(dataToRemove);
+                        break;
+                    }
+                }
+            }
+
+            selectedNodeId = '';
+            selectedName = '';
+            selectedUId = '';
+        });
+
+        //For removing the models from Selected Models listview and adding it to Available Models
+        var removeSelectedNodeId = '';
+        var removeSelectedName = '';
+        var uIdToRemoveModel = '';
+        $("#btn-remove").click(function () {
+            var selectedItemToRemove = [];
+
+            var removedlist = $("#list-selected-model").data("kendoListView");
+            var data = removedlist.dataSource.view();
+            var $selectedElements = removedlist.select();
+            var selected = $.map($selectedElements, function (item) {
+                var index = $(item).index();
+                selectedItemToRemove.push(data[index]);
+            });
+
+            $.each(selectedItemToRemove, function (i, item) {
+                if (item.Text == "Primary Model") {
+                    return false;
+                }
+            })
+
+            for (var i = 0; i < selectedItemToRemove.length; i++) {
+                removeSelectedNodeId += selectedItemToRemove[i].Value + "##";
+                removeSelectedName += selectedItemToRemove[i].Text + "##";
+                uIdToRemoveModel += selectedItemToRemove[i].uid + "##";
+            }
+            removeSelectedNodeId = removeSelectedNodeId.substring(0, removeSelectedNodeId.length - 2);
+            removeSelectedName = removeSelectedName.substring(0, removeSelectedName.length - 2);
+            removeSelectedUId = uIdToRemoveModel.substring(0, uIdToRemoveModel.length - 2);
+            var splitedId = removeSelectedNodeId.split('##');
+            var splitedName = removeSelectedName.split('##');
+            var splittedUId = uIdToRemoveModel.split('##');
+            for (var j = 0; j < splitedId.length; j++) {
+                if (splitedId != "" && splitedName != "") {
+                    dataSourceModels.add({
+                        'Text': splitedName[j],
+                        'Value': splitedId[j]
+                    });
+                }
+                for (var k = 0; k < $("#list-selected-model").data("kendoListView").items().length; k++) {
+                    if (splitedName[j] != "") {
+                        var dataToRemove = $("#list-selected-model").data("kendoListView").dataSource.getByUid(splittedUId[j]);
+                        $("#list-selected-model").data("kendoListView").dataSource.remove(dataToRemove);
+                        var data = $("#list-selected-model").data("kendoListView").dataSource.data();
+                        break;
+                    }
+                }
+            }
+            removeSelectedNodeId = '';
+            removeSelectedName = '';
+            uIdToRemoveModel = '';
+        });
+
+        //Generate Model Comparision Report
+        $("#btn-generate-popup").click(function () {
+            $('#myPopupIframe').show();
+
+            if (isDetailLevelChecked == true && ($("#cms-drop-down").data("kendoDropDownList").text() == 'Select Claim Field')) {
+                registerGridPopup("Please select an option of claim fields.", "OK", null, null);
+                return false;
+            }
+            else {
+                $("#cms-popup-loading-image").show();
+                $("#btn-generate-popup").attr("disabled", true);
+                var models = '';
+                for (var i = 0; i < dataSourceSelectedModels._data.length; i++) {
+                    models += dataSourceSelectedModels._data[i].Value + ', ';
+                }
+                models = models.substring(0, models.length - 2);
+                modelComparisonReportVariables = {
+                    appealLetterFileBaseName: '@Constants.ModelComparisonReportFileBaseName',
+                    csv: '@Enums.DownloadFileType.Csv',
+                    emptyReportResult: '@Constants.EmptyReportResult',
+                    reportThreshold: '@Constants.ReportThreshold',
+                    maxRecordLimitForTelericReport: '@GlobalConfigVariable.MaxRecordLimitForTelericReport',
+                    largeCriteriaMessage: '@Constants.LargeCriteriaMessage'
+                };
+                var model = {
+                    'FacilityId': '@Model.FacilityId', 'ModelId': '@Model.ModelId', 'DateType': '@Model.DateType', 'StartDate': '@Model.StartDate', 'EndDate': '@Model.EndDate', 'ClaimSearchCriteria': '@Model.ClaimSearchCriteria', 'SelectedModelList': models, 'DetailSelectValue': $('#cms-drop-down').val(), 'IsCheckedDetailLevel': isDetailLevelChecked, CurrentDateTime: getCurrentDateTime()
+                };
+
+                isModelComparisionReportLoading = true;
+
+                ajaxRequestHandler({
+                    url: SSIUrl.generateComparisonModelReport,
+                    type: 'POST',
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    data: JSON.stringify(model),
+                    fnSuccess: OnGenerateComparisonModelReportSuccess
+                });
+            }
+        });
+
+        function OnGenerateComparisonModelReportSuccess(filePath) {
+            isModelComparisionReportLoading = false;
+            if (alertStatusVariables.IsAutoRefreshEnabled.toLowerCase() == "true" && isModelComparisionReportLoading == false) {
+                if (alertStatusVariables.alertAutoRefreshed.length > 0) {
+                    $.each(alertStatusVariables.alertAutoRefreshed, function (i, item) {
+                        clearTimeout(item);
+                    });
+                    alertStatusVariables.alertAutoRefreshed = [];
+                }
+                var timer = setTimeout(fnRefreshUnVerifiedJobCount, alertStatusVariables.alertRefreshTime);
+                alertStatusVariables.alertAutoRefreshed.push(timer);
+            }
+
+            if (filePath == modelComparisonReportVariables.emptyReportResult) { //-2 Empty report result
+                $("#cms-popup-loading-image").hide();
+                $("#btn-generate-popup").attr("disabled", false);
+                registerGridPopup("No valid data found for selected filters.", "OK", null, null);
+                return false;
+            } else if (filePath == modelComparisonReportVariables.reportThreshold) { //-1 ReportThreshold, exceeded limit
+                var maxRecordLimit = '';
+                maxRecordLimit = modelComparisonReportVariables.maxRecordLimitForTelericReport;
+                $("#cms-popup-loading-image").hide();
+                $("#btn-generate-popup").attr("disabled", false);
+                registerGridPopup("Limit of " + maxRecordLimit + " claims has been exceeded. Please adjust your selection criteria.", "OK", null, null);
+                return false;
+            } else if (filePath == modelComparisonReportVariables.largeCriteriaMessage) {
+                $("#longCriteria").text(modelComparisonReportVariables.largeCriteriaMessage).fadeOut(5000);
+            }
+            else {
+                window.location.href = SSIUrl.downloadReport + "?reportFileName=" + filePath + "&filebaseName=" + modelComparisonReportVariables.appealLetterFileBaseName + '&downloadFileType=' + modelComparisonReportVariables.csv + '&CurrentDateTime=' + getCurrentDateTime();
+            }
+            $("#cms-popup-loading-image").hide();
+            $("#btn-generate-popup").attr("disabled", false);
+            $("#form-model-compare").data("kendoWindow").close();
+        }
+    });
+    CheckBoxLabelClickEvent();
+</script>
+
+
