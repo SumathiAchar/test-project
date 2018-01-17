@@ -1,0 +1,100 @@
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="description" content="">
+        <meta name="keywords" content="">
+        <meta http-equiv="Pragma" content="no-cache">
+        <link rel="icon" type="image/x-icon" href="@Url.Content("~/Content/Logo/favicon.ico")" />
+        <!-- new meta -->
+        <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+        <title>@ViewBag.Title SSI </title>
+        <!-- External jquery and css path reference variables -->    
+        <script src="@Url.Content("~/Scripts/jquery-1.7.1.min.js")" type="text/javascript"></script>
+        
+        <script src="@Url.Content("~/Scripts/jquery-ui-1.8.20.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/modernizr-2.5.3.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/AjaxLogin.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Scripts/idle-timer.min.js")"></script>
+
+        @Html.Partial("_SSIURL")
+        <link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/css/stylesheet.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/styles/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/styles/kendo.menu.ex.css")" rel="stylesheet" type="text/css" />
+        <link href="@Url.Content("~/Content/styles/kendo.default.min.css")" rel="stylesheet" type="text/css" />
+        <script src="@Url.Content("~/Content/js/jquery.min.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Content/js/kendo.all.min.js")" type="text/javascript"></script>
+    
+        <script src="@Url.Content("~/Content/js/kendo.menu.ex.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Content/js/jquery.jeditable.js")" type="text/javascript"></script>
+    
+        <script src="@Url.Content("~/Content/js/login.js")" type="text/javascript"></script>
+        <script src="@Url.Content("~/Content/js/Common.js")" type="text/javascript"></script>
+        @*    <script src="@Url.Content("~/Content/js/CustomAlert.js")" type="text/javascript"></script>
+    
+    <script src="@Url.Content("~/Content/js/treeview.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/Menubinding.js")" type="text/javascript"></script>*@
+
+        <script src="@Url.Content("~/Content/js/jquery.scrollTo-min.js")" type="text/javascript"></script>
+        @*    <script src="@Url.Content("~/Content/js/ServiceLineAutomationTool.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/PaymentTypeAutomationTool.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/EditServiceLine.js")" type="text/javascript"></script>*@
+        @*    <script src="@Url.Content("~/Content/js/EditPaymentType.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/DeleteFilters.js")" type="text/javascript"></script>*@
+           <script src="@Url.Content("~/Content/js/tinyshort.js")" type="text/javascript"></script>
+
+    </head>
+    @using System.Configuration
+    @using SSI.ContractManagement.Shared.Helpers
+  @*  @model SSI.ContractManagement.Web.Areas.Report.Models.ReportInfoViewModel*@
+    @model SSI.ContractManagement.Web.Areas.Adjudication.Models.SelectClaimsViewModel
+    <!-- Report Selection design------>
+    <body>
+        @Html.Partial("~/Areas/Report/Views/ReportSelection/ReportSelection.cshtml")
+    </body>
+</html>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        fnGetAppealTemplates();
+        //function to fill letter template dropdown values
+        function fnGetAppealTemplates() {
+            ajaxRequestHandler({
+                type: "GET",
+                dataType: "json",
+                url: SSIUrl.getAppealTemplates,
+                fnSuccess: OnGetAppealTemplatesSuccess
+              });       
+        }
+
+        function OnGetAppealTemplatesSuccess(json) {
+            var letterTemplates = [];
+            if (json != null && json.letterTemplates != null) {
+                letterTemplates = json.letterTemplates;
+            }
+            //Letter Template
+            $("#ddlLetterTemplate").kendoDropDownList({
+                optionLabel: "Select Letter Template",
+                dataTextField: "Name",
+                dataValueField: "LetterTemplateId",
+                dataSource: letterTemplates
+            });
+        }
+    });
+    </script>
+    <script id="newcustomalert" type="text/x-kendo-template">
+        <div>
+            <p class="alert-msg"></p>
+        </div> 
+
+        <div class="btn-conform">
+            <input type="button" style="display:none" class="k-button OK-confirm" value="OK" /> 
+            <input type="button" style="display:none" class="k-button cancel-confirm" value="Cancel" />
+        </div>
+    </script>
+
+
