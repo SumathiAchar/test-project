@@ -1,0 +1,520 @@
+@model  SSI.ContractManagement.Web.Areas.Contract.Models.ContractServiceLineViewModel
+@{
+    Layout = null;
+}
+<div>
+    <div id="divCPTSelection">
+        <input type="hidden" name="hiddenServiceLineCodeContractId" id="hiddenServiceLineCodeContractId"
+               data-bind="value:ContractId" />
+        <input type="hidden" name="hiddenServiceLineCodeServiceTypeId" id="hiddenServiceLineCodeServiceTypeId"
+               data-bind="value:ContractServiceTypeId" />
+        <input type="hidden" name="hiddenServiceLineCodeServiceLineTypeId" id="hiddenServiceLineCodeServiceLineTypeId"
+               data-bind="value:ServiceLineTypeId" class="filter-service-line-type-id" />
+        <input type="hidden" name="hiddenServiceLineId" id="hiddenServiceLineId" data-bind="value:ContractServiceLineId" />
+        <div id="gridCptSelection" style="height: 200px;">
+        </div>
+        <br />
+        <div id="boxes" style="display: none;">
+            <div id="servicecodepagging">
+                <div style="width: 220px; position: relative; float: right; padding-left: 25px;">
+                    <span id="serviceline-loading-Image" style="display: none; bottom: 1px;">
+                        <img src="@Url.Content("~/Content/images/loader.gif")" height="30" alt="Loading" />
+                    </span>
+                    <img src="@Url.Content("~/Content/images/first.png")" id="img11" width="30" alt="first" title="first" />
+                    <img src="@Url.Content("~/Content/images/previous.png")" id="img12" width="16" alt="previous" title="previous" />
+
+                    <label>
+                        Page
+                    </label>
+                    <input type="text" class="k-textbox" id="servicecodepagginginput" onkeypress="return isNumberKey(event)" value="@Model.PageIndex" />
+                    <label>
+                        of
+                    </label>
+                    <label id="lblpage">
+                    </label>
+                    <img src="@Url.Content("~/Content/images/next.png")" id="img13" width="16" alt="next" title="next" />
+                    <img src="@Url.Content("~/Content/images/last.png")" id="img14" width="30" alt="last" title="last" />
+                </div>
+            </div>
+            <br />
+            <br />
+            <div class="leftinclude">
+                <input id="btnIncludeCodes" type="image" src="@Url.Content("~/Content/images/Arrow Down.png")" width="25" value="" />Include
+                Codes
+                <br />
+                <textarea id="txtinclude" data-bind="value:IncludedCode" value="" class="k-textbox"
+                          style="resize: none" tabindex="0"></textarea>
+            </div>
+            <div class="rightexclude">
+                <input id="btnIExcludeCodes" type="image" src="@Url.Content("~/Content/images/Arrow Down.png")" width="25" value="" />Exclude
+                Codes
+                <br />
+                <textarea id="txtexclude" data-bind="value:ExcludedCode" class="k-textbox" style="resize: none"></textarea>
+            </div>
+            <div class="btn-save-close">
+                <input id="btnServiceLineSave" type="button" value="Save" class="k-button servicelinecode" ondblclick="disabled" />
+                @if (@Model.IsEdit == true)
+                {
+                    <input type="button" id="delete-serviceline-code" value="Delete" class="k-button delete-filter" />
+                }
+            </div>
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        $('#txtexclude').siblings('input:visible').find("input.post").focus();
+        setTimeout(function () {
+            var n = document.getElementById('servicecodepagginginput').value;
+            if (n != 1) {
+                $("#img11, #img12").css('cursor', 'pointer');
+            }
+            if (n != noOfPages) {
+                $("#img13,#img14").css('cursor', 'pointer');
+
+            }
+        }, 0.1);
+
+
+        MainPageIndex = 1;
+        setTimeout(function () {
+            // focus on the txtenclude text area first visible and enabled input field or textarea
+            $(":input:visible:enabled").each(function () {
+                if ($(this).is('textarea')) {
+                    $(this).focus();
+                    return false;
+                }
+            });
+
+        }, 2000);
+
+
+        // focus on the txtexclude Text Area Box and enabled input field or textarea
+        document.getElementById('txtinclude').onkeydown = function (e) {
+
+            if (e.keyCode == 9) {
+                $('#txtexclude').find("input.post").focus();
+                return false;
+            }
+        };
+    });
+    var MainPageIndex;
+    // For Checking Only Number for pagging-input text box
+    function isNumberKey(evt) {
+        var charCode = (evt.which) ? evt.which : event.keyCode;
+        if (charCode > 31 && (charCode < 48 || charCode > 57))
+            return false;
+
+        return true;
+    }
+
+    $('#img11').click(function () {
+        var n = document.getElementById('servicecodepagginginput').value;
+        if ((n == 1) || (n == "") || (n == 0)) {
+            $("#servicecodepagginginput").find("input.post").focus();
+            return false;
+        } else {
+            SetPage('F', '@Model.ServiceLineTypeId', '@Model.PageIndex', '@Model.PageSize');
+            $("#img13, #img14").removeAttr('disabled');
+            $("#img13, #img14").css('cursor', 'pointer');
+            $("#img11, #img12").removeAttr('disabled');
+            $("#img11, #img12").css('cursor', 'default');
+            return true;
+        }
+
+    });
+    $('#img12').click(function () {
+        var n = document.getElementById('servicecodepagginginput').value;
+        if ((n == 1) || (n == "") || (n == 0)) {
+            $("#servicecodepagginginput").find("input.post").focus();
+            return false;
+        } else {
+            SetPage('P', '@Model.ServiceLineTypeId', '@Model.PageIndex', '@Model.PageSize');
+            $("#img13, #img14").removeAttr('disabled');
+            $("#img13, #img14").css('cursor', 'pointer');
+            if (n == 2) {
+                $("#img11, #img12").attr('disabled');
+                $("#img11, #img12").css('cursor', 'default');
+            };
+            return true;
+        }
+    });
+    $('#img14').click(function () {
+        var n = document.getElementById('servicecodepagginginput').value;
+        if (n >= noOfPages) {
+            //  $("#img13, #img14").attr('disabled', 'disabled');
+            $("#servicecodepagginginput").find("input.post").focus();
+            return false;
+        } else {
+            SetPage('L', '@Model.ServiceLineTypeId', '@Model.PageIndex', '@Model.PageSize');
+            $("#img11, #img12").css('cursor', 'pointer');
+            $("#img13, #img14").removeAttr('disabled');
+            $("#img13, #img14").css('cursor', 'default');
+            return true;
+        }
+
+    });
+    $('#img13').click(function () {
+        var n = document.getElementById('servicecodepagginginput').value;
+        if (n >= noOfPages) {
+            // $("#img13, #img14").attr('disabled', 'disabled');
+            $("#servicecodepagginginput").find("input.post").focus();
+            return false;
+        } else {
+            SetPage('N', '@Model.ServiceLineTypeId', '@Model.PageIndex', '@Model.PageSize');
+            $("#img11, #img12").css('cursor', 'pointer');
+            if (n == (noOfPages - 1)) {
+                $("#img13, #img14").removeAttr('disabled');
+                $("#img13, #img14").css('cursor', 'default');
+            };
+            return true;
+        };
+
+    });
+
+    function onchangepageno() {
+        var n = document.getElementById('servicecodepagginginput').value;
+        if (n == 1) {
+            SetPage('F', '@Model.ServiceLineTypeId', '@Model.PageIndex', '@Model.PageSize');
+            $("#img13, #img14").removeAttr('disabled');
+            $("#img13, #img14").css('cursor', 'pointer');
+            $("#img11, #img12").attr('disabled');
+            $("#img11, #img12").css('cursor', 'default');
+            return true;
+        }
+        if (n == noOfPages) {
+            $("#img11, #img12").css('cursor', 'pointer');
+            $("#img13, #img14").removeAttr('disabled');
+            $("#img13, #img14").css('cursor', 'default');
+        }
+        else {
+            $("#img11, #img12, img13, #img14").css('cursor', 'pointer');
+            $("#img11, #img12, img13, #img14").removeAttr('disabled');
+        }
+    }
+
+    $('#servicecodepagginginput').keypress(function (e) {
+        if (e.which == 13) { onchangepageno(); }
+    });
+
+    /*----------------------------------------------------------------
+    * Purpose:    Sets the pager and reload page as per the page no requested on enter press
+    *----------------------------------------------------------------*/
+    $('input').keypress(function settopage(event) {
+        if (event.keyCode == 13) {
+            var n = document.getElementById('servicecodepagginginput').value;
+
+            if (n <= 0) {
+                // $("#img11, #img12").attr('disabled', 'disabled');
+                $("#servicecodepagginginput").val('');
+                $("#servicecodepagginginput").find("input.post").focus();
+                return false;
+
+            }
+            if (n > noOfPages) {
+                //  $("#img13,#img14").attr('disabled', 'disabled');
+                $("#servicecodepagginginput").val('');
+                $("#servicecodepagginginput").find("input.post").focus();
+                return false;
+            }
+
+            var pageIndexTemp = $("#servicecodepagginginput").val();
+            if (pageIndexTemp < 0) {
+                pageIndexTemp = 1;
+            }
+            var noOfPagesTemp = 0;
+            var pgsTemp = parseInt('@Model.PageSize');
+            var totrecsTemp = parseInt('@Model.TotalRecords');
+            if (totrecsTemp % pgsTemp == 0)
+                noOfPagesTemp = parseInt(totrecsTemp / pgsTemp);
+            else {
+                noOfPagesTemp = (parseInt(totrecsTemp / pgsTemp) + 1);
+            }
+            if (noOfPagesTemp < pageIndexTemp) {
+                pageIndexTemp = noOfPagesTemp;
+            }
+            MainPageIndex = pageIndexTemp;
+            SetPage('E', '@Model.ServiceLineTypeId', '@Model.PageSize');
+            $("#img13, #img14").removeAttr('disabled');
+            $("#img1, #img12").removeAttr('disabled');
+            event.preventDefault();
+        }
+    });
+    var noOfPages;
+    var pgs = parseInt('@Model.PageSize');
+    var totrecs = parseInt('@Model.TotalRecords');
+    if (totrecs % pgs == 0)
+        noOfPages = parseInt(totrecs / pgs);
+    else {
+        noOfPages = (parseInt(totrecs / pgs) + 1);
+    }
+    $("#lblpage").html(String(noOfPages));
+
+    /*----------------------------------------------------------------
+    * Purpose:    Sets the pager and reload page as per the page no requested
+    *----------------------------------------------------------------*/
+    function SetPage(counter, nodeId, pageSize) {
+        $("#serviceline-loading-Image").show();
+        if (counter == 'F')
+            MainPageIndex = 1;
+        else if (counter == 'P') {
+            if (parseInt(MainPageIndex) > 1)
+                MainPageIndex = parseInt(MainPageIndex) - 1;
+            else
+                MainPageIndex = 1;
+        }
+        else if (counter == 'N') {
+            if (parseInt(MainPageIndex) < parseInt(noOfPages))
+                MainPageIndex = parseInt(MainPageIndex) + 1;
+            else
+                MainPageIndex = parseInt(noOfPages);
+        }
+        else if (counter == 'L')
+            MainPageIndex = parseInt(noOfPages);
+
+        MainMainPageIndex = MainPageIndex;
+        $("#gridCptSelection").data("kendoGrid").dataSource = [];
+        ajaxRequestHandler({
+            url: SSIUrl.getServiceLineCodeMasterData + "?serviceLineTypeId=" + parseInt(nodeId) + "&pageIndex=" + parseInt(MainPageIndex) + "&pageSize=" + pgs,
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            dataType: 'json',
+            fnSuccess: OnGetServiceLineCodeMasterDataSuccess
+        });
+        return false;
+    }
+
+    function OnGetServiceLineCodeMasterDataSuccess(json) {
+        $("#serviceline-loading-Image").hide();
+        $("#servicecodepagginginput").val(parseInt(MainPageIndex));
+
+        var serviceLineRevenue = [];
+        if (json != null && json.slCodes != null) {
+            $.each(json.slCodes, function (i, item) {
+                serviceLineRevenue.push({ 'Code': item.CodeString, 'Description': item.Description });
+            });
+        }
+        $("#gridCptSelection").kendoGrid({
+            dataSource: serviceLineRevenue,
+            autoBind: true,
+            columns: [
+                { field: "Code", title: "Codes" },
+                { field: "Description", title: "Description" }],
+            editable: false,
+            selectable: "multiple row",
+            scrollable: true
+        });
+    }
+    $('#txtexclude').siblings('input:visible').find("input.post").focus();
+
+    $("#txtinclude").on("keypress", function (e) {
+        if (e.which === 32)
+            e.preventDefault();
+    });
+    $("#txtexclude").on("keypress", function (e) {
+        if (e.which === 32)
+            e.preventDefault();
+    });
+    function closeServiceLine() {
+
+        $('.servicelinecode').closest(".k-window-content").data("kendoWindow").close();
+    }
+
+    $("#btnIExcludeCodes").click(function () {
+
+        var entityGrid = $("#gridCptSelection").data("kendoGrid");
+        var rows = entityGrid.select();
+        rows.each(function (index, row) {
+            var selectedItem = entityGrid.dataItem(row);
+            if ($.trim($('#txtexclude').val()) == "") {
+                $('#txtexclude').val(selectedItem.Code);
+            } else {
+                $('#txtexclude').val($('#txtexclude').val() + ", " + selectedItem.Code);
+            }
+
+        });
+    });
+
+    $("#btnIncludeCodes").click(function () {
+        var entityGrid = $("#gridCptSelection").data("kendoGrid");
+        var rows = entityGrid.select();
+        rows.each(function (index, row) {
+            var selectedItem = entityGrid.dataItem(row);
+            if ($.trim($('#txtinclude').val()) == "") {
+                $('#txtinclude').val(selectedItem.Code);
+            } else {
+
+                $('#txtinclude').val($('#txtinclude').val() + ", " + selectedItem.Code);
+            }
+
+        });
+    });
+
+    var viewmodelServiceLineCode = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ContractServiceTypeId: '@Model.ContractServiceTypeId',
+        ServiceLineTypeId: '@Model.ServiceLineTypeId',
+        IncludedCode: '@Model.IncludedCode',
+        ExcludedCode: '@Model.ExcludedCode',
+        ContractServiceLineId: '@Model.ContractServiceLineId'
+    });
+
+    $("#btnServiceLineSave").click(function () {
+
+        if ($("#txtinclude").val() == '' && $("#txtexclude").val() == '') {
+            registerGridPopup("Enter some codes.", "OK", null, null);
+        } else if ($("#txtinclude").val().indexOf(",,") > 0 || $("#txtexclude").val().indexOf(",,") > 0) {
+            registerGridPopup("Invalid codes.", "OK", null, null);
+        } else {
+            $("#btnServiceLineSave").attr('disabled', 'disabled');
+            $(this).off(event);
+
+            if (viewmodelServiceLineCode.ServiceLineTypeId === "4") {
+
+                if ($('#txtinclude').val() != '') {
+                    $('#txtinclude').val(checkDrgIsCorrect($('#txtinclude').val()))
+                }
+
+                if ($('#txtexclude').val() != '') {
+                    $('#txtexclude').val(checkDrgIsCorrect($('#txtexclude').val()))
+                }
+            }
+
+            viewmodelServiceLineCode.IncludedCode = $('#txtinclude').val();
+            viewmodelServiceLineCode.ExcludedCode = $('#txtexclude').val();
+
+            viewmodelServiceLineCode.IncludedCode = viewmodelServiceLineCode.IncludedCode.replace(/ /g, '');
+            viewmodelServiceLineCode.ExcludedCode = viewmodelServiceLineCode.ExcludedCode.replace(/ /g, '');
+
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditServiceLineCode", "ServiceLineCode", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(viewmodelServiceLineCode),
+                fnSuccess: OnAddEditServiceLineCodeSuccess
+            });
+        }
+
+        $(this).on(event);
+    });
+
+    function OnAddEditServiceLineCodeSuccess() {
+        closeServiceLine();
+        ReDrawShapes();
+        $("#btn-addnew").attr('disabled', 'disabled');
+    }
+
+    function checkDrgIsCorrect(drgCodeString) {
+
+        if (drgCodeString[drgCodeString.length - 1] == ',') {
+            drgCodeString = drgCodeString.slice(0, -1);
+        }
+        var drgCodesList = drgCodeString.split(',');
+        for (i = 0; i < drgCodesList.length; i++) {
+
+            if (drgCodesList[i].length == 2) {
+                if (drgCodesList[i] != '*' && drgCodesList[i].indexOf('*') != 0 && drgCodesList[i].indexOf('*') != 1) {
+                    drgCodesList[i] = '0' + drgCodesList[i]
+                }
+            }
+            else if (drgCodesList[i].length == 1) {
+                if (drgCodesList[i] != '*') {
+                    drgCodesList[i] = '00' + drgCodesList[i]
+                }
+            }
+        }
+
+        var finalDrgCodesList = '';
+        for (i = 0; i < drgCodesList.length; i++) {
+            finalDrgCodesList = finalDrgCodesList + drgCodesList[i] + ','
+        }
+        if (finalDrgCodesList.length != 0) {
+            finalDrgCodesList = finalDrgCodesList.slice(0, -1);
+        }
+
+        return finalDrgCodesList;
+    }
+
+    if ('@Model.IsEdit' == 'False') {
+        viewmodelServiceLineCode.IncludedCode = $('#txtinclude').val();
+        viewmodelServiceLineCode.ExcludedCode = $('#txtexclude').val();
+
+        //Get  List of ServiceLineRevenueCodes
+        var pgs = '@Model.PageSize';
+        if (pgs == " ")
+            pgs = 0;
+        ajaxRequestHandler({
+            url: SSIUrl.getServiceLineCodeMasterData + "?serviceLineTypeId=" + viewmodelServiceLineCode.ServiceLineTypeId + "&pageIndex=1&pageSize=" + pgs,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetServiceLineCodeMasterDataSuccess
+        });
+        //To bind Viewmodel
+        kendo.bind($("#divCPTSelection"), viewmodelServiceLineCode);
+    } else {
+        ajaxRequestHandler({
+            url: SSIUrl.getServiceLineCodeMasterData + "?serviceLineTypeId=" + viewmodelServiceLineCode.ServiceLineTypeId + "&pageIndex=1&pageSize=" + pgs,
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetServiceLineCodeMasterDataIsEditedSuccess
+        });
+
+
+        //To bind Viewmodel
+        kendo.bind($("#divCPTSelection"), viewmodelServiceLineCode);
+    }
+
+    function OnGetServiceLineCodeMasterDataSuccess(json) {
+
+        $("#serviceline-loading-Image").hide();
+        $("#servicecodepagginginput").val(MainPageIndex);
+        //In success function bind data into GridView using kendo
+        var serviceLineRevenueCodes = [];
+        if (json != null && json.slCodes != null) {
+            $.each(json.slCodes, function (i, item) {
+                serviceLineRevenueCodes.push({ 'Code': item.CodeString, 'Description': item.Description });
+            });
+        }
+        $("#gridCptSelection").kendoGrid({
+            dataSource: serviceLineRevenueCodes,
+            autoBind: true,
+            columns: [
+                { field: "Code", title: "Codes" },
+                { field: "Description", title: "Description" }],
+            editable: false,
+            selectable: "multiple row",
+            scrollable: true
+        });
+        $("#boxes").show();
+    }
+
+    function OnGetServiceLineCodeMasterDataIsEditedSuccess(json) {
+        $("#servicecodepagginginput").val('@Model.PageIndex');
+        viewmodelServiceLineCode.IncludedCode = $('#txtinclude').val();
+        viewmodelServiceLineCode.ExcludedCode = $('#txtexclude').val();
+
+        //In success function bind data into GridView using kendo
+        var editRevenueCodes = [];
+        if (json != null && json.slCodes != null) {
+            $.each(json.slCodes, function (i, item) {
+                editRevenueCodes.push({ 'Code': item.CodeString, 'Description': item.Description });
+            });
+        }
+        //show RevenueCodes and Descriptions in KendoGrid
+        $("#gridCptSelection").kendoGrid({
+            dataSource: editRevenueCodes,
+            autoBind: true,
+            columns: [
+                { field: "Code", title: "Codes" },
+                { field: "Description", title: "Description" }],
+            editable: false,
+            selectable: "multiple row",
+            scrollable: true
+        });
+        $("#boxes").show();
+    }
+    //Check Box check on label click
+    CheckBoxLabelClickEvent();
+</script>
