@@ -1,0 +1,120 @@
+@using SSI.ContractManagement.Shared.Helpers;
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypeStopLossViewModel
+@{
+    Layout = null;
+}
+<script src="@Url.Content("~/Areas/Contract/JavaScript/ExpressionValidator.js")" type="text/javascript"></script>
+
+<div id="sl-payment">
+    <input type="hidden" name="hiddenSLPaymentContractId" id="hiddenSLPaymentContractId"
+           data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenSLPaymentServiceTypeId" id="hiddenSLPaymentServiceTypeId"
+           data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenSLPaymentPaymentTypeId" id="hiddenSLPaymentPaymentTypeId"
+           data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenStopLossPaymentTypeDetailId" id="hiddenStopLossPaymentTypeDetailId"
+           data-bind="value:PaymentTypeDetailId" />
+    <div id="main-ThresholdAmount">
+        <div id="lab-ThresholdAmount">
+            <label>Threshold<span class="cms-requiredfields">*</span></label>
+        </div>
+        <div id="contain-ThresholdAmount">
+            <input id="txtThresholdAmount" class="txtThresholdAmount k-textbox" data-bind="value:Expression" />
+            <img alt="Help" id="help-icon" src="@Url.Content("~/Content/images/cms_help.png")" height="23" />
+            <div id="float-help" class="cmshideonload">
+                @*The following div is for the triangle points from the floating box *@
+                <div id="float-pointer">
+                </div>
+                <div id="brief-threshold">
+                    <p class="brief-thtext">
+
+                    </p>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <br />
+
+    <label>Percentage<span class="cms-requiredfields">*</span></label>
+    <input id="txtSLPercentage" data-bind="value:Percentage" /><br />
+
+    <label>Days </label>
+    <input id="txtNoOfDays" class="k-textbox" data-bind="value:Days" /><br />
+
+    <label>Rev Codes </label>
+    <input id="txtRevenueCode" class="k-textbox" data-bind="value:RevCode" /><br />
+
+    <label>CPT/HCPCS Codes </label>
+    <input id="txtCptCode" class="k-textbox" data-bind="value:CPTCode" /><br />
+
+
+    <div id="divConditions">
+                @if (Model != null && Model.StopLossConditions.Count > 0)
+        {
+            for (int i = 0; i < Model.StopLossConditions.Count; i++)
+            {
+                if (Model.StopLossConditions[i].StopLossConditionId == (byte)SSI.ContractManagement.Shared.Helpers.Enums.StopLossCondition.TotalChargeLines)
+                {
+
+                    <label>
+                        <input type="radio" name="stopLossConditionCheck" value="@Model.StopLossConditions[i].StopLossConditionId" checked="checked" data-bind="checked:StopLossConditionID" id="slcondition@(i)" />
+                        @Model.StopLossConditions[i].StopLossConditionName
+                    </label><br />
+                }
+                else
+                {
+                    <label>
+                        <input type="radio" name="stopLossConditionCheck" value="@Model.StopLossConditions[i].StopLossConditionId" data-bind="checked:StopLossConditionID" id="slcondition@(i)" />
+                        @Model.StopLossConditions[i].StopLossConditionName
+                    </label><br />
+                }
+            }
+        }
+        <label>
+            <input type="checkbox" name="group" id="chkIcExchange" data-bind="checked: IsExcessCharge" />
+            Excess Charges
+        </label><br />
+    </div>
+
+    <div class="btn-save-close">
+
+        <input id="btnSLSave" type="button" value="Save" class="k-button ptStopLoss" />
+
+        @if (Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypeSL" value="Delete" class="k-button delete-filter" />
+        }
+
+    </div>
+
+</div>
+<script type="text/javascript">
+    var IsExcessCharge = false;
+    if ('@Model.IsExcessCharge' == 'True') {
+        IsExcessCharge = true;
+    }
+    else {
+        IsExcessCharge = false;
+    }
+   viewmodelSLPayment = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Expression: '@Model.Expression',
+        Percentage: '@Model.Percentage',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId',
+        Days: '@Model.Days',
+        RevCode: '@Model.RevCode',
+        CPTCode: '@Model.CptCode',
+        StopLossConditionID: '@(Model.StopLossConditionId == 0 ? 1 : Model.StopLossConditionId)',
+        IsExcessCharge: IsExcessCharge
+    });
+
+
+    kendo.bind($("#sl-payment"), viewmodelSLPayment);
+    CheckBoxLabelClickEvent();
+</script>
+<script src="@Url.Content("~/Areas/Contract/JavaScript/PaymentTypeStopLoss.js")" type="text/javascript"></script>
+
