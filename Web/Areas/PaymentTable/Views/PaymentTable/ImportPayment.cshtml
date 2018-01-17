@@ -1,0 +1,165 @@
+@using SSI.ContractManagement.Shared.Helpers
+<script src="@Url.Content("~/Scripts/jquery.form.min.js")" type="text/javascript"></script>
+<form id="importform" enctype="multipart/form-data" method="post">
+    <div id="import-payment-container">
+       <label>Choose a File<span class="cms-requiredfields">*</span>:</label>
+        <input type="file" id='fileid' style="position: absolute; left: -500px;" />
+        <input type="file" id="ImportTable" name="ImportTable" class="inputImportPayment" />
+        <input type="text" value="" class="k-textbox" id="uploaded-name" />
+        <input type="button" class="k-button" value="Upload" id="upload-button" /><br />
+        <label>Type<span class="cms-requiredfields">*</span>:</label>
+        <input class="k-dropdown inputImportPayment" id="importClaimFieldType" />
+        <br />
+        <label>Name<span class="cms-requiredfields">*</span>:</label>
+        <input id="table-name" name="TableName" class="k-textbox inputImportPayment" type="text" />
+        <input type="hidden" id="claim-field-id" name="ClaimFieldId" />
+        <input type="hidden" id="FacilityId" name="FacilityId" />
+        <input type="hidden" id="NodeId" name="NodeId" />
+    </div>
+
+    <div class="btn-save-close">
+        <input type="submit" id="uploadimport" name="Submit" class="k-button" value="Save" />
+    </div>
+</form>
+
+<script type="text/javascript">
+    @{
+        Byte ModuleID = (Byte)Enums.Modules.PaymentTables;
+    }
+    var isUploading = false;
+    $(document).ready(function () {
+        $("#upload-button").click(function () {
+            $("#ImportTable").click();
+        });
+        $('#uploadimport').click(function () {
+            if (!isUploading) {
+                var claimFieldId = $("#importClaimFieldType").val();
+                $('#claim-field-id').val(claimFieldId);
+                $("#imageLogoImport").show();
+                $('#uploadimport').addClass("k-state-disabled");
+                isUploading = true;
+            }
+            else {
+                return false;
+            }
+        });
+
+        //for Populate TableName Dropdown
+        LoadTableImportClaimFields();
+        $('#importClaimFieldType').change(function () {
+            $('#claim-field-id').val($("#importClaimFieldType").val());
+        });
+        var options = {
+            beforeSubmit: checkFacilityAndFileName,  // pre-submit callback 
+            success: showResponse,  // post-submit callback 
+            url: SSIUrl.savePaymentTable
+        };
+        $('#importform').ajaxForm(options);
+        //resetting form to overcome file upload issue TFSID-6633
+        $('#importform')[0].reset();
+    });
+
+    function showResponse(responseText) {
+        isUploading = false;
+        $('#uploadimport').removeClass("k-state-disabled");
+        $("#imageLogoImport").hide();
+        if (responseText.indexOf("Error while processing the request") > -1) {
+            registerGridPopup("Error while uploading file. Please try again.", "OK", null, null);
+            isUploading = false;
+            return;
+        }
+        else if (responseText.indexOf("it exceeds the maximum limit") > -1) {
+            registerGridPopup(responseText, "OK", null, null);
+            isUploading = false;
+            return;
+        }
+        else {
+            registerGridPopup(responseText, "OK", null, null);
+            GetAndBindTableList();
+        }
+        if (responseText == '@Constants.DuplicateTableNameMessage') {
+            //Clear only table name textbox
+            $('#table-name').val('');
+        } else {
+            //Reset all controls within a form
+            $("#ImportTable").replaceWith($("#ImportTable").clone());
+            $('#importform')[0].reset();
+         }
+    }
+    
+    //Get ClaimField data and Bind into Dropdown
+    function LoadTableImportClaimFields() {
+        ajaxRequestHandler({
+            url: SSIUrl.getClaimFieldsByModule + "?moduleId=" + '@ModuleID', // Passing module ID of Payment Tables
+            type: "GET",
+            dataType: "json",
+            fnSuccess: OnGetClaimFieldsByModuleSuccess
+        });
+
+    }
+
+    function OnGetClaimFieldsByModuleSuccess(json) {
+        //In success function bind data into combobox using kendo 
+        var claimFieldsComboBoxData = [];
+
+        if (json != null && json.claimFeildList != null) {
+            $.each(json.claimFeildList, function(i, item) {
+                claimFieldsComboBoxData.push({ 'Text': item.Text, 'Value': item.Value });
+            });
+        }
+
+        $("#importClaimFieldType").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            optionLabel: "Select Table Type ",
+            dataSource: claimFieldsComboBoxData
+        });
+    }
+
+    // validation to upload file
+    function checkFacilityAndFileName() {
+        //Check manatory fields are selected or not
+        if ($("#importClaimFieldType").val() == 0 || $("#table-name").val() == "" || $("#importClaimFieldType").val() == "" || $("#importFacility").val() == 0) {
+            $('#uploadimport').removeClass("k-state-disabled");
+            $('#uploadimport').prop('disabled', false);
+            $("#imageLogoImport").hide();
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+            isUploading = false;
+            return false;
+        }
+
+        var fileName = document.getElementById("ImportTable").value;
+        //Check file is selected or not
+        if (fileName == "") {
+            $('#uploadimport').removeClass("k-state-disabled");
+            $('#uploadimport').prop('disabled', false);
+            $("#imageLogoImport").hide();
+            registerGridPopup("Browse to upload a valid file with xls/xlsx extension.", "OK", null, null);
+            isUploading = false;
+            return false;
+        }
+
+        //Check file name should not contain word as Mcarefile  
+        var mCareFileFormat = '@Constants.McareFileNameFormat';
+        if ($("#table-name").val().substring(0, mCareFileFormat.length) == mCareFileFormat) {
+            $('#uploadimport').removeClass("k-state-disabled");
+            $('#uploadimport').prop('disabled', false);
+            $("#imageLogoImport").hide();
+            registerGridPopup("Please choose another name.", "OK", null, null);
+            isUploading = false;
+            return false;
+        }
+
+        //Check file extension is valid or not
+        if (fileName.split(".")[1].toUpperCase() == "XLS" || fileName.split(".")[1].toLowerCase() == "xls" || fileName.split(".")[1].toUpperCase() == "XLSX" || fileName.split(".")[1].toLowerCase() == "xlsx" || fileName.split(".")[1].toLowerCase() == "csv" || fileName.split(".")[1].toUpperCase() == "CSV")
+            return true;
+        else {
+            $('#uploadimport').removeClass("k-state-disabled");
+            $('#uploadimport').prop('disabled', false);
+            $("#imageLogoImport").hide();
+            registerGridPopup("File with " + fileName.split(".")[1] + " is invalid. Upload a valid file with xls/xlsx/csv extensions.", "OK", null, null);
+            isUploading = false;
+            return false;
+        }
+    }
+</script>
