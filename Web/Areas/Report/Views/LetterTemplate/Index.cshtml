@@ -1,0 +1,282 @@
+﻿@using System.Configuration
+@using SSI.ContractManagement.Shared.Helpers
+@using SSI.ContractManagement.Web.Areas.Report.Models
+
+<input id="btn-template-create" tabindex="13" value="Create Letter Template" class="k-button" type="button" />
+<div id="letter-templates">
+    <div id="letters-grid" style="overflow: hidden;">
+    </div>
+</div>
+
+<div id="create-letter-popup"></div>
+<iframe id="exportFrame" class="invisible"></iframe>
+
+
+
+<script type="text/javascript">
+    var isProceeded = false;
+    var oldTemplateText = "";
+    var letterTemplateId = 0;
+    var editorsave;
+    var isNewTemplate = false;
+    var isTemplateSavedSuccessfully = true;
+    var isCreate = true;
+    var isFirst = true;
+    var isClose = true;
+    var templateName = '';
+    var editTemplateName = '';
+
+    var dateRegExp = /^\/Date\((.*?)\)\/$/;
+    //Convert date into standard format
+    function toDate(value) {
+        if (value != null) {
+            var date = dateRegExp.exec(value);
+            if (dateRegExp.exec(value) != null)
+                return dateFormat(new Date(parseInt(date[1])), "MM/DD/YYYY");
+        }
+        return '';
+    }
+
+    //Converting date ino MM/DD/YYYY format
+    function dateFormat(date, format) {
+        // Calculate date parts and replace instances in format string accordingly
+        format = format.replace("DD", (date.getDate() < 10 ? '0' : '') + date.getDate()); // Pad with '0' if needed
+        format = format.replace("MM", (date.getMonth() < 9 ? '0' : '') + (date.getMonth() + 1)); // Months are zero-based
+        format = format.replace("YYYY", date.getFullYear());
+        return format;
+    }
+
+
+    $(document).ready(function () {
+        $("#btn-template-create").unbind("click").bind("click", function (e) {
+            $("#create-letter-popup").html('');
+            $("#create-letter-popup").empty();
+            isNewTemplate = true;
+            letterTemplateId = 0;
+            addEditLetterTemplate(letterTemplateId);
+        });
+
+        function addEditLetterTemplate(letterTemplateId) {
+            $("#create-letter-popup").kendoWindow({
+                content: { url: SSIUrl.letterTemplate + '?letterTemplateId=' + letterTemplateId },
+                draggable: false,
+                modal: true,
+                width: "900px",
+                height: "550px",
+                position: {
+                    top: "12%"
+                },
+                resizable: false,
+                actions: [
+                    "Close"
+                ],
+                visible: false,
+                close: onCloseWithoutSave
+
+
+            });
+            var newTemplateWindow = $("#create-letter-popup").data('kendoWindow');
+            //Setting size paarmeters for Create Template window
+            if (letterTemplateId == 0) {
+
+                newTemplateWindow.center().open().title("Template Name for CMS").wrapper.css({
+                    width: "900px",
+                    height: "550px"
+                });
+            }
+            else {
+                newTemplateWindow.center().open().title(editTemplateName + " for CMS").wrapper.css({
+                    width: "900px",
+                    height: "550px"
+                });
+
+            }
+        }
+
+
+        function onCloseWithoutSave(e) {
+            if (isProceeded == false) {
+                e.preventDefault();
+
+                editorsave = $("#editor").data("kendoEditor");
+                if ($.trim(editorsave.value()) == "") {
+                    isTemplateSavedSuccessfully = true;
+                }
+
+                if (isTemplateSavedSuccessfully == true && oldTemplateText != null && $.trim(editorsave.value()) != "" && $.trim(oldTemplateText) != $.trim(editorsave.value())) {
+                    registerGridPopup("Your changes have not been saved. Do you wish to continue?", "OK", "Cancel", closrtheLetter);
+                } else {
+                    isProceeded = true;
+                    var closeContinue = $("#create-letter-popup").data("kendoWindow");
+                    closeContinue.close();
+                }
+            } else {
+                isProceeded = false;
+            }
+            function closrtheLetter() {
+                isProceeded = true;
+                var closeContinue = $("#create-letter-popup").data("kendoWindow");
+                closeContinue.close();
+                editorsave = $("#editor").data("kendoEditor");
+                editorsave.value("");
+            }
+        }
+        function OnDeleteLetterTemplateSuccess() {
+            $("#letters-grid").find('.k-grid-content').removeClass("k-state-disabled");
+            var grid = $("#letters-grid").data("kendoGrid");
+            var dataContactNotes = grid._data[rowIndex];
+            grid.dataSource.remove(dataContactNotes);
+            $('#letters-grid').data('kendoGrid').dataSource.page($('#letters-grid').data('kendoGrid').dataSource.page());
+        }
+
+        function deleteSelectedTemp() {
+            var modeldata = { 'id': letterTemplateId };
+
+            var grid = $("#letters-grid").data("kendoGrid");
+            var selectedRow = grid.select();
+            rowIndex = selectedRow[0].rowIndex;
+            ajaxRequestHandler({
+                url: SSIUrl.deleteLetterTemplate,
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(modeldata),
+                fnSuccess: OnDeleteLetterTemplateSuccess,
+            });
+
+            e.stopPropagation();
+        }
+
+        function dataBound(e) {
+
+            $("#letters-grid").find('.k-grid-cancel').off('click').on('click', function (e) {
+                var checkDownload = $(".k-grid-content").find('.k-state-disabled');
+                if (checkDownload.length == '0') {
+                    $("#letters-grid").find('.k-grid-content').addClass("k-state-disabled");
+                    letterTemplateId = $(this).attr('data-lettertemplateid');
+                    registerGridPopup("Are you sure you want to delete the selected template?", "OK", "Cancel", deleteSelectedTemp);
+
+                    $("#letters-grid").find('.k-grid-content').removeClass("k-state-disabled");
+                }
+            });
+
+
+
+            //Edit Letter Template
+            $("#letters-grid").find('.k-grid-edit').off('click').on('click', function (e) {
+                var checkDownload = $(".k-grid-content").find('.k-state-disabled');
+                if (checkDownload.length == '0') {
+                    $("#create-letter-popup").html('');
+                    $("#letters-grid").find('.k-grid-content').addClass("k-state-disabled");
+                    letterTemplateId = $(this).attr('data-lettertemplateid');
+                    var grid = $("#letters-grid").data("kendoGrid");
+                    var selectedItem = grid.dataItem(grid.select());
+                    editTemplateName = selectedItem.Name;
+                    addEditLetterTemplate(letterTemplateId);
+                    $("#letters-grid").find('.k-grid-content').removeClass("k-state-disabled");
+                }
+            });
+
+            //Preview Letter Template
+            $("#letters-grid").find('.k-grid-preview').off('click').on('click', function (e) {
+                var checkDownload = $(".k-grid-content").find('.k-state-disabled');
+                if (checkDownload.length == '0') {
+                    $("#letters-grid").find('.Clicktoplay').addClass("k-state-disabled");
+                    $(this).attr('src', '');
+                    $(this).attr('src', '@Url.Content("~/Content/images/image-download.gif")');
+                    letterTemplateId = $(this).attr('data-lettertemplateid');
+                    ajaxRequestHandler({
+                        url: SSIUrl.previewTemplate,
+                        type: 'POST',
+                        dataType: 'json',
+                        data: JSON.stringify({ 'LetterTemplateId': letterTemplateId }),
+                        fnSuccess: OnSuccessPreviewTemplate,
+                    });
+                }
+            });
+        }
+        $('#letters-grid').kendoGrid({
+            selectable: 'row',
+            columns: [
+                {
+                    field: "Name",
+                    title: "Template Name",
+                },
+                {
+                    field: "UserName",
+                    title: "User Name",
+                },
+                {
+                    field: "InsertDate",
+                    title: "Created Date",
+                    template: '#=toDate(InsertDate) #'
+                },
+                {
+                    title: "Actions",
+                    width: "110px",
+                    template: kendo.template($("#letter-command-template").html())
+                }
+            ],
+            pageable: {
+                input: true,
+                numeric: false
+            },
+            dataSource: {
+                serverPaging: true,
+                sort: { field: "LetterTemplateId", dir: "desc" },
+                pageSize: '@GlobalConfigVariable.AlertPageSize',
+                schema: {
+                    data: function (json, operation) {
+                        return json.Data;
+                    },
+                    total: "Total",
+                    model: {
+                        id: "LetterTemplateId",
+                        fields: {
+                            LetterTemplateId: { type: "number" },
+                            Name: { type: "string" },
+                            UserName: { type: "string" },
+                            InsertDate: { type: "string" }
+                        }
+                    },
+                },
+                transport: {
+                    read: {
+                        url: SSIUrl.getLetterTemplates,
+                        contentType: "application/json",
+                        type: "POST", //use HTTP POST request as by default GET is not allowed by ASP.NET MVC
+                        cache: false
+                    },
+                    parameterMap: function (data, operation) {
+                        return JSON.stringify(data);
+                    },
+                }
+            },
+            dataBinding: function () {
+            },
+            dataBound: dataBound
+        });
+    });
+    function OnSuccessPreviewTemplate(filePath) {
+        $("#letters-grid").find('.Clicktoplay').removeClass("k-state-disabled");
+        $('.k-grid-preview').attr('src', '@Url.Content("~/Content/images/view.png")');
+        if (filePath.fileNameData[0] != null && filePath.fileNameData[0].length > 0) {
+            if (navigator.appName === "Microsoft Internet Explorer") {
+                window.location.href = SSIUrl.downloadReport + "?reportFileName=" + filePath.fileNameData[1] + "&filebaseName=" + '@Constants.AppealLetterPreviewFileBaseName' + '&downloadFileType=' + '@Enums.DownloadFileType.Rtf' + '&currentDateTime=' + getCurrentDateTime();
+            } else {
+                var content = $("<div></div>");
+                content.html(filePath.fileNameData[0]);
+                $(content).wordExport(filePath.fileNameData[1]);
+                return false;
+            }
+        }
+        else {
+            registerGridPopup("No valid data found for a selected template.", "OK", null, null);
+        }
+    }
+</script>
+<script id="letter-command-template" type="text/x-kendo-template">
+    <span> <img src="@Url.Content("~/Content/images/view.png")" style="cursor:pointer" data-lettertemplateid='#=LetterTemplateId#' alt="Preview" title="Preview" width="23" class='Clicktoplay k-grid-preview' /> </span>
+    <span> <img src="@Url.Content("~/Content/images/edit.png")" style="cursor:pointer" data-lettertemplateid='#=LetterTemplateId#' alt="Edit Template" title="Edit" width="23" class='Clicktoplay k-grid-edit' id="EditLettterTemplate" /> </span>
+    <span> <img src='@Url.Content("~/Content/images/cancel.png")' data-lettertemplateid='#=LetterTemplateId#' style='cursor:pointer; z-index:10000;' class='Clicktoplay k-grid-cancel' alt='Delete' title='Delete' width='23' /> </span>
+</script>

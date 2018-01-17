@@ -1,0 +1,289 @@
+﻿@using SSI.ContractManagement.Shared.Helpers
+@model SSI.ContractManagement.Web.Areas.Report.Models.LetterTemplateViewModel
+
+@{
+    Layout = null;    
+}
+<!DOCTYPE html>
+<html>
+
+<body>
+    <textarea id="editor" rows="10" cols="30" style="height: 440px"></textarea>
+    <div id="create-newtemplate-popup" class= "create-letter"></div>
+    <iframe id="exportFrame" class="invisible"></iframe>
+</body>
+</html>
+
+<script type="text/javascript">
+    var letterFacilityId = 0;
+    templateName = "@Model.Name";
+    var templateText = '@Html.Raw(HttpUtility.JavaScriptStringEncode(Model.TemplateText))';
+    letterTemplateId = "@Model.LetterTemplateId";
+    letterFacilityId = "@Model.FacilityId";
+    var selectBoxui;
+
+    $(document).ready(function () {
+        var window = $("#editor").data("kendoEditor");
+        if (!window) {
+            var defaultTools = kendo.ui.Editor.defaultTools;
+            //Instantiating Kendo UI Editor to create Templates dynamically
+            $("#editor").kendoEditor({
+                tools: [
+                    "bold",
+                    "italic",
+                    "underline",
+                    "justifyLeft",
+                    "justifyCenter",
+                    "justifyRight",
+                    "justifyFull",
+                    "insertImage",
+                    // Mail merge tools to use
+                    {
+                        name: "insertmailmergefield",
+                        tooltip: "Insert Mail Merge field",
+                        template: '<li class="k-editor-selectbox">' +
+                            "<select style='width:170px; float:left;' class='insertmailmergefield'></select>" + "<input type='image' src='@Url.Content("~/Content/images/floppy_disk.png")' title='Save' id='ibtnSaveLetter' height='20' style='cursor:pointer; position:absolute; right:15px;' alt='Save'/><input type='image' src='@Url.Content("~/Content/images/view.png")' title='Preview' id='ibtnPreview' height='20' style='cursor:pointer; position:absolute; right:45px;' alt='Preview'/>" +
+                            '</li>'
+                    }, { name: "insertLineBreak", shift: true }, { name: "insertParagraph", shift: true }
+                ],
+                //Instantiating iamge browser in Editor
+                imageBrowser: {
+                    transport: {
+                        read: SSIUrl.readImageBrowser,
+                        destroy: {
+                            url: SSIUrl.destroyImageBrowser,
+                            type: "POST"
+                        },
+                        create: {
+                            url: SSIUrl.createImageBrowser,
+                            type: "POST"
+                        },
+                        thumbnailUrl: SSIUrl.thumbnailImageBrowser,
+                        uploadUrl: SSIUrl.uploadImageBrowser,
+                        imageUrl: SSIUrl.imageBrowser + "?path={0}"
+                    }
+                },
+                encoded: false,
+                paste: function (ev) {
+                    var text = ev.html.replace(/(<([^>]+)>)/ig, "");
+                    ev.html = text.replace(/&nbsp;/g, '');
+                }
+            }).data("kendoEditor");
+
+            //initializing kendo editor
+            var editor = $("#editor").data("kendoEditor");
+            editor.value("");
+            editor.focus();
+            editorBody = $(editor.body);
+            editorBody.addClass("editor-styling");
+            //on change
+            $(editor.document).on('change', function (e) {
+                isChanged = true;
+            });
+
+            $(editor.document).on('keyup', function (e) {
+                var text = $("#editor").data("kendoEditor");
+                $(".k-editor").find("#ibtnPreview").attr("readonly", false);
+                $(".k-editor").find("#ibtnPreview").removeClass("k-state-disabled");
+                if (text.value() == "") {
+                    $(".k-editor").find("#ibtnPreview").attr("readonly", true);
+                    $(".k-editor").find("#ibtnPreview").addClass("k-state-disabled");
+                }
+            });
+
+            // initialize the internal editor selectbox widget.
+            var ui = $(".insertmailmergefield");
+            var uitemplatetype = $(".selecttype");
+            //slecting values from dropdownlist for mailmerge
+            selectBoxui = new kendo.ui.editor.SelectBox(ui, {
+                dataTextField: "Text",
+                dataValueField: "Value",
+                dataSource: [
+                    { Text: "Select Field", Value: "" }
+                ],
+                //on change of editor
+                change: function (e) {
+                    $("#editor").data("kendoEditor").exec("inserthtml", { value: e.sender.value() });
+                    selectBoxui.select(0);
+                }
+            });
+        } else {
+            var editor = $("#editor").data("kendoEditor");
+            editor.value("");
+            editor.focus();
+        }
+
+        //Get and load variables
+        fnGetLetterVariables(selectBoxui);
+
+        $("#editor").data("kendoEditor").focus();
+        //Restrict user to upload big files
+        $(".k-insertImage").click(function () {
+            $(".k-editor").find("#ibtnPreview").attr("readonly", false);
+            $(".k-editor").find("#ibtnPreview").removeClass("k-state-disabled");
+            setTimeout(function () {
+                $(".k-imagebrowser .k-upload").find("input").data("kendoUpload").bind("select", function (e) {
+                    if ((e.files[0].size / 1024) > '@GlobalConfigVariable.LetterTemplateMaxImageSize') {
+                        registerGridPopup("You can upload file with max size " + '@GlobalConfigVariable.LetterTemplateMaxImageSize' + 'KB.', "OK", null, null);
+                        e.preventDefault();
+                    }
+                });
+            });
+        });
+
+        if (letterTemplateId > 0) {
+            $(".k-editor").find("#ibtnPreview").attr("readonly", false);
+            $(".k-editor").find("#ibtnPreview").removeClass("k-state-disabled");
+            var editor = $("#editor").data("kendoEditor");
+            editor.value("");
+            editor.exec("inserthtml", { value: templateText });
+            oldTemplateText = templateText;
+        } else {
+            $(".k-editor").find("#ibtnPreview").attr("readonly", true);
+            $(".k-editor").find("#ibtnPreview").addClass("k-state-disabled");
+        }
+
+    });
+
+    //Preview Letter Template
+    $("#create-letter-popup").data("kendoWindow").wrapper.find("#ibtnPreview").click(function (e) {
+        if ($("#create-letter-popup").data("kendoWindow").wrapper.find("#ibtnPreview").hasClass("k-state-disabled")) {
+            return false
+        }
+        $("#ibtnPreview").addClass("k-state-disabled");
+        $(this).attr('src', '');
+        $(this).attr('src', '@Url.Content("~/Content/images/image-download.gif")');
+        editorsave = $("#editor").data("kendoEditor");
+        ajaxRequestHandler({
+            url: SSIUrl.previewTemplate,
+            type: 'POST',
+            dataType: 'json',
+            data: JSON.stringify({ 'TemplateText': editorsave.value(), 'LetterTemplateId': letterTemplateId }),
+            fnSuccess: OnPreviewTemplateSuccess,
+        });
+    });
+    function OnPreviewTemplateSuccess(filePath) {
+        if (navigator.appName === "Microsoft Internet Explorer") {
+            window.location.href = SSIUrl.downloadReport + "?reportFileName=" + filePath.fileNameData[1] + "&filebaseName=" + '@Constants.AppealLetterPreviewFileBaseName' + '&downloadFileType=' + '@Enums.DownloadFileType.Rtf' + '&currentDateTime=' + getCurrentDateTime();
+        } else {
+            var content = $("<div></div>");
+            var fileName = filePath.fileNameData[1];
+            content.html(filePath.fileNameData[0]);
+            $(content).wordExport(fileName);   // pass file name programatically as $(content).wordExport("filename");
+        }
+        $('#ibtnPreview').attr('src', '@Url.Content("~/Content/images/view.png")');
+        $("#ibtnPreview").removeClass("k-state-disabled");
+    }
+
+    //Implementing save click event on Create Template window
+    //Saves the Letter Template in DB
+    $("#create-letter-popup").data("kendoWindow").wrapper.find("#ibtnSaveLetter").off('click').click(function (e) {
+        $("#ibtnSaveLetter").addClass("k-state-disabled");
+        $(".k-editor").find("#ibtnSaveLetter").attr("readonly", true);
+        if ($('html').find(".k-breadcrumbs").is(":visible")) {
+            $("#ibtnSaveLetter").removeClass("k-state-disabled");
+            $(".k-editor").find("#ibtnSaveLetter").removeAttr('readonly');
+            var text = $("#editor").data("kendoEditor");
+            if (text.value() == "") {
+                $(".k-editor").find("#ibtnPreview").attr("readonly", true);
+                $(".k-editor").find("#ibtnPreview").addClass("k-state-disabled");
+            }
+            return false;
+        };
+        isClose = false;
+        editorsave = $("#editor").data("kendoEditor");
+        var templateTextValue = editorsave.value().replace(/&nbsp;/g, "").replace(/\s{2,}/g, "");
+        templateTextValue = editorsave.value().replace(/<p><\/p>/g, "");
+        if (letterTemplateId == 0) {
+            if (templateTextValue == "" || templateTextValue == null) {
+                registerGridPopup("Blank template cannot be saved. Please try again.", "OK", null, null);
+            } else {
+                $("#create-newtemplate-popup").html('');
+                var createWindow = $("#create-newtemplate-popup");
+                if (!createWindow.data("kendoWindow")) {
+                    $(".create-letter").parent('div.k-window').remove();
+                    createWindow = $("#create-newtemplate-popup").kendoWindow({
+                    content: { url: SSIUrl.createNewTemplate },
+                    draggable: false,
+                    modal: true,
+                    resizable: false,
+                    actions: [
+                        "Close"
+                    ],
+                    close: onClose,
+                    visible: false
+                }).data("kendoWindow");
+                //Setting size paarmeters for Create Template window
+                createWindow.center().open().title("Create New").wrapper.css({
+                    "width": "320px",
+                    "height": "auto",
+                    "left":"560px",
+                    "-webkit-transform": "scale(1)"
+                });
+                } else {
+                    // reopening window
+                    createWindow.data("kendoWindow")
+                        .refresh({ url: SSIUrl.createNewTemplate }) // request the URL via AJAX
+                        .open(); // open the window
+                }
+
+            }
+            $("#ibtnSaveLetter").removeClass("k-state-disabled");
+        } else {
+            if (templateTextValue == "" || templateTextValue == null) {
+                registerGridPopup("Blank template cannot be saved. Please try again.", "OK", null, null);
+            } else {
+                try {
+                    ajaxRequestHandler({
+                        url: SSIUrl.saveLetterTemplate,
+                        type: 'POST',
+                        dataType: 'json',
+                        contentType: "application/json;charset=utf-8",
+                        data: JSON.stringify({ 'TemplateText': editorsave.value(), 'LetterTemplateId': letterTemplateId, 'Name': templateName, 'FacilityId': letterFacilityId }),
+                        fnSuccess: OnSaveLetterTemplateSuccess,
+                    });
+                } catch (e) {
+
+                }
+            }
+        }
+        $("#ibtnSaveLetter").removeClass("k-state-disabled");
+        $(".k-editor").find("#ibtnSaveLetter").removeAttr('readonly');
+    });
+
+    function OnSaveLetterTemplateSuccess(data) {
+        if (data.isSuccess) {
+            letterFacilityId = 0;
+            registerGridPopup("Template updated successfully.", "OK", null, editTemplateClose);
+        }
+    }
+
+    function editTemplateClose() {
+        isTemplateSavedSuccessfully = false;
+        $("#create-letter-popup").data("kendoWindow").close();
+        isTemplateSavedSuccessfully = true;
+    }
+    //Closes Kendo UI editor
+    function onClose() {
+        $("#txt-template-name").val("");
+    }
+
+    //function to load letter variables in dropdown
+    function fnGetLetterVariables(selectBoxui) {
+        ajaxRequestHandler({
+            url: SSIUrl.getLetterVariables,
+            type: "GET",
+            dataType: "json",
+            contentType: "application/json;charset=utf-8",
+            fnSuccess: OnGetLetterVariablesSuccess,
+        });
+    }
+
+    function OnGetLetterVariablesSuccess(result) {
+        if (result != null && result.letterVariables != null) {
+            selectBoxui.dataSource.data(result.letterVariables);
+            $("#editor").data("kendoEditor").focus();
+        }
+    }
+
+</script>
