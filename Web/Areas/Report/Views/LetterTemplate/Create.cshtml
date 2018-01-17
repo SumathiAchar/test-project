@@ -1,0 +1,128 @@
+@{
+    Layout = null;
+}
+<div id="container-createnewtemplate">
+    <form class="validation-templatename">
+        <div>
+            <label>Template Name <span class="cms-requiredfields">*</span>:</label>
+            <input id="txt-template-name" name="txtTemplateName" class="k-textbox" style="width: 182px" maxlength="200" />
+        </div>
+
+    </form>
+</div>
+<div class="btn-savecancel">
+    <input type="button" id="btn-newtemplate-save" value="Save" class="k-button letterTemp" onclick="SaveTemplate();" />
+    <input type="button" id="btn-newtemplate-cancel" value="Cancel" class="k-button" onclick="CancelTemplate();" />
+</div>
+
+
+<script type="text/javascript">
+
+    $('document').ready(function () {
+        $("#txt-template-name").focus();
+    });
+
+    //default values to variables
+    var isAlreadyExists = false;
+
+    $("#ddl-letter-facility").kendoDropDownList({});
+    //function to load letter variables in dropdown
+    ajaxRequestHandler({
+        url: SSIUrl.getContractFacilitiesMasterData,
+        type: "GET",
+        dataType: 'json',
+        cache: false,
+        fnSuccess: OnGetContractFacilitiesMasterDataSuccess,
+    });
+
+
+    function OnGetContractFacilitiesMasterDataSuccess(json) {
+        //In success function bind data into combobox using kendo
+        var contractFacilitiesComboBoxData = [];
+        if (json.FacilityList.length > 1) {
+            contractFacilitiesComboBoxData.push({
+                'Text': "Select Facility",
+                'Value': 0,
+                'FacilityId':
+                  0
+            });
+        }
+        if (json != null && json.FacilityList != null) {
+            $.each(json.FacilityList, function (i, item) {
+                contractFacilitiesComboBoxData.push({
+                    'Text': item.FacilityName,
+                    'Value': item.FacilityId,
+                });
+            });
+        }
+        $("#ddl-letter-facility").kendoDropDownList({
+            dataTextField: "Text",
+            dataValueField: "Value",
+            dataSource: contractFacilitiesComboBoxData
+        }).data("kendoDropDownList");
+        $("#txt-template-name").focus();
+    }
+
+    //validator initialization
+    var validatorTemplate = $(".validation-templatename").kendoValidator().data("kendoValidator");
+    //on click of save button
+    function SaveTemplate() {
+        if (letterTemplateId == 0) {
+            templateName = $("#txt-template-name").val();
+            if (templateName == '') {
+                registerGridPopup("Template name is required.", "OK", null, null);
+                return false;
+            }
+        }
+
+        $("#image-logo-createletter").show();
+        isTemplateSavedSuccessfully = true;
+        ajaxRequestHandler({
+            url: SSIUrl.saveLetterTemplate,
+            type: "POST",
+            dataType: "json",
+            cache: false,
+            contentType: "application/json;charset=utf-8",
+            data: JSON.stringify({ 'TemplateText': editorsave.value(), 'LetterTemplateId': letterTemplateId, 'Name': templateName }),
+            fnSuccess: OnSaveLetterTemplateSuccess,
+        });
+    }
+
+    function OnSaveLetterTemplateSuccess(data) {
+        $("#image-logo-createletter").hide();
+        if (data.isSuccess) {
+            letterFacilityId = 0;
+            isChanged = false;
+            isTemplateSavedSuccessfully = false;
+            $('.letterTemp').closest(".k-window-content").data("kendoWindow").close();
+            $('#create-letter-popup').closest(".k-window-content").data("kendoWindow").close();
+            registerGridPopup("Template saved successfully.", "OK", null, null);
+            isTemplateSavedSuccessfully = true;
+            $('#letters-grid').data("kendoGrid").dataSource.read();
+
+        } else {
+            if (data.isExists) {
+                registerGridPopup("A letter template with this name already exists. Please try another name.", "OK", null, alterName);
+            }
+        }
+
+    }
+
+    //function to make focus on template name
+    function alterName() {
+        //since focus is going background Set timeout is added
+        setTimeout(function () {
+            $("#txt-template-name").focus();
+            $("#txt-template-name").focusin();
+        }, 1000);
+
+    }
+
+    //Handles for cancel event
+    function CancelTemplate() {
+        //closing kendo window
+        $('#create-newtemplate-popup').closest(".k-window-content").data("kendoWindow").close();
+        $(this.element).empty();
+    }
+
+</script>
