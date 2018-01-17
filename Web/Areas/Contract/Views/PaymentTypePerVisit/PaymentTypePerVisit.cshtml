@@ -1,0 +1,77 @@
+@model SSI.ContractManagement.Web.Areas.Contract.Models.PaymentTypePerVisitViewModel
+@{
+    Layout = null;
+}
+<!-- Per Visit Rate Amount -->
+<div id="divPerVisitPayment">
+    <input type="hidden" name="hiddenPerVisitPaymentContractId" id="hiddenPerVisitPaymentContractId"
+        data-bind="value:ContractId" />
+    <input type="hidden" name="hiddenPerVisitPaymentServiceTypeId" id="hiddenPerVisitPaymentServiceTypeId"
+        data-bind="value:ServiceTypeId" />
+    <input type="hidden" name="hiddenPerVisitPaymentPaymentTypeId" id="hiddenPerVisitPaymentPaymentTypeId"
+        data-bind="value:PaymentTypeId" class="filterPaymentTypeId" />
+    <input type="hidden" name="hiddenPerVisitPaymentPaymentTypeDetailId" id="hiddenPerVisitPaymentPaymentTypeDetailId"
+        data-bind="value:PaymentTypeDetailId" />
+    <label>
+        Rate
+    </label>
+    <input id="txtPVAmount" data-bind="value:Rate" />
+    <div class="btn-save-close">
+        <input id="btnPVSave" type="button" value="Save" class="k-button ptPerVisit" />
+        @if (@Model.IsEdit == true)
+        {
+            <input type="button" id="btnDeletePaymentTypePV" value="Delete" class="k-button delete-filter" />
+        }
+    </div>
+</div>
+<script type="text/javascript">
+
+    $(document).ready(function () {
+        setTimeout(function () {
+            $('#txtPVAmount').siblings('input:visible').focus();
+        }, 1000);
+    });
+
+    //Formatting the currency field
+    $("#txtPVAmount").kendoNumericTextBox({
+        format: "c",
+        min: 0
+    });
+
+    //For Set Focus Text Box
+    $('#txtPVAmount').siblings('input:visible').focus();
+
+    var viewmodelPerVisitPayment = kendo.observable({
+        ContractId: '@Model.ContractId',
+        ServiceTypeId: '@Model.ServiceTypeId',
+        PaymentTypeId: '@Model.PaymentTypeId',
+        Rate: '@Model.Rate',
+        PaymentTypeDetailId: '@Model.PaymentTypeDetailId'
+    });
+
+    //Saving Button
+    $("#btnPVSave").click(function () {
+
+        if ($("#txtPVAmount").val() != '') {
+            $("#btnPVSave").attr('disabled', 'disabled');
+            //Adding the payment per visit details
+            ajaxRequestHandler({
+                url: '@Url.Action("AddEditPaymentPerVisit", "PaymentTypePerVisit", new { area = "Contract" })',
+                type: 'POST',
+                contentType: "application/json; charset=utf-8",
+                dataType: 'json',
+                data: JSON.stringify(viewmodelPerVisitPayment),
+                fnSuccess: OnAddEditPaymentPerVisitSuccess,
+            });
+        }
+        else {
+            registerGridPopup("Please provide values for mandatory fields.", "OK", null, null);
+        }
+    });
+
+    function OnAddEditPaymentPerVisitSuccess() {
+        $('.ptPerVisit').closest(".k-window-content").data("kendoWindow").close();
+        ReDrawShapes();
+    }
+    kendo.bind($("#divPerVisitPayment"), viewmodelPerVisitPayment);
+</script>
