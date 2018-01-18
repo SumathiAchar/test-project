@@ -1,0 +1,31 @@
+@model SSI.ContractManagement.Web.Areas.UserManagement.Models.UserViewModel
+@{
+    Layout = "~/Views/Shared/_LayoutUserActivation.cshtml";
+}
+@using SSI.ContractManagement.Shared.Helpers
+@using SSI.ContractManagement.Web.Areas.UserManagement.Models
+<div id="div-email-validation">
+    <div class="lbl-new-activation">
+        <b id="title">Create New Account</b>
+    </div>
+
+    <div id="importSecurityQuestionform">
+        <div id="change-new-activation-container">
+            <label>Email Address:</label>
+            <input id="ddl-email-id" class="k-textbox inputChangeActivation" maxlength="50" />
+        </div>
+        <div class="btn-continue">
+            <input type="submit" id="ddl-continue" name="Submit" class="k-button inputChangeNext" value="Next" />
+        </div>
+        <div class="lbl-footer">
+            If you require assistance, please contact your local SSI administrator
+        </div>
+    </div>
+</div>
+<div id="div-invalid-token"> <b>The page is currently not accessible. Please contact your administrator.</b></div>
+
+<script type="text/javascript">
+    userId = '@Model.UserId'
+    emailType = '@Model.EmailType'
+</script>
+<script src="~/Areas/UserManagement/JavaScript/AccountActivation.js"></script>
