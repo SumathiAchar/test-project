@@ -1,0 +1,65 @@
+﻿@{
+    Layout = null;
+}
+@using System.Web.Optimization
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta http-equiv="Pragma" content="no-cache">
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/Content/Logo/favicon.ico")" />
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>@ViewBag.Title SSI Contract Management </title>
+    @Html.Partial("_SSIURL")
+    @Html.Partial("CMSLabels")
+    @Scripts.Render("~/Scripts/mainscript")
+    @Scripts.Render("~/Content/js/accountsettingscriptandstyle")
+    @Styles.Render("~/Content/css/cmsstyle")
+    @Styles.Render("~/Content/styles/kendostyle")
+    @Styles.Render("~/Content/themes/base/basestyle")
+</head>
+<body>
+    <div id="cms-wrapper">
+        <header>
+            <div id="header-left">
+                <img src="@Url.Content("~/Content/images/ssi_logo_small.png")" alt="SSI" class="cmslogo" />
+                <img alt="A/Rchitect Logo" id="architect-logo" src="@Url.Content("~/Content/images/ContractManagement.png")" height="40" />
+            </div>
+            <div id="header-right">
+                <div id="user-login">
+                </div>
+            </div>
+        </header>
+        <div id="my-account"></div>
+        <section>
+            @RenderBody()
+        </section>
+    </div>
+    <script type="text/javascript">
+        var userId, emailType, email;
+
+        // validateToken Object can be used as a constant
+        var validateToken = { InvalidToken: -1, TokenExpired: -2 }
+        var isSavePassword = { SaveSuccess: 0, SecurityAnswerFailed: -1, PasswordExists: -2 }
+
+        $(document).ready(function () {
+            var options = {
+                Loaderimagepath: '@Url.Content("~/Content/images/loader.gif")'
+            };
+            AjaxGlobalHandler.Initiate(options);
+        });
+    </script>
+    <script id="newcustomalert" type="text/x-kendo-template">
+        <div>
+            <p class="alert-msg"></p>
+        </div>
+        <div class="btn-conform">
+            <input type="button" style="display:none" class="k-button OK-confirm" value="OK" />
+            <input type="button" style="display:none" class="k-button cancel-confirm" value="Cancel" />
+        </div>
+    </script>
+</body>
+</html>
