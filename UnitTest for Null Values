@@ -1,0 +1,86 @@
+Refer ContractBaseLogicTest for Unit testing standards
+
+
+
+
+[TestMethod]
+        public void GetClaimFieldSelectionIfNullLogicUnitTest()
+        {
+            var repository = new Mock<IServiceLineClaimFieldRepository>();
+            repository.Setup(f => f.GetClaimFieldSelection(null));
+            ServiceLineClaimFieldLogic target = new ServiceLineClaimFieldLogic(repository.Object);
+
+            List<ContractServiceLineClaimFieldSelection> actual = target.GetClaimFieldSelection(null);
+            Assert.AreEqual(null, actual);
+
+
+
+
+TYPE OF TO CHECK
+ Assert.IsInstanceOfType(target, typeof(ContractLogic));
+			
+			
+			
+NORMAL ONE:
+
+
+  var repository = new Mock<IMedicareLabFeeScheduleRepository>();
+            List<MedicareLabFeeSchedule> result = new List<MedicareLabFeeSchedule>{new MedicareLabFeeSchedule()};
+            repository.Setup(f => f.GetMedicareLabFeeScheduleTableNames()).Returns(result);
+            MedicareLabFeeScheduleLogic target = new MedicareLabFeeScheduleLogic(repository.Object);
+
+            List<MedicareLabFeeSchedule> actual = target.GetMedicareLabFeeScheduleTableNames();
+
+            Assert.AreEqual(result, actual);
+
+
+
+
+CONSTRUCTOR TEST:
+
+
+ Mock<IContractHierarchyRepository> mockVarianceReportLogic = new Mock<IContractHierarchyRepository>();
+          ContractHierarchyLogic target = new ContractHierarchyLogic(mockVarianceReportLogic.Object);
+          Assert.IsInstanceOfType(target, typeof(ContractHierarchyLogic));
+
+
+
+
+CONSTRUCTOR TEST WITHOUT PARAMETERS:
+
+
+ContractHierarchyLogic target = new ContractHierarchyLogic(null);
+            Assert.IsInstanceOfType(target, typeof(ContractHierarchyLogic));
+			
+			
+NOTE: If the Logic file has two ILogic, the use it with both the logic in unit test cases.
+If in Logic, it is: 
+        private readonly ISelectClaimRepository _selectClaimsRepository;
+        private readonly IAdjudicationEngine _adjudicationEngine;
+
+then in mocking, 
+            var mockSelectClaimsRepository = new Mock<ISelectClaimRepository>();
+            var mockAdjudicationEngine = new Mock<IAdjudicationEngine>();		
+			 SelectClaimLogic target = new SelectClaimLogic(mockSelectClaimsRepository.Object, mockAdjudicationEngine.Object );
+			 
+			 
+NOTE: If any unity error is coming, then attach the interface line to app.config files within the unit tests folder			
+
+
+
+ASSERT LOGIC FOR LIST
+(IF TRUE)
+ var firstOrDefault = actual.FirstOrDefault(q => q.ClaimStatus == 4);
+            if (firstOrDefault != null)
+                Assert.AreEqual(4, firstOrDefault.ClaimStatus);
+				OR
+Assert.AreEqual(10, firstOrDefault.AdjudicatedValue);
+				
+				
+(IF FALSE)
+  Assert.AreEqual(true, actual.TrueForAll(q => q.ClaimStatus != 17));
+  OR
+    Assert.AreEqual(FALSE, actual.TrueForAll(q => q.ClaimStatus == 17));
+				
+
+ 
