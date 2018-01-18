@@ -1,0 +1,85 @@
+﻿@{
+    Layout = null;
+}
+
+<div id="copy-service-container">
+
+    <label>Enter Name</label>
+    <input type="text" id="txt-rename-servicetype" style="width: 171px" class="k-textbox" />
+</div>
+
+<div class="btn-saveclose">
+    @*<span style="padding-top: 15px; display:none;" id="image-logo-contract-service">
+        <img src="@Url.Content("~/Content/images/loader.gif")" height="30" />
+    </span>*@
+    <input type="button" id="btn-rename-servicetype" value="Save" class="k-button" />
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#txt-rename-servicetype").focus();
+    });
+
+    $("#txt-rename-servicetype").keyup(function () {
+        if ($("#txt-rename-servicetype").val() != '') {
+            $("#btn-rename-servicetype").removeAttr('disabled');
+        }
+        else {
+            $("#btn-rename-servicetype").attr('disabled', 'disabled');
+        }
+    });
+
+    $("#btn-rename-servicetype").click(function () {
+
+        if ($("#txt-rename-servicetype").val() != "") {
+            $("#btn-rename-servicetype").attr('disabled', 'disabled');
+
+            $("#image-logo-contract-service").show();
+
+            renameValue = $("#txt-rename-servicetype").val();
+            //To get the selected NodeId and ParentId
+            nodeId = treeView.dataItem($selectedNode).NodeId;
+            serviceTypeId = treeView.dataItem($selectedNode).ContractServiceTypeId;
+            ContractId = treeView.dataItem($selectedNode).ContractId;
+            ajaxRequestHandler({
+                type: "POST",
+                dataType: "json",
+                async: false,
+                url: SSIUrl.isContractServiceTypeNameExit,
+                data: JSON.stringify({ ContractId: ContractId, contractNodeId: nodeId, contractServiceTypeName: renameValue }),
+                fnSuccess: OnIsContractServiceTypeNameExitSuccess
+            });           
+        }
+
+        else {
+            registerGridPopup("Please enter service type name.", "OK", null, null);
+        }
+    });
+
+    function OnIsContractServiceTypeNameExitSuccess(data) {
+        if (data) {
+            ajaxRequestHandler({
+                type: "POST",
+                dataType: "json",
+                url: SSIUrl.copyServiceType,
+                data:JSON.stringify({ ContractServiceTypeId: serviceTypeId, NodeId: nodeId, RenameText: renameValue }),
+                fnSuccess: OnCopyServiceTypeSuccess
+            });
+        } else {
+            registerGridPopup("The service type name you entered already exists.", "OK", null, null);
+        }
+    }
+
+    function OnCopyServiceTypeSuccess() {
+        //To refresh the page
+        $("#image-logo-contract-service").hide();
+        // After saving highlighting the treeview
+        treeViewHighlight(false, true, true);
+        $("#form-add-contract").closest(".k-window-content").data("kendoWindow").close();
+        $("#btn-rename-servicetype").attr('enabled', 'enabled');
+        $('#automation-button').show();
+    }
+    setTimeout(function () {
+        $("#txt-rename-servicetype").focus();
+    }, 1000);
+</script>

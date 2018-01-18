@@ -1,0 +1,73 @@
+﻿@{
+    Layout = null;
+}
+
+
+<div id="copy-contract-container">
+    <label>Enter Name</label>
+    <input type="text" id="txt-rename-contract" style="width: 171px" class="k-textbox" />
+</div>
+
+<div class="btn-saveclose">    
+    <input type="button" id="btn-rename-contract" value="Save" class="k-button" />
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+        $("#txt-rename-contract").focus();
+    });
+
+    $("#txt-rename-contract").keyup(function () {
+        if ($("#txt-rename-contract").val() != '') {
+            $("#btn-rename-contract").removeAttr('disabled');
+        }
+        else {
+            $("#btn-rename-contract").attr('disabled', 'disabled');
+        }
+    });
+
+    $("#btn-rename-contract").click(function () {
+        if ($("#txt-rename-contract").val() != "") {
+            $("#btn-rename-contract").attr('disabled', 'disabled');
+
+            $("#image-logo-copy-contract").show();
+
+            renameValue = $("#txt-rename-contract").val();
+            //To get the selected NodeId and ParentId
+            contractId = treeView.dataItem($selectedNode).ContractId;
+            nodeId = treeView.dataItem($selectedNode).NodeId;
+            facilityId = treeView.dataItem($selectedNode).FacilityId;
+            modelNodeId = treeView.dataItem($selectedNode).parent().parent().parent().parent().ParentId;
+
+            //No need to check whether contract is exists or not in case of copying contract
+            SaveCopyContract(contractId, nodeId, renameValue);
+        }
+        else {
+            registerGridPopup("Please enter contract name.", "OK", null, null);
+        }
+    });
+
+    function SaveCopyContract(contractId, nodeId, renameValue) {
+        ajaxRequestHandler({
+            type: "POST",
+            dataType: "json",
+            url: SSIUrl.copyContract,
+            data: JSON.stringify({ContractId: contractId, NodeId: nodeId, RenameText: renameValue }),
+            fnSuccess: OnCopyContractSuccess
+        });      
+    }
+
+    function OnCopyContractSuccess() {
+        //To refresh the page
+        $("#image-logo-copy-contract").hide();
+        // After saving highlighting the tree view
+        treeViewHighlight(true, false, true);
+        $("#form-add-contract").closest(".k-window-content").data("kendoWindow").close();
+        $("#btn-rename-contract").attr('enabled', 'enabled');
+    }
+
+    setTimeout(function () {
+        $("#txt-rename-contract").focus();
+    }, 680);
+
+</script>
