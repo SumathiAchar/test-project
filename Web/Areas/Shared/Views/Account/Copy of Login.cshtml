@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+     
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/Content/Logo/favicon.ico")"/>
+    <!-- new meta -->
+   
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>@ViewBag.Title SSI Contract Management </title>
+    <!-- External jquery and css path reference variables -->
+    <link href="@Url.Content("~/Content/Site.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/themes/base/jquery.ui.all.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Scripts/jquery-1.6.2.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Scripts/jquery-ui-1.8.11.js")" type="text/javascript"></script>
+    @*<script src="@Url.Content("~/Scripts/modernizr-2.0.6-development-only.js")" type="text/javascript"></script>*@
+    <script src="@Url.Content("~/Scripts/AjaxLogin.js")" type="text/javascript"></script>
+    @Html.Partial("_SSIURL")
+    <link href="@Url.Content("~/Content/css/style.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/styles/kendo.common.min.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/styles/kendo.menu.ex.css")" rel="stylesheet" type="text/css" />
+    <link href="@Url.Content("~/Content/styles/kendo.default.min.css")" rel="stylesheet" type="text/css" />
+    <script src="@Url.Content("~/Content/js/jquery.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/kendo.all.min.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/kendo.menu.ex.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/jquery.jeditable.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/login.js")" type="text/javascript"></script>
+    @*<script src="@Url.Content("~/Content/js/treeview.js")" type="text/javascript"></script>
+    <script src="@Url.Content("~/Content/js/AutomationTool.js")" type="text/javascript"></script>*@
+  
+    <script src="@Url.Content("~/Content/js/jquery.scrollTo-min.js")" type="text/javascript"></script>
+    <script type="text/javascript">
+        function GotoRecoverPasswordLink() {
+
+            window.location.href = '@ViewData["RecoverPassword"]';
+            return false;
+        }
+        setTimeout(function () {
+            $("input:text:first").focus();
+        }, 1000);
+    </script>
+</head>
+<body>
+    <div class="medlogin">
+        @model SSI.ContractManagement.Web.Models.LoginModel
+        @{
+            Layout = null;   
+        }
+        @{
+            ViewBag.Title = "Log in";
+            <div id="loginlogo">
+                <!-- For showing SSI logos-->
+                <div id="loginimages">
+                    <img src="@Url.Content("~/Content/images/SSI_logo.png")" width="213" alt="Login" style="margin:10px 0 0 25%;" />
+                    <br />
+                    <img style="margin-top:10px" src="@Url.Content("~/Content/images/AR2.png")" width="450" alt="Login" />
+                    <br />
+                    <hgroup class="title">
+                           @* <h1>@ViewBag.Title</h1>*@
+                    </hgroup>
+                </div>
+                @using (Html.BeginForm(new { ReturnUrl = ViewBag.ReturnUrl }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.ValidationSummary(true)
+
+                    <fieldset>
+                        <div id="logincontain">
+
+                            <div id="logindetails">
+                                <label id="lblemail">
+                                    @Html.LabelFor(m => m.UserName)
+                                </label>
+                                <br />
+                                @Html.TextBoxFor(m => m.UserName, new { tabindex = "1"})
+                                <br />
+                                @Html.ValidationMessageFor(m => m.UserName)
+                                <label id="lblpassword">
+                                    @Html.LabelFor(m => m.Password)
+                                </label>
+                                <br />
+                                @Html.PasswordFor(m => m.Password, new { tabindex = "2" })
+                                <br />
+                                @Html.ValidationMessageFor(m => m.Password)
+                            </div>
+                            <div class="Mlogindiv">
+                                <div id="recoverpass">
+                                    <input type="button" tabindex="4" id="btnRecoverPassword" onclick="GotoRecoverPasswordLink(); return false;"
+                                        class="k-button" value="Recover Password" />
+                                </div>
+                                <div id="loginmedw">
+                                    <input id="btnsubmitlog" tabindex="3" type="submit" class="k-button" value="Log in" />
+                                </div>
+                            </div>
+                        </div>
+                    </fieldset>  
+   
+                }
+                <!-- For customer support information-->
+                <div id="loginInfo">
+                    <p style="text-align: center">
+                        Customer Support: 1-800-820-4774 (24 Hours 7 Days a Week)
+                        <br />
+                        or <a href="https://auth.ssigroup.com/SSOS/Login/Login" target="_blank" id="HyperLink1">
+                            create an SSR Directly. </a>
+                    </p>
+                    <p>
+                        By accessing this system you are authorized to use the contained information internally
+                        within your organization and are bound to abide by local, state and federal privacy
+                        and security policies. SSI disclaims responsibility for any consequences or liability
+                        attributable to or related to use, non-use, or interpretation of information contained
+                        or not contained in this product. Any use not authorized is prohibited, including
+                        by way of illustration and not by way of limitation, making copies of the product
+                        for resale and/or license, transferring copies to any party not bound by this agreement.
+                        The scope of this agreement is determined by SSI, the copyright holder. End Users
+                        do not act for or on behalf of SSI and as such SSI disclaims responsibility for
+                        any liability attributable to end user use of this system.
+                    </p>
+                </div>
+            </div>
+                            
+        }
+    </div>
+</body>
+</html>
