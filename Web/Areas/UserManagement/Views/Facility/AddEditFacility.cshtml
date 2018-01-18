@@ -1,0 +1,151 @@
+<link href="@Url.Content("~/Content/css/bootstrap/bootstrap-datepicker.css")" rel="stylesheet" type="text/css" />
+@model SSI.ContractManagement.Web.Areas.UserManagement.Models.FacilityViewModel
+@{
+    Layout = null;
+}
+
+<div id="container-facility-info">
+    <div id="firstfacilityleft">
+        <div id="basicname">
+            <label>
+                Facility Name<span class="cms-requiredfields">*</span>:
+            </label>
+            <input id="txt-facility-name" class="k-textbox cms-w180" data-bind="value: FacilityName" maxlength="50" />
+        </div>
+        <div id="basicname">
+            <label>
+                Display Name<span class="cms-requiredfields">*</span>:
+            </label>
+            <input id="txt-display-name" class="k-textbox cms-w180" data-bind="value: DisplayName" maxlength="50" />
+        </div>
+        <div id="basicname">
+            <label>
+                Address:
+            </label>
+            <input id="txt-address" class="k-textbox cms-w180" data-bind="value: Address" maxlength="50" />
+        </div>
+        <div id="basicname">
+            <label>
+                City:
+            </label>
+            <input id="txt-city" class="k-textbox cms-w140" data-bind="value: City" maxlength="20" />
+        </div>
+        <div id="facilityzip">
+            <label>
+                State/Zip:
+            </label>
+            <input id="ddlfacilitystate" class="k-dropdown" data-bind="value: StateId" />
+            <input id="txt-zip" class="k-textbox facilityzip" data-bind="value: Zip" maxlength="10" />
+        </div>
+
+        <div id="basicname">
+            <label>
+                Phone:
+            </label>
+            <input id="txt-phone" class="k-textbox cms-w140" data-bind="value: Phone" maxlength="12" />
+        </div>
+        <div id="basicname">
+            <label>
+                Fax:
+            </label>
+            <input id="txt-fax" class="k-textbox cms-w140" data-bind="value: Fax" maxlength="12" />
+        </div>
+        <div id="basicname">
+            <label>
+                Domains<span class="cms-requiredfields">*</span>:
+            </label>
+            <textarea id="txt-domain" class="k-textbox" data-bind="value: Domains" cols="8" rows="10" name="domain" maxlength="200"></textarea>
+        </div>
+
+    </div>
+    <div id="firstfacilityright">
+        <div id="basices" class="facilityenable">
+            <label class="checkboxenabled"> <input type="checkbox" id="chkenable" data-bind="checked: IsActive"><span class="facilityenablecheckbox">Enabled</span></label>
+        </div>
+        <div id="basicname" class="bubble">
+            <label>
+                Data Source<span class="cms-requiredfields">*</span>:
+            </label>
+            <input id="ddlFacilityDataSource" data-bind="value: FacilityBubbleId" class="k-dropdown facilityDataSource" />
+        </div>
+        <div id="basicname">
+            <label>
+                SSI Numbers<span class="cms-requiredfields">*</span>:
+            </label>
+            <textarea id="txt-ssi-numbers" data-bind="value: SsiNo" class="k-textbox" cols="8" rows="10" maxlength="200" name="ssi-numbers"></textarea>
+        </div>
+        <div id="basices" class="facilitypassword">
+            <label>
+                Early Statement Date:
+            </label>
+            <input id="txt-early-statement-date" data-bind="value: EarlyStatementDate" class="from_date customdate" placeholder="mm/dd/yyyy" maxlength="10" />
+        </div>
+        <div id="basices" class="facilitypassword">
+            <label>
+                Password Expiration Days<span class=" cms-requiredfields">*</span>:
+            </label>
+            <input id="txtPasswordExpirationDays" data-bind="value: PasswordExpirationDays" type="number" maxlength="2" />
+        </div>
+        <div id="basices" class="facilitypassword">
+            <label>
+                Max Invalid Password Attempts<span class="cms-requiredfields">*</span>:
+            </label>
+            <input id="txtPasswordAttempts" data-bind="value: InvalidPasswordAttempts" type="number"  maxlength="1" />
+        </div>
+        <div id="basices" class="facilityfeaturecontrol">
+            <fieldset>
+                <legend>
+                    Feature Control
+
+                </legend>
+                <span id="divFacilityFeatures" data-bind="source:FacilityFeatureControl" data-template="facilityFeatures"></span>
+            </fieldset>
+        </div>
+    </div>
+    <div id="addfacility">
+        <input id="btn-addEditFacility" type="button" value="Save" class="k-button facilityTemp">
+        <input id="btn-facility-cancel" type="button" value="Cancel" class="k-button">
+    </div>
+</div>
+
+<script type="text/x-kendo-tmpl" id="facilityFeatures">
+    <div style="margin-top: 0px;">
+        <label class="checkboxfeaturecontrol">
+            <input type="checkbox" value="#=data.FeatureControlId#" data-bind="checked: IsSelected" />
+            <span class="featurecontrolcheckbox"> #= Name #</span>
+        </label>
+    </div>
+</script>
+<script src="@Url.Content("~/Content/js/bootstrap/bootstrap-datepicker.js")" type="text/javascript"></script>
+<script type="text/javascript">
+    //FIXED-RAGINI-FEB2016 Why Javascript and html is mixed here. Everywhere we have followed the concept of keeping javascript
+    //in a separate file why it is not followed here
+    var earlyStatementDate = '@Model.EarlyStatementDate' != '' ? dateFormat(new Date('@Model.EarlyStatementDate'), "MM/DD/YYYY") : '';
+    var facilityId = '@Model.FacilityId' == '' ? '0' : '@Model.FacilityId';
+    var faciltyFeatureControl =@Html.Raw(Json.Encode(@Model.FacilityFeatureControl))
+    initialFeatureControlVM = jQuery.extend(true, [], faciltyFeatureControl);
+    var viewmodelFacility = kendo.observable({
+        FacilityId: facilityId,
+        DisplayName: @Html.Raw(Json.Encode(Model.DisplayName)),
+        FacilityName: @Html.Raw(Json.Encode(Model.FacilityName)),
+        Address: @Html.Raw(Json.Encode(Model.Address)),
+        City: @Html.Raw(Json.Encode(Model.City)),
+        StateId: '@Model.StateId',
+        Zip: '@Model.Zip',
+        Domains:@Html.Raw(Json.Encode(Model.Domains)),
+        Phone: '@Model.Phone',
+        Fax: '@Model.Fax',
+        IsActive: '@Model.IsActive' == 'True' ? true : false,
+        EarlyStatementDate: earlyStatementDate == '01/01/2001' ? '' : earlyStatementDate,
+        SsiNo: '@Model.SsiNo',
+        FacilityBubbleId: '@Model.FacilityBubbleId',
+        PasswordExpirationDays: '@Model.PasswordExpirationDays',
+        InvalidPasswordAttempts: '@Model.InvalidPasswordAttempts',
+        FacilityFeatureControl: faciltyFeatureControl
+    });
+
+    initialViewModel = jQuery.extend(true, {}, viewmodelFacility);
+
+    kendo.bind($("#container-facility-info"), viewmodelFacility);
+</script>
+<script src="@Url.Content("~/Areas/UserManagement/JavaScript/Facility.js")" type="text/javascript"></script>
