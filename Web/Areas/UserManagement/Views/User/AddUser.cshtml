@@ -1,0 +1,131 @@
+@model  SSI.ContractManagement.Web.Areas.UserManagement.Models.UserViewModel
+@{
+    Layout = null;
+}
+
+<div id="divAddUserPopUp">
+    <div id="divAddUserContent">
+        <div>
+            <div>
+                <label>Email<span class="cms-requiredfields">*</span>: </label>
+                <input type="text" id="txt-email" class="k-textbox cms-w185" maxlength="50" data-bind="value:UserName" />
+                <div class="adduser-chkbox">
+                    <label class="checkbox-user"><input type="checkbox" id="isLocked" data-bind="checked: IsLocked" /><span id="user-chkbox">Locked</span></label>
+                    <label class="checkbox-user"><input type="checkbox" id="isAdmin" data-bind="checked: IsAdmin" /><span id="user-chkbox">Is Admin?</span></label>
+
+                </div>
+            </div>
+            <label>First Name<span class="cms-requiredfields">*</span>: </label>
+            <input type="text" id="txt-first-name" class="k-textbox cms-w140" maxlength="35" data-bind="value:FirstName" />
+
+            <div>
+                <label>Last Name<span class="cms-requiredfields">*</span>: </label>
+                <input type="text" id="txt-last-name" class="k-textbox cms-w140" maxlength="35" data-bind="value:LastName" />
+            </div>
+            <div>
+                <label>
+                    Middle Name:
+                </label>
+                <input type="text" id="txt-middle-name" class="k-textbox cms-w140" maxlength="35" data-bind="value:MiddleName" />
+            </div>
+
+        </div>
+        <div id="facility-container">
+            <div id="facility">
+                <label>Available Facilities<span class="cms-requiredfields">*</span></label>
+                <ul id="available-facilities" data-role="listview" data-bind="source: AvailableFacilityList"></ul>
+            </div>
+            <!-- Add Button Div -->
+            <div id="facilitybutton">
+                <input id="facility-addtogrid" type="image" src="@Url.Content("~/Content/images/next.png")" value="Add"  />
+                <input id="btn-remove-facility" type="image" src="@Url.Content("~/Content/images/previous.png")" value="Remove" />
+                <input id="facility-add-all-togrid" type="image" src="@Url.Content("~/Content/images/last.png")" value="AddAll" />
+                <input id="btn-remove-all-facility" type="image" src="@Url.Content("~/Content/images/first.png")" value="Remove" />
+            </div>
+            <!-- Selected Listview Div -->
+            <div id="selected-facility">
+                <label>Assigned Facilities</label>
+                <ul id="list-selected-facilities" data-role="listview" data-bind="source: SelectedFacilityList"></ul>
+            </div>
+        </div>
+        <!-- Fixed-FEB16 - Why using &nbsp; Should use padding for space -->
+        <div id="divAddUserSubmitButtons">
+            <input type="button" class="k-button" id="btn-password-reset" value="Password Reset" />
+            <input type="button" class="k-button" id="btn-accountreset" value="Account Reset" />
+            <input type="button" class="k-button" id="btn-submit-adduser" value="Save" />
+            <input type="button" class="k-button" id="btn-cancel-adduser" value="Cancel" />
+        </div>
+    </div>
+</div>
+<script type="text/x-kendo-tmpl" id="availableFacilityTemplate">
+    <div data-bind="text: FacilityName, value: FacilityId">
+        #:FacilityName#<br />
+    </div>
+</script>
+<script type="text/x-kendo-tmpl" id="selectedFacilityTemplate">
+    <div data-bind="text: FacilityName, value: FacilityId">
+        #:FacilityName#
+    </div>
+</script>
+<script>
+    //FIXED-RAGINI-FEB2016 Why Javascript and html is mixed here. Everywhere we have followed the concept of keeping javascript
+    var availableFacilityList = null, selectedFacilityList = null, dataSourceAvailableFacility = null, dataSourceSelectedFacility = null, Facility = [];
+    var isPasswordResetLock='@Model.IsPasswordResetLock.ToString().ToLower()'
+    $(document).ready(function () {
+        availableFacilityList = @Html.Raw(Json.Encode(Model.AvailableFacilityList));
+        if (availableFacilityList == null) {
+            availableFacilityList = [];
+        }
+
+        selectedFacilityList = @Html.Raw(Json.Encode(Model.SelectedFacilityList));
+        if (selectedFacilityList == null) {
+            selectedFacilityList = [];
+        }
+        var isLocked= false;
+        var isAdmin = false;
+        if ('@Model.IsLocked' == 'True') {
+            isLocked = true;
+        }
+
+        if ('@Model.IsAdmin' == 'True') {
+            isAdmin = true;
+        }
+        dataSourceAvailableFacility = new kendo.data.DataSource({
+            data: availableFacilityList,
+            sort: { field: "FacilityName", dir: "asc" }
+        });
+
+        dataSourceSelectedFacility = new kendo.data.DataSource({
+            data: selectedFacilityList,
+            sort: { field: "FacilityName", dir: "asc" }
+        });
+        //Combobox for displaying available Facilities
+        $("#available-facilities").kendoListView({
+            selectable: "multiple",
+            dataSource: dataSourceAvailableFacility,
+            template: kendo.template($("#availableFacilityTemplate").html())
+        });
+
+        //Listview for displaying the selected Facilities
+        $("#list-selected-facilities").kendoListView({
+            selectable: "multiple",
+            dataSource: dataSourceSelectedFacility,
+            template: kendo.template($("#selectedFacilityTemplate").html())
+        });
+        SelectedFacilityViewModel=jQuery.extend(true, [], selectedFacilityList);
+        userViewModel = kendo.observable({
+            UserId:'@Model.UserId',
+            FirstName:@Html.Raw(Json.Encode(Model.FirstName)),
+            LastName:@Html.Raw(Json.Encode(Model.LastName)),
+            MiddleName:@Html.Raw(Json.Encode(Model.MiddleName)),
+            UserName:@Html.Raw(Json.Encode(Model.UserName)),
+            IsLocked:isLocked,
+            IsAdmin:isAdmin,
+            AvailableFacilityList: availableFacilityList,
+            SelectedFacilityList: selectedFacilityList
+        });
+        initialViewModel =jQuery.extend(true, {}, userViewModel);
+        kendo.bind($("#divAddUserContent"), userViewModel);
+    });
+</script>
+<script src="@Url.Content("~/Areas/UserManagement/JavaScript/AddUser.js")" type="text/javascript"></script>
