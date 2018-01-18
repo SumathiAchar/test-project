@@ -1,0 +1,400 @@
+@using System.Configuration
+@using System.Web.Optimization
+@using SSI.ContractManagement.Shared.Helpers
+@using SSI.ContractManagement.Web.Areas.Common.Models
+@using SSI.ContractManagement.Web.Areas.Common.Controllers
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta http-equiv="X-UA-Compatible" content="IE=9">
+    <meta charset="utf-8">
+    <meta name="description" content="">
+    <meta name="keywords" content="">
+    <meta http-equiv="Pragma" content="no-cache">
+
+    <link rel="icon" type="image/x-icon" href="@Url.Content("~/Content/Logo/favicon.ico")" />
+    <!-- new meta -->
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+
+    <title>@ViewBag.Title SSI Contract Management </title>
+
+    <script src="@Url.Content("~/Scripts/cookies.min.js")" type="text/javascript"></script>
+    <!-- Action Controller path defined in SSI URL -->
+    @Html.Partial("_SSIURL")
+    @Html.Partial("CMSLabels")
+    @Scripts.Render("~/Scripts/mainscript")
+    <!--[if IE]>
+        <script src="~/Content/js/excanvas.js"></script>
+        <script src="~/Content/js/html5shiv.min.js"></script>
+        <script src="~/Content/js/Uint8Array.js"></script>
+        <script src="~/Content/js/Blob.js"></script>
+    <![endif]-->
+    @Scripts.Render("~/Content/js/secondscript")
+    @Styles.Render("~/Content/css/cmsstyle")
+    @Styles.Render("~/Content/styles/kendostyle")
+    @Styles.Render("~/Content/themes/base/basestyle")
+
+</head>
+
+<body onload="mainstart();">
+    <div id="cms-wrapper">
+        <header>
+            <div id="header-left">
+                <img src="@Url.Content("~/Content/images/ssi_logo_small.png")" alt="SSI" class="cmslogo" />
+                <img alt="A/Rchitect Logo" id="architect-logo" src="@Url.Content("~/Content/images/ContractManagement.png")" height="40" />
+            </div>
+            <div id="header-right">
+                <div id="user-login">
+                    <ul id="user-login-list">
+                        <li class="sublist-navigate">
+                            <a id="navigation-list" href="#">Navigate <span class="k-icon k-i-arrow-s"></span></a>
+                            <ul>
+                                <li><a id="link-administration" onclick="showUserManagementScreen();" href="#">Administration </a></li>
+                                <li><a id="link-contract-management" onclick="showContractManagementScreen();" href="#">Contract Management </a></li>
+                            </ul>
+                        </li>
+                        <li class="sublist-administration">
+                            <a id="administration-list" href="#">Navigate <span class="k-icon k-i-arrow-s"></span></a>
+                            <ul>
+                                @*<li id="sublist-list-administration"><a id="link-administration" onclick="showUserManagementScreen();" href="#">Administration </a></li>*@
+                                <li id="sublist-list-contract-management"><a id="link-contract-management" onclick="showContractManagementScreen();" href="#">Contract Management </a></li>
+                            </ul>
+                        </li>
+
+                        <li>
+                            <a id="help-list" href="#">Help <span class="k-icon k-i-arrow-s"></span></a>
+                            <ul>
+                                <li><a id="link-user-manual" onclick="alertclick();" href="#">User Manual </a></li>
+                            </ul>
+                        </li>
+                        <li class="sublist-user-login">
+                            <label id="list-timestrip">
+                                Time
+                            </label>
+                        </li>
+                        <li>
+                            <a href="#" id="list-username" class="hoverdetails">@(ViewBag.UserName != null ? ViewBag.UserName : "") <span class="k-icon k-i-arrow-s"></span></a>
+                            <ul id="change-password"></ul>
+                        </li>
+                        <li class="sublist-user-login">
+                            @*<img src="@Url.Content("~/Content/images/ssi_logo_small.png")" alt="SSI" height="25" />*@
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </header>
+        <!-- Display top level menu items like Home,Search,Reports,Alerts,Code Dictionary,Payment Dictionary ,Request Adjudication,Import-->
+        <div id="cms-menu-bar">
+            <ul>
+                <li id="menu-list-home" onclick="showHome();" class="k-state-disabled">
+                    <label>Home</label>
+                </li>
+                <li id="menu-list-reports" onclick="showReports();" class="k-state-disabled">
+                    <label>Reporting</label>
+                </li>
+                <li id="menu-list-alerts" onclick="ShowAlerts();" class="k-state-disabled">
+                    <label>Alerts</label>
+                    <label id="list-alert-count" class="aleart-cms"></label>
+                </li>
+                <li id="list-code-dictionary" class="menu-pointer" onclick="ShowCodeDictionary();">
+                    <label>Code Dictionary</label>
+                </li>
+                <li id="list-payment-dictionary" class="menu-pointer" onclick="ShowPaymentDictionary();">
+                    <label>Payment Dictionary</label>
+                </li>
+                <li id="list-claims-workflow" onclick="showClaimsWorkflow();" class="k-state-disabled">
+                    <label>Worklist</label>
+                </li>
+                <li id="list-request-adjudication" onclick="showAdjudication();" class="k-state-disabled">
+                    <label>Adjudication</label>
+                    <label id="job-count" class="aleart-cms"></label>
+                </li>
+                <li id="payment-tables" onclick="ShowPaymentTable();" class="k-state-disabled">
+                    <label>Payment Tables</label>
+                </li>
+            </ul>
+        </div>
+        <section>
+            <aside>
+                <!-- Display Contract Hierarchical View -->
+                <div class="tree-header" id="treeFacilityHeader">
+                </div>
+                <div id="treeview-loader" style="display: none; margin-left: 40%; margin-top: 50%">
+                    <img src="@Url.Content("~/Content/images/loader.gif")" height="40" alt="Processing" />
+                </div>
+                <!-- Display Context menus under Contract Hierarchical View  -->
+                <div oncontextmenu="return false;">
+                    <div style="display: none;" id="tree-view" data-role="treeview" data-text-field="NodeText" data-bind="source: treeStructure">
+                    </div>
+                    <div id="cms-admin-menu-bar" class="invisible">
+                        <div class="tree-user-management-header">
+                        </div>
+                        <div id="cms-facilities" class="cms-facilities" onclick="showFacilities();">
+                            Facilities
+                        </div>
+                        <div id="cms-users" class="cms-users" onclick="showUsers();">
+                            Users
+                        </div>
+                    </div>
+                    <span id="list-item-rename"></span>
+                    <div id="context-menu-primary">
+                    </div>
+                    <div id="context-menu-contract">
+                    </div>
+                    <div id="context-menu-secondary">
+                    </div>
+                    <div id="context-menu-servicetype">
+                    </div>
+                </div>
+                <!-- End of  Display Context menus under Contract Hierarchical View -->
+            </aside>
+        </section>
+        <!--Displaying all new activation details-->
+
+
+        <div id="main-content">
+            <div class="tree-header">
+                <label id="main-content-header-row">&nbsp; </label>
+            </div>
+            <div id="tool-container">
+                <div id="tool-container-left">
+                    <div id="main-content-logo" style="display: none"></div>
+                    <!--For Display Contract Name-->
+                    <div id="contract-name-container">
+                        <label id="lbl-contract-name" name="ContractName">
+                        </label>
+                    </div>
+                    <!--End-->
+                    <div id="error-msg-container">
+                        <label class="error-msg"></label>
+                    </div>
+                    <!-- Display Shapes for Payment types and Service Lines -->
+                    <div id="container" style="overflow: auto; background-color: #fff;">
+                        <div class="draw-box">
+                        </div>
+                    </div>
+                    @RenderBody()
+                </div>
+                @Html.Action("Index", "AutomationTool", new { area = "Contract" })
+            </div>
+        </div>
+    </div>
+    <div id="userSetting-popup"></div>
+    <script type="text/javascript">
+        var isModelComparisionReportLoading = false, isWorkListPage = false;
+        var currentFacilityId = ('@ViewBag.CurrentFacilityId') ? parseInt('@ViewBag.CurrentFacilityId') : 0;
+        var currentFacilityName = ('@ViewBag.CurrentFacilityName') ? '@ViewBag.CurrentFacilityName' : "No facility selected";
+        var userTypeId = '@ViewBag.UserTypeId';
+        var loggedInUserId = '@ViewBag.UserId';
+        var lastLoginDate = '@ViewBag.LastLoginDate';
+        var daysToExpiry = '@ViewBag.PasswordExpirationDays';
+        var landingPageId = ('@ViewBag.LandingPageId') ? parseInt('@ViewBag.LandingPageId') : 1;
+        var IsCancelClicked;
+        var facilityanduserhomepage = "facilityanduserhomepage";
+        var isUserManagementScreen = false;
+        var SingleFacilityId = '@ViewBag.SingleFacility';
+        var isAutoRefresh = ('@ViewBag.IsAutoRefresh' === 'True') ? true : false;
+        if (window.location.pathname.toLowerCase().indexOf(facilityanduserhomepage) != -1) {//if index is not equal to -1 then given string is matched.
+            isUserManagementScreen = true;
+        }
+        //hide navigate for cmuser
+        if (userTypeId != userRoles.CmAdmin) {
+            $("#navigation-list").hide();
+            if (isUserManagementScreen) {
+                $("#cms-admin-menu-bar").removeClass('invisible');
+            }
+        }
+        //hide navigate for cmuser
+        if (userTypeId == userRoles.CmAdmin) {
+            $("#link-contract-management").hide();
+        }
+        //Clear the session
+        function clearSession() {
+            window.location.href = SSIUrl.logOff + '?isSessionTimeOut=' + true;
+        }
+
+        $(function () {
+            var timeoutId;
+
+            //Reset the session
+            function keepSessionActive() {
+                timeoutId = window.setTimeout(clearSession, '@GlobalConfigVariable.IdleTimeout');
+                if (Cookies.enabled) {
+                    Cookies.set('active', '1', { expires: parseInt('@GlobalConfigVariable.IdleTimeout') / 1000 });
+                }
+            }
+
+            //Clear the session call variable
+            function resetSession() {
+                window.clearTimeout(timeoutId);
+            }
+
+            //KeepSessesionActive
+            keepSessionActive();
+
+            //ResetSession for each ajax call
+            $.ajaxPrefilter(function (options, originalOptions, jqXHR) {
+                if (options.url.indexOf("/ContractAlert/ContractAlertCount") == -1 && options.url.indexOf("/JobData/GetAllJobsAlertCount") == -1 &&
+                    options.url.indexOf("/Adjudication/JobData/GetAllJobs") == -1 && options.url.indexOf("/Alert/ContractAlert/ContractAlertsInfo") == -1) {
+                    resetSession();
+                    keepSessionActive();
+                }
+            });
+
+            $(window).on('click', function (event) {
+                resetSession();
+                keepSessionActive();
+            });
+            var user = '@ViewBag.UserName';
+            if (user == null || user == 'undefined' || user == '') {
+                window.location.reload();
+            }
+
+            idleTimer(parseInt("@GlobalConfigVariable.IdleTimeout"), document);
+
+            $(document).bind("idle.idleTimer", function () {
+                if (!Cookies.enabled || (Cookies.enabled && Cookies.get('active') == null)) {
+                    window.location.href = SSIUrl.logOff + '?isSessionTimeOut=' + true;
+
+                }
+            });
+        });
+
+
+    </script>
+    <script>
+        var uname = $("#list-username").text();
+
+        if (uname != "admin1") {
+            $('#Hospitallogo').css('display', 'none');
+            $("#image_top").attr("src", "url: SSIUrl.logo.png");
+        }
+        function alertclick() {
+            if (isContractChange || isQueryNameCriteriaChange) {
+                ShowContractChangedPopup(alertclick)//this is used to check modify contract/report criteria.
+                return false;
+            }
+            registerGridPopup("Download user manual?", "OK", "Cancel", downLoadFilecallBack);
+        }
+        function downLoadFilecallBack() {
+            window.location.href = SSIUrl.downloadUserManual;
+            if (!e) var e = window.event;
+            e.stopPropagation();
+            this.close();
+        }
+    </script>
+    <script type="text/javascript">
+
+        //var keyCode = event.keyCode;
+        //if (keyCode==8)
+        //    alert('you pressed backspace');
+
+        //if(keyCode==116)
+        //    alert('you pressed f5 to reload page')
+        var checkInternetInterval = "@GlobalConfigVariables.CheckInternetInterval";
+
+        var alertStatusVariables = {
+            alertRefreshTime: "@GlobalConfigVariables.AutoRefreshJobStatus",
+            IsAutoRefreshEnabled: "@GlobalConfigVariables.IsAutoRefreshEnabled",
+            alertAutoRefreshed: []
+        };
+
+        //Get the Contract alerts count
+        function getContractCountAlert() {
+            isRefreshUnVerifiedJob = true;
+            fnRefreshUnVerifiedJobCount();
+        };
+        function fnRefreshUnVerifiedJobCount(callback) {
+            if (currentFacilityId != 0 && isModelComparisionReportLoading == false) { // !isModelComparisionReportLoading, not to call while model comparison report is getting data from server - bug fix 7547-issue6)
+                callbackJob = callback
+                ajaxRequestHandler({
+                    type: 'GET',
+                    async: false,
+                    cache: false,
+                    global: false,
+                    contentType: "application/json; charset=utf-8",
+                    dataType: 'json',
+                    url: '@Url.Action("GetAllJobsAlertCount", "JobData", new { area = "Adjudication" })',
+                    fnSuccess: OnGetAllJobsAlertCountSuccess
+                });
+            }
+        }
+
+        function OnGetAllJobsAlertCountSuccess(result) {
+            var array = result.data.split('-');
+            //for job status count
+            if (array[0] == 0) {
+                $('#job-count').hide();
+                $('#job-count-jobstab').hide();
+
+            } else if (array[0] > 0) {
+                $('#job-count').show();
+                $('#job-count-jobstab').show();
+                $("#job-count").text('(' + array[0] + ')');
+                $("#job-count-jobstab").text('(' + array[0] + ')');
+            }
+            if (callbackJob != null) {
+                callback();
+            }
+            isJobCountRefreshed = true;
+
+            //for contract alert count
+            if (array[1] == 0) {
+                $('#list-alert-count').hide();
+            } else if (array[1] > 0) {
+                $('#list-alert-count').show();
+                $('#list-alert-count').text('(' + array[1] + ')');
+            }
+            //isTotalCountRefreshed = true;
+            if (alertStatusVariables.IsAutoRefreshEnabled.toLowerCase() == "true") {
+                if (alertStatusVariables.alertAutoRefreshed.length > 0) {
+                    $.each(alertStatusVariables.alertAutoRefreshed, function (i, item) {
+                        clearTimeout(item);
+                    });
+                    alertStatusVariables.alertAutoRefreshed = [];
+                }
+                var timer = setTimeout(fnRefreshUnVerifiedJobCount, alertStatusVariables.alertRefreshTime);
+                alertStatusVariables.alertAutoRefreshed.push(timer);
+            }
+        }
+        var isRefreshUnVerifiedJob = false;
+
+        $(document).ready(function () {
+            var loaderimagepath = '';
+            loaderimagepath = '@Url.Content("~/Content/images/loader.gif")';
+            var options = {
+                Loaderimagepath: loaderimagepath
+            };
+            AjaxGlobalHandler.Initiate(options);
+            isRefreshUnVerifiedJob = true;
+            fnRefreshUnVerifiedJobCount();
+            if (currentFacilityId == 0) {
+                DisableMenuBar();
+                $("#treeFacilityHeader").html(currentFacilityName)
+            } else {
+                GetFacilityMedicareDetails();
+                $("#treeFacilityHeader").html(currentFacilityName)
+            }
+            //if auto refresh switch flag on then setInerval
+            if (alertStatusVariables.IsAutoRefreshEnabled.toLowerCase() == "true") {
+                var connection = setInterval(function () {
+                    var online = window.navigator.onLine;
+                    if (!online) {
+                        window.location.href = '@Url.Action("Login", "Account", new {area = ""})';
+                    }
+                }, checkInternetInterval);
+            }
+        });
+    </script>
+    <script id="newcustomalert" type="text/x-kendo-template">
+        <div>
+            <p class="alert-msg"></p>
+        </div>
+
+        <div class="btn-conform">
+            <input type="button" style="display:none" class="k-button OK-confirm" value="OK" />
+            <input type="button" style="display:none" class="k-button cancel-confirm" value="Cancel" />
+        </div>
+    </script>
+</body>
+</html>
