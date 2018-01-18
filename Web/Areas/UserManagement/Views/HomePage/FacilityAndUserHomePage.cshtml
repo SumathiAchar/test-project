@@ -1,0 +1,40 @@
+@{
+   Layout = "~/Views/Shared/_Layout.cshtml";
+}
+    
+<script>
+    $(document).ready(function () {
+        $('#cms-admin-menu-bar').show();
+        $("#cms-menu-bar").hide();
+        $("#tool-container-left").show();
+        $("#tool-container-left").html('<div id="main-content-logo"></div>');
+        $("#main-content-logo").show();
+        $("#tool-container-left").addClass('tool-manage-container');
+        $("#main-content-logo").css({ "display": "block" });
+        $("#main-content-logo").show();
+        $(".sublist-lbl-small-ssi-logo").hide();
+        $(".sublist-user-login").show();
+        $(".sublist-navigate").hide();
+        $(".sublist-administration").hide();
+        $('.tree-header').hide();
+        $(".tree-user-management-header").show();
+        $(".tree-user-management-header").html('');
+        $(".tree-user-management-header").html('Administration');
+        $("#contract-name-container").hide();
+        $("#automation-button").hide();
+        $("#main-content .tree-header").hide();
+        $("#tree-view").hide();
+        $("#main-content-logo").hide();
+        $("aside").addClass("aside-user-management-container");
+        $(".k-animation-container").css({ "display": "none" });
+        $("#tree-view").hide();
+        $("#treeview-loader").hide();
+        if (userTypeId == userRoles.CmAdmin) {
+            $(".sublist-administration").show();
+        }
+        $("#main-content").css({
+            "float": "left !important", "height": "552px", "border": "none", "width": "79%"
+        });
+       
+    });
+</script>
