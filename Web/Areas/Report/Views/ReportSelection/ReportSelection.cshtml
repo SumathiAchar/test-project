@@ -1,0 +1,117 @@
+﻿@using System.Configuration
+@using SSI.ContractManagement.Shared.Helpers
+<!--[if gte IE 8]>
+ <script src="@Url.Content("~/Content/js/DateTimePickerPlaceholder.js")" type="text/javascript"></script>
+<![endif]-->
+
+<script src="@Url.Content("~/Content/js/bootstrap/bootstrap-datepicker.js")" type="text/javascript"></script>
+<link href="@Url.Content("~/Content/css/bootstrap/bootstrap-datepicker.css")" rel="stylesheet" type="text/css" />
+
+@model  SSI.ContractManagement.Web.Areas.Adjudication.Models.SelectClaimsViewModel
+@{
+    Layout = null;
+}
+
+<div id="report-container">
+
+    <div id="container-reportselection">
+        <input type="hidden" name="hiddenModuleId" id="hiddenModuleId"
+               data-bind="value: ModuleId" />
+        <label>
+            Select Report<span class="cms-requiredfields" id="select-report-error">*</span>:
+        </label>
+        <input id="ddl-report-names" class="cms-w210" tabindex="1" onchange="ValidateReport();" />
+        <span>
+            <label id="lbl-select-reporttype">
+                Select Report Type<span class="cms-requiredfields" id="select-report-type-error">*</span>:
+            </label>
+            <input id="ddl-file-generator" tabindex="2" />
+            <input type="hidden" name="hiddenServiceLineClaimFieldandTablesServiceLineTypeId"
+                   id="hidden-report-selection" data-bind="value: facilityid" />
+        </span>
+        <span id="divLetterSelection">
+            <label id="lblTemplate">
+                Template<span class="cms-requiredfields" id="selectTemplate">*</span>:
+            </label>
+            <input id="ddlLetterTemplate" class="cms-w210" tabindex="2" />
+        </span>
+        <div id="reportselection">
+            <label id="lbl-select-model">Contract Model<span class="cms-requiredfields" id="report-model-error">*</span>:</label>
+            <input id="ddl-contract-model" class="cms-w210" tabindex="3" />
+        </div>
+        <div>
+            <label>Report at<span class="cms-requiredfields" id="report-at-error"></span>:</label>
+            <input id="ddl-report-level" class="cms-w210" tabindex="4" />
+        </div>
+        <div>
+            <label>Date Type:</label>
+            <input id="ddl-date-type" class="cms-w210" tabindex="5" onchange="onChangeForDateType()" />
+            <br />
+            <label>Report Date From:</label>
+            <input id="report-date-from" class="from_date customdate" tabindex="6" data-role="datepicker" maxlength="10" placeholder="mm/dd/yyyy" data-bind="value: currentDate" />
+            <label id="tolab">To:</label>
+            <input id="report-date-to" class="to_date customdate" tabindex="7" data-role="datepicker" maxlength="10" placeholder="mm/dd/yyyy" />
+        </div>
+        <div>
+            <label>Claim Field:</label>
+            <input id="ddl-claim-field" class="cms-w210" tabindex="8" onchange="ShowOperator()" />
+            <input id="ddl-operator" tabindex="9" />
+            <label id="vallab">Values:</label>
+            <input id="txt-values" type="text" class="k-textbox" tabindex="9" onkeyup='filterText(this);' />
+            <input id="ddl-review-claims" tabindex="10" />
+            <input id="ddl-adjrequest-names" tabindex="10" />
+            <input id="ddl-payer-names" tabindex="10" />
+            <input id="ddl-contract-names-adjudicated" tabindex="10" />
+            <label class="customSavedQuery">Saved Queries:</label>
+            <input id="ddl-select-query" /> 
+        </div>
+        <input id="btn-addreportcriteria" tabindex="11" type="image" src="@Url.Content("~/Content/images/Arrow Down.png")" width="33" value="" />
+        &nbsp;
+        <label>
+            Add
+        </label>
+        <div id="grid-reportcriteria" tabindex="12">
+        </div>
+
+        <div class="btn-save-close report-generate">
+            <input id="btn-delete-query" tabindex="14" value="Delete Query" class="k-button" type="button" onclick="deleteQueryName();" />
+            <input id="btn-save-query" tabindex="14" value="Save Query" class="k-button" type="button" onclick="saveQuery();" />
+            <input id="btn-generate-report" tabindex="13" value="Generate Report" class="k-button" type="button" onclick="generateReport(this);" />
+
+        </div>
+        <div id="form-adjudication" class="cms-w210">
+        </div>
+        <div id="form-modeling" class="cms-w210">
+        </div>
+        <div id="form-model-compare" class="model-compare">
+        </div>
+        <div id="query-name-popup">
+        </div>
+    </div>
+</div>
+<script type="text/javascript">
+    $('#myIframe').load(function () {
+        $('#myIframe').contents().find("head").append($("<style type='text/css'> body { margin: 0px; } </style>"));
+    });
+
+    viewModelReportSelection = kendo.observable({
+        ModuleId: '@Model.ModuleId'
+    });
+
+    var reportVariables = {
+        pdf: '@Enums.DownloadFileType.Pdf',
+        largeCriteriaMessage: '@Constants.LargeCriteriaMessage',
+        maxRecordLimitForTelericReport: '@GlobalConfigVariable.MaxRecordLimitForTelericReport',
+        maxRecordLimitForExcelReport: '@GlobalConfigVariable.MaxRecordLimitForExcelReport',
+        reportThreshold: '@Constants.ReportThreshold',
+        emptyReportResult: '@Constants.EmptyReportResult',
+        payerMappingReportFileBaseName: '@Constants.PayerMappingReportFileBaseName',
+        appealLetterFileBaseName: '@Constants.AppealLetterFileBaseName',
+        rtf: '@Enums.DownloadFileType.Rtf',
+        maxNoOfDataForLetters: '@GlobalConfigVariable.MaxNoOfDataForLetters'
+    };
+</script>
+
+
+
+<script src="@Url.Content("~/Content/js/ReportSelection.js")" type="text/javascript"></script>
