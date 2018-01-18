@@ -1,0 +1,28 @@
+﻿@model  SSI.ContractManagement.Web.Areas.UserManagement.Models.UserViewModel
+@using SSI.ContractManagement.Shared.Helpers
+@{
+    Layout = null;
+}
+<br />
+<div id="userView">
+    <input id="btn-add-user" value="Add User" class="k-button " type="button" />
+    <div id="choosefacility">
+        <label class="k-label">Display users for facility:</label>
+        <input id="listof-facility-field" class="cms-w210" />
+    </div>
+    <div id="user-templates">
+        <div id="user-grid">
+        </div>
+    </div>
+</div>
+<div id="create-user-popup"></div>
+<script>
+    var defaultPageSize = '@GlobalConfigVariable.AlertPageSize';
+    var selectedFacilityId = '@Model.FacilityId';
+</script>
+<script src="@Url.Content("~/Areas/UserManagement/JavaScript/User.js")" type="text/javascript"></script>
+<script id="users-template" type="text/x-kendo-template">
+    <span> <img src="@Url.Content("~/Content/images/edit.png")" style="cursor:pointer" data-userid='#=UserId#' alt="Edit users" title="Edit" width="23" class='Clicktoplay k-grid-edit' id="EditUsersTemplate" /> </span>
+    <span> <img src='@Url.Content("~/Content/images/cancel.png")' data-userid='#=UserId#' style='cursor:pointer; z-index:10000;' class='Clicktoplay k-grid-cancel' alt='Delete' title='Delete' width='23' /></span>
+
+</script>
