@@ -1,0 +1,32 @@
+﻿@using SSI.ContractManagement.Shared.Helpers
+@{
+    Layout = null;
+}
+<br />
+<div id="facilityView">
+    <div class="facility-top">
+        <input id="btn-add-facility" tabindex="13" value="Add Facility" class="k-button" type="button" />
+        <div class="hide-disable-checkbox">
+            <label class="checkboxenabled"><input id="ckhhidedisabled" type="checkbox" /> Hide Disabled</label>
+</div>
+    </div>
+    <div id="facility-templates">
+        <div id="facility-grid" class="facility-grid">
+        </div>
+    </div>
+</div>
+<div id="create-facility-popup"></div>
+
+<script type="text/javascript">
+    //FIXED-RAGINI-FEB16 Why Javascript and html is mixed here. Everywhere we have followed the concept of keeping javascript
+    //in a separate file why it is not followed here - FIXED
+    var gridPageSize = '@GlobalConfigVariable.AlertPageSize'
+</script>
+<script src="@Url.Content("~/Areas/UserManagement/JavaScript/FacilityList.js")" type="text/javascript"></script>
+<script id="facility-template" type="text/x-kendo-template">
+    <span> <img src="@Url.Content("~/Content/images/edit.png")" style="cursor:pointer" data-facilityid='#=FacilityId#' alt="Edit Facility" title="Edit" width="23" class='Clicktoplay k-grid-edit' id="EditFacilityTemplate" /> </span>
+    # if(userTypeId == userRoles.SsiAdmin) { #
+    <span> <img src='@Url.Content("~/Content/images/cancel.png")' data-facilityid='#=FacilityId#' style='cursor:pointer; z-index:10000;' class='Clicktoplay k-grid-cancel' alt='Delete' title='Delete' width='23' /></span>
+    #}#
+    <span> <img src="@Url.Content("~/Content/images/profile.png")" style="cursor:pointer" data-facilityid='#=FacilityId#' alt="Manage Users" title="Manage Users" width="23" class='Clicktoplay k-grid-preview' /> </span>
+</script>
