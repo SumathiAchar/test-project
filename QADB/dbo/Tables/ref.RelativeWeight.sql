@@ -1,0 +1,8 @@
+﻿CREATE TABLE [dbo].[ref.RelativeWeight](
+	[RelativeWeightID] [bigint] NOT NULL,
+	[Description] [varchar](100) NULL,
+PRIMARY KEY CLUSTERED 
+(
+	[RelativeWeightID] ASC
+)WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+) ON [PRIMARY]
